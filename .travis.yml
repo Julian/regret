@@ -17,3 +17,8 @@ script:
 
 after_success:
 - tox -e codecov
+
+addons:
+  apt:
+    packages:
+    - libenchant-dev
