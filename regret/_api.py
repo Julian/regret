@@ -16,9 +16,9 @@ class Deprecator(object):
 
     def callable(self):
         def deprecate(thing):
-            def call_deprecated():
+            def call_deprecated(*args, **kwargs):
                 self.emit_deprecation(object=thing)
-                return thing()
+                return thing(*args, **kwargs)
             return call_deprecated
         return deprecate
 
