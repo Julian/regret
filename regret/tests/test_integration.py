@@ -1,22 +1,21 @@
-from unittest import TestCase
+import warnings
 
-from regret import EmittedDeprecation, Deprecator
-from regret.testing import Recorder
+from twisted.trial.unittest import SynchronousTestCase
+
+import regret
 
 
-class TestRegret(TestCase):
-    def setUp(self):
-        self.recorder = Recorder()
-        self.regret = Deprecator(emit=self.recorder.emit)
+@regret.callable()
+def calculate():
+    return 12
 
+
+class TestRegret(SynchronousTestCase):
     def test_function(self):
-        @self.regret.callable()
-        def calculate():
-            return 12
-
-        self.assertEqual(
-            (calculate(), self.recorder), (
-                12,
-                Recorder(saw=[EmittedDeprecation()]),
-            ),
+        result = self.assertWarns(
+            message="'regret.tests.test_integration.calculate' is deprecated.",
+            category=DeprecationWarning,
+            filename=__file__,
+            f=calculate,
         )
+        self.assertEqual(result, 12)

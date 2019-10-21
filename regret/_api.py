@@ -1,3 +1,4 @@
+from twisted.python.reflect import fullyQualifiedName as qualname
 import attr
 
 from regret import _warnings
@@ -8,13 +9,15 @@ class Deprecator(object):
 
     _emit = attr.ib(default=_warnings.emit)
 
-    def emit(self, **kwargs):
+    def emit_deprecation(self, **kwargs):
         self._emit(EmittedDeprecation(**kwargs))
+
+    # -- Deprecatable objects --
 
     def callable(self):
         def deprecate(thing):
             def call_deprecated():
-                self.emit()
+                self.emit_deprecation(object=thing)
                 return thing()
             return call_deprecated
         return deprecate
@@ -22,7 +25,11 @@ class Deprecator(object):
 
 @attr.s(eq=True, frozen=True, hash=True)
 class EmittedDeprecation(object):
-    pass
+
+    _object = attr.ib()
+
+    def message(self):
+        return "{!r} is deprecated.".format(qualname(self._object))
 
 
 _DEPRECATOR = Deprecator()
