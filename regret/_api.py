@@ -1,4 +1,4 @@
-from twisted.python.reflect import fullyQualifiedName as qualname
+from qualname import qualname
 import attr
 
 from regret import _warnings

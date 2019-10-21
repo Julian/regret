@@ -30,3 +30,21 @@ class TestRegret(TestCase):
                 Recorder(saw=[EmittedDeprecation(object=add)]),
             ),
         )
+
+    def test_method(self):
+        class Calculator(object):
+            def _calculate(self):
+                return 12
+
+            calculate = self.regret.callable()(_calculate)
+
+        unbound = getattr(
+            Calculator._calculate, "im_func", Calculator._calculate,
+        )
+
+        self.assertEqual(
+            (Calculator().calculate(), self.recorder), (
+                12,
+                Recorder(saw=[EmittedDeprecation(object=unbound)]),
+            ),
+        )

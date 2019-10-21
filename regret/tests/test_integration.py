@@ -5,6 +5,12 @@ from twisted.trial.unittest import SynchronousTestCase
 import regret
 
 
+class Calculator(object):
+    @regret.callable()
+    def calculate(self):
+        return 12
+
+
 @regret.callable()
 def calculate():
     return 12
@@ -30,7 +36,7 @@ class TestRegret(SynchronousTestCase):
 
     def test_function(self):
         result = self.assertDeprecated(
-            message="'regret.tests.test_integration.calculate' is deprecated.",
+            message="'calculate' is deprecated.",
             filename=__file__,
             fn=calculate,
         )
@@ -38,10 +44,20 @@ class TestRegret(SynchronousTestCase):
 
     def test_function_with_args(self):
         result = self.assertDeprecated(
-            message="'regret.tests.test_integration.add' is deprecated.",
+            message="'add' is deprecated.",
             filename=__file__,
             fn=add,
             args=(9,),
             kwargs=dict(y=3),
+        )
+        self.assertEqual(result, 12)
+
+    def test_method(self):
+        calculator = Calculator()
+        result = self.assertWarns(
+            message="'Calculator.calculate' is deprecated.",
+            category=DeprecationWarning,
+            filename=__file__,
+            f=calculator.calculate,
         )
         self.assertEqual(result, 12)
