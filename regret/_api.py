@@ -1,3 +1,5 @@
+from functools import wraps
+
 from qualname import qualname
 import attr
 
@@ -16,6 +18,7 @@ class Deprecator(object):
 
     def callable(self):
         def deprecate(thing):
+            @wraps(thing)
             def call_deprecated(*args, **kwargs):
                 self.emit_deprecation(object=thing)
                 return thing(*args, **kwargs)
