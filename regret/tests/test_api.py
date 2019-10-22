@@ -85,3 +85,21 @@ class TestRegret(TestCase):
                 Calculator._calculate.__doc__,
             ),
         )
+
+    def test_dunder_call(self):
+        class Calculator(object):
+            def _calculate(self):
+                return 12
+
+            __call__ = self.regret.callable()(_calculate)
+
+        unbound = getattr(
+            Calculator._calculate, "im_func", Calculator._calculate,
+        )
+
+        self.assertEqual(
+            (Calculator()(), self.recorder), (
+                12,
+                Recorder(saw=[EmittedDeprecation(object=unbound)]),
+            ),
+        )

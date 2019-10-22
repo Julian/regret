@@ -7,6 +7,10 @@ import regret
 
 class Calculator(object):
     @regret.callable()
+    def __call__(self):
+        return 12
+
+    @regret.callable()
     def calculate(self):
         return 12
 
@@ -58,5 +62,14 @@ class TestRegret(SynchronousTestCase):
             message="'Calculator.calculate' is deprecated.",
             filename=__file__,
             fn=calculator.calculate,
+        )
+        self.assertEqual(result, 12)
+
+    def test_dunder_call(self):
+        calculator = Calculator()
+        result = self.assertDeprecated(
+            message="'Calculator.__call__' is deprecated.",
+            filename=__file__,
+            fn=calculator,
         )
         self.assertEqual(result, 12)
