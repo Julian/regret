@@ -25,6 +25,11 @@ def add(x, y):
     return x + y
 
 
+@regret.callable(replacement=Calculator)
+def calculator_fn():
+    return 9
+
+
 class TestRegret(SynchronousTestCase):
     def assertDeprecated(self, message, filename, fn, args=(), kwargs={}):
         # Sigh... assertWarns takes positional args positionally, instead of as
@@ -55,6 +60,17 @@ class TestRegret(SynchronousTestCase):
             kwargs=dict(y=3),
         )
         self.assertEqual(result, 12)
+
+    def test_function_with_replacement(self):
+        result = self.assertDeprecated(
+            message=(
+                "'calculator_fn' is deprecated. "
+                "Please use 'Calculator' instead."
+            ),
+            filename=__file__,
+            fn=calculator_fn,
+        )
+        self.assertEqual(result, 9)
 
     def test_method(self):
         calculator = Calculator()

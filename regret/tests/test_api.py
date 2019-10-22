@@ -36,6 +36,21 @@ class TestRegret(TestCase):
             ),
         )
 
+    def test_function_with_replacement(self):
+        self.assertEqual(
+            (
+                self.regret.callable(replacement=add)(calculate)(),
+                self.recorder,
+            ), (
+                12,
+                Recorder(
+                    saw=[
+                        EmittedDeprecation(object=calculate, replacement=add),
+                    ],
+                ),
+            ),
+        )
+
     def test_function_is_wrapped(self):
         deprecated = self.regret.callable()(calculate)
         self.assertEqual(
