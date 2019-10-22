@@ -54,10 +54,9 @@ class TestRegret(SynchronousTestCase):
 
     def test_method(self):
         calculator = Calculator()
-        result = self.assertWarns(
+        result = self.assertDeprecated(
             message="'Calculator.calculate' is deprecated.",
-            category=DeprecationWarning,
             filename=__file__,
-            f=calculator.calculate,
+            fn=calculator.calculate,
         )
         self.assertEqual(result, 12)
