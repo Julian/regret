@@ -22,7 +22,10 @@ class TestRegret(TestCase):
 
     def test_function(self):
         self.assertEqual(
-            (self.regret.callable()(calculate)(), self.recorder), (
+            (
+                self.regret.callable(version="1.2.3")(calculate)(),
+                self.recorder,
+            ), (
                 12,
                 Recorder(saw=[EmittedDeprecation(object=calculate)]),
             ),
@@ -30,7 +33,10 @@ class TestRegret(TestCase):
 
     def test_function_with_args(self):
         self.assertEqual(
-            (self.regret.callable()(add)(9, y=3), self.recorder), (
+            (
+                self.regret.callable(version="1.2.3")(add)(9, y=3),
+                self.recorder,
+            ), (
                 12,
                 Recorder(saw=[EmittedDeprecation(object=add)]),
             ),
@@ -39,7 +45,10 @@ class TestRegret(TestCase):
     def test_function_with_replacement(self):
         self.assertEqual(
             (
-                self.regret.callable(replacement=add)(calculate)(),
+                self.regret.callable(
+                    version="1.2.3",
+                    replacement=add,
+                )(calculate)(),
                 self.recorder,
             ), (
                 12,
@@ -52,7 +61,7 @@ class TestRegret(TestCase):
         )
 
     def test_function_is_wrapped(self):
-        deprecated = self.regret.callable()(calculate)
+        deprecated = self.regret.callable(version="1.2.3")(calculate)
         self.assertEqual(
             (calculate.__name__, calculate.__doc__),
             (deprecated.__name__, deprecated.__doc__),
@@ -63,7 +72,7 @@ class TestRegret(TestCase):
             def _calculate(self):
                 return 12
 
-            calculate = self.regret.callable()(_calculate)
+            calculate = self.regret.callable(version="1.2.3")(_calculate)
 
         unbound = getattr(
             Calculator._calculate, "im_func", Calculator._calculate,
@@ -84,7 +93,7 @@ class TestRegret(TestCase):
                 """
                 return 12
 
-            calculate = self.regret.callable()(_calculate)
+            calculate = self.regret.callable(version="1.2.3")(_calculate)
 
         self.assertEqual(
             (
@@ -106,7 +115,7 @@ class TestRegret(TestCase):
             def _calculate(self):
                 return 12
 
-            __call__ = self.regret.callable()(_calculate)
+            __call__ = self.regret.callable(version="1.2.3")(_calculate)
 
         unbound = getattr(
             Calculator._calculate, "im_func", Calculator._calculate,

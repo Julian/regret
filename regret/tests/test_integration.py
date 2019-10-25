@@ -6,26 +6,26 @@ import regret
 
 
 class Calculator(object):
-    @regret.callable()
+    @regret.callable(version="1.2.3")
     def __call__(self):
         return 12
 
-    @regret.callable()
+    @regret.callable(version="1.2.3")
     def calculate(self):
         return 12
 
 
-@regret.callable()
+@regret.callable(version="1.2.3")
 def calculate():
     return 12
 
 
-@regret.callable()
+@regret.callable(version="1.2.3")
 def add(x, y):
     return x + y
 
 
-@regret.callable(replacement=Calculator)
+@regret.callable(version="1.2.3", replacement=Calculator)
 def calculator_fn():
     return 9
 

@@ -16,7 +16,24 @@ class Deprecator(object):
 
     # -- Deprecatable objects --
 
-    def callable(self, replacement=None):
+    def callable(self, version, replacement=None):
+        """
+        Deprecate a callable as of the given version.
+
+        Arguments:
+
+            version:
+
+                the first version in which the deprecated object was considered
+                deprecated
+
+            replacement:
+
+                optionally, an object that is the (direct or indirect)
+                replacement for the functionality previously performed
+                by the deprecated callable
+        """
+
         def deprecate(thing):
             @wraps(thing)
             def call_deprecated(*args, **kwargs):
