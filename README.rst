@@ -27,6 +27,10 @@ regret
 ``Regret`` is a library for deprecating functionality in Python
 libraries and applications.
 
+Its documentation lives on `Read the Docs
+<https://regret.readthedocs.io/en/stable/>`_.
+
+
 Design Goals
 ------------
 
