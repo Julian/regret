@@ -1,4 +1,5 @@
 from functools import wraps
+from textwrap import dedent
 
 from qualname import qualname
 import attr
@@ -39,6 +40,13 @@ class Deprecator(object):
             def call_deprecated(*args, **kwargs):
                 self.emit_deprecation(object=thing, replacement=replacement)
                 return thing(*args, **kwargs)
+
+            call_deprecated.__doc__ = dedent(thing.__doc__ or "") + dedent(
+                """
+                .. deprecated:: {version}
+                """.format(version=version),
+            )
+
             return call_deprecated
         return deprecate
 

@@ -1,3 +1,4 @@
+from textwrap import dedent
 from unittest import TestCase
 
 from regret import EmittedDeprecation, Deprecator
@@ -42,6 +43,18 @@ class TestRegret(TestCase):
             ),
         )
 
+    def test_function_gets_deprecation_notice_in_docstring(self):
+        deprecated = self.regret.callable(version="v2.3.4")(calculate)
+        self.assertEqual(
+            deprecated.__doc__, dedent(
+                """
+                Perform a super important calculation.
+
+                .. deprecated:: v2.3.4
+                """,
+            )
+        )
+
     def test_function_with_replacement(self):
         self.assertEqual(
             (
@@ -62,10 +75,7 @@ class TestRegret(TestCase):
 
     def test_function_is_wrapped(self):
         deprecated = self.regret.callable(version="1.2.3")(calculate)
-        self.assertEqual(
-            (calculate.__name__, calculate.__doc__),
-            (deprecated.__name__, deprecated.__doc__),
-        )
+        self.assertEqual(calculate.__name__, deprecated.__name__)
 
     def test_method(self):
         class Calculator(object):
@@ -98,15 +108,38 @@ class TestRegret(TestCase):
         self.assertEqual(
             (
                 Calculator.calculate.__name__,
-                Calculator.calculate.__doc__,
                 Calculator().calculate.__name__,
-                Calculator().calculate.__doc__,
             ),
             (
                 Calculator._calculate.__name__,
-                Calculator._calculate.__doc__,
                 Calculator._calculate.__name__,
-                Calculator._calculate.__doc__,
+            ),
+        )
+
+    def test_method_gets_deprecation_notice_in_docstring(self):
+        class Calculator(object):
+            def _calculate(self):
+                """
+                Perform a super important calculation.
+                """
+                return 12
+
+            calculate = self.regret.callable(version="4.5.6")(_calculate)
+
+        expected = """
+        Perform a super important calculation.
+
+        .. deprecated:: 4.5.6
+        """
+
+        self.assertEqual(
+            (
+                Calculator.calculate.__doc__,
+                Calculator().calculate.__doc__,
+            ),
+            (
+                dedent(expected),
+                dedent(expected),
             ),
         )
 
