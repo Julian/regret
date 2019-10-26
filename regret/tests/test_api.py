@@ -55,6 +55,15 @@ class TestRegret(TestCase):
             )
         )
 
+    def test_function_with_no_docstring_does_not_get_deprecation_notice(self):
+        """
+        If you're too lazy to add docstrings I ain't helping you.
+        """
+        def calculate():
+            return 12
+        deprecated = self.regret.callable(version="v2.3.4")(calculate)
+        self.assertIsNone(deprecated.__doc__)
+
     def test_function_with_replacement(self):
         self.assertEqual(
             (

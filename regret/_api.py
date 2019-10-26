@@ -41,11 +41,13 @@ class Deprecator(object):
                 self.emit_deprecation(object=thing, replacement=replacement)
                 return thing(*args, **kwargs)
 
-            call_deprecated.__doc__ = dedent(thing.__doc__ or "") + dedent(
-                """
-                .. deprecated:: {version}
-                """.format(version=version),
-            )
+            __doc__ = thing.__doc__
+            if __doc__ is not None:
+                call_deprecated.__doc__ = dedent(__doc__) + dedent(
+                    """
+                    .. deprecated:: {version}
+                    """.format(version=version),
+                )
 
             return call_deprecated
         return deprecate
