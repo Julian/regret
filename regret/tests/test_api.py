@@ -86,6 +86,43 @@ class TestRegret(TestCase):
         deprecated = self.regret.callable(version="1.2.3")(calculate)
         self.assertEqual(calculate.__name__, deprecated.__name__)
 
+    def test_original_functions_are_not_mutated(self):
+        """
+        Deprecating a function in one spot does not mutate the original.
+
+        Any existing references are unchanged.
+        """
+
+        def original():
+            "Original function docstring."
+
+        original.something = 12
+        self.assertEqual(
+            (
+                original.__name__,
+                original.__doc__,
+                getattr(original, "__dict__", {}),
+            ), (
+                "original",
+                "Original function docstring.",
+                {"something": 12},
+            ),
+        )
+
+        self.regret.callable(version="1.2.3")(original)
+
+        self.assertEqual(
+            (
+                original.__name__,
+                original.__doc__,
+                getattr(original, "__dict__", {}),
+            ), (
+                "original",
+                "Original function docstring.",
+                {"something": 12},
+            ),
+        )
+
     def test_method(self):
         class Calculator(object):
             def _calculate(self):
@@ -149,6 +186,33 @@ class TestRegret(TestCase):
             (
                 dedent(expected),
                 dedent(expected),
+            ),
+        )
+
+    def test_original_methods_are_not_mutated(self):
+        """
+        Deprecating a method in one spot does not mutate the original.
+
+        Any existing references are unchanged.
+        """
+
+        class Class(object):
+            def method(self):
+                "Original method docstring."
+
+            method.something = 12
+
+            deprecated = self.regret.callable(version="4.5.6")(method)
+
+        self.assertEqual(
+            (
+                Class.method.__name__,
+                Class.method.__doc__,
+                getattr(Class.method, "__dict__", {}),
+            ), (
+                "method",
+                "Original method docstring.",
+                {"something": 12},
             ),
         )
 
