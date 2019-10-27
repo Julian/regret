@@ -104,3 +104,19 @@ class TestRegret(SynchronousTestCase):
             filename=__file__,
             fn=calculate,
         )
+
+    def test_custom_docstring_modifier(self):
+        deprecate = regret.Deprecator(
+            name_of=lambda object: "OBJECTNAME",
+            new_docstring=lambda object, name_of, version: (
+                object.__doc__ + name_of(object) + " deprecated in " + version
+            )
+        )
+        @deprecate.callable(version="v1.2.3")
+        def calculate():
+            "Very important docstring for "
+
+        self.assertEqual(
+            calculate.__doc__,
+            "Very important docstring for OBJECTNAME deprecated in v1.2.3",
+        )
