@@ -18,14 +18,22 @@ class Deprecator(object):
 
             a callable which will be called with one argument, an
             `EmittedDeprecation` instance, whenever a deprecated object
-            has been used. If unprovided, by default, a warning will be shown
-            using the standard library `warnings` module.
+            has been used. If unprovided, by default, a warning will be
+            shown using the standard library `warnings` module.
+
+        name_of:
+
+            a callable which given any Python object should
+            return a suitable name for the object. If unprovided,
+            `qualname.qualname` will be used, and therefore an object's
+            (non-fully-)qualified name will appear in messages.
     """
 
     _emit = attr.ib(default=_warnings.emit)
+    _name_of = attr.ib(default=qualname)
 
     def emit_deprecation(self, **kwargs):
-        self._emit(EmittedDeprecation(**kwargs))
+        self._emit(EmittedDeprecation(name_of=self._name_of, **kwargs))
 
     # -- Deprecatable objects --
 
@@ -69,6 +77,7 @@ class Deprecator(object):
 class EmittedDeprecation(object):
 
     _object = attr.ib()
+    _name_of = attr.ib(default=qualname)
     _replacement = attr.ib(default=None)
 
     def message(self):
@@ -76,10 +85,10 @@ class EmittedDeprecation(object):
             replacement_info = ""
         else:
             replacement_info = " Please use {!r} instead.".format(
-                qualname(self._replacement),
+                self._name_of(self._replacement),
             )
-        return "{qualname!r} is deprecated.{replacement_info}".format(
-            qualname=qualname(self._object),
+        return "{name!r} is deprecated.{replacement_info}".format(
+            name=self._name_of(self._object),
             replacement_info=replacement_info,
         )
 

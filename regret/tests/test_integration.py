@@ -1,5 +1,6 @@
 import warnings
 
+from qualname import qualname
 from twisted.trial.unittest import SynchronousTestCase
 
 import regret
@@ -89,3 +90,17 @@ class TestRegret(SynchronousTestCase):
             fn=calculator,
         )
         self.assertEqual(result, 12)
+
+    def test_custom_qualname(self):
+        etacerped = regret.Deprecator(
+            name_of=lambda object: object.__name__[::-1],
+        )
+        @etacerped.callable(version="v1.2.3")
+        def calculate():
+            return 12
+
+        result = self.assertDeprecated(
+            message="'etaluclac' is deprecated.",
+            filename=__file__,
+            fn=calculate,
+        )
