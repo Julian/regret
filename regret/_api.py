@@ -9,6 +9,18 @@ from regret import _warnings
 
 @attr.s(eq=True, frozen=True)
 class Deprecator(object):
+    """
+    Deprecators help manifest regret.
+
+    Arguments:
+
+        emit:
+
+            a callable which will be called with one argument, an
+            `EmittedDeprecation` instance, whenever a deprecated object
+            has been used. If unprovided, by default, a warning will be shown
+            using the standard library `warnings` module.
+    """
 
     _emit = attr.ib(default=_warnings.emit)
 
