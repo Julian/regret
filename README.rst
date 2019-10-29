@@ -31,6 +31,22 @@ Its documentation lives on `Read the Docs
 <https://regret.readthedocs.io/en/stable/>`_.
 
 
+Deprecations
+------------
+
+``Regret`` can deprecate:
+
+    - [x] callables
+        - [x] functions
+        - [ ] classes
+    - [ ] attributes
+    - [ ] descriptors
+        - [ ] classmethod
+    - [ ] modules
+    - [ ] arguments to callables
+        - [ ] mutual exclusion
+
+
 Design Goals
 ------------
 
