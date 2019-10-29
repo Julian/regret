@@ -84,6 +84,7 @@ class Deprecator(object):
                 call_deprecated.__doc__ = self._new_docstring(
                     object=thing,
                     name_of=self._name_of,
+                    replacement=replacement,
                     version=version,
                 )
 

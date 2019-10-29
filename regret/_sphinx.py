@@ -1,7 +1,7 @@
 from textwrap import dedent
 
 
-def doc_with_deprecated_directive(object, name_of, version):
+def doc_with_deprecated_directive(object, replacement, name_of, version):
     """
     Add a `deprecated` directive to the provided object's docstring.
 
