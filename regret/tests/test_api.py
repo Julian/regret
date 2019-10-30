@@ -5,6 +5,21 @@ from regret import EmittedDeprecation, Deprecator
 from regret.testing import Recorder
 
 
+class Adder(object):
+    """
+    Add things.
+    """
+
+    def __init__(self, x=12, y=0):
+        self.value = x + y
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __repr__(self):
+        return "<Adder {}>".format(self.value)
+
+
 def calculate():
     """
     Perform a super important calculation.
@@ -231,5 +246,113 @@ class TestRegret(TestCase):
             (Calculator()(), self.recorder), (
                 12,
                 Recorder(saw=[EmittedDeprecation(object=unbound)]),
+            ),
+        )
+
+    def test_class_via_callable(self):
+        self.assertEqual(
+            (
+                self.regret.callable(version="1.2.3")(Adder)(),
+                self.recorder,
+            ), (
+                Adder(),
+                Recorder(saw=[EmittedDeprecation(object=Adder)]),
+            ),
+        )
+
+    def test_class_with_args_via_callable(self):
+        self.assertEqual(
+            (
+                self.regret.callable(version="1.2.3")(Adder)(9, y=2),
+                self.recorder,
+            ), (
+                Adder(11),
+                Recorder(saw=[EmittedDeprecation(object=Adder)]),
+            ),
+        )
+
+    def test_class_via_callable_gets_deprecation_notice_in_docstring(self):
+        Deprecated = self.regret.callable(version="v2.3.4")(Adder)
+        self.assertEqual(
+            Deprecated.__doc__, dedent(
+                """
+                Add things.
+
+                .. deprecated:: v2.3.4
+                """,
+            )
+        )
+
+    def test_class_via_callable_with_no_docstring_does_not_get_notice(self):
+        """
+        If you're too lazy to add docstrings I ain't helping you.
+        """
+        @self.regret.callable(version="v2.3.4")
+        class Lazy(object):
+            pass
+        self.assertIsNone(Lazy.__doc__)
+
+    def test_class_via_callable_with_replacement(self):
+        class Subtractor(object):
+            pass
+
+        self.assertEqual(
+            (
+                self.regret.callable(
+                    version="1.2.3",
+                    replacement=Subtractor,
+                )(Adder)(),
+                self.recorder,
+            ), (
+                Adder(),
+                Recorder(
+                    saw=[
+                        EmittedDeprecation(
+                            object=Adder,
+                            replacement=Subtractor,
+                        ),
+                    ],
+                ),
+            ),
+        )
+
+    def test_class_via_callable_is_wrapped(self):
+        Deprecated = self.regret.callable(version="1.2.3")(Adder)
+        self.assertEqual(Adder.__name__, Deprecated.__name__)
+
+    def test_original_classes_are_not_mutated_via_callable(self):
+        """
+        Deprecating a class in one spot does not mutate the original.
+
+        Any existing references are unchanged.
+        """
+
+        class Original(object):
+            "Original class docstring."
+
+        Original.something = 12
+        self.assertEqual(
+            (
+                Original.__name__,
+                Original.__doc__,
+                getattr(Original, "something", None),
+            ), (
+                "Original",
+                "Original class docstring.",
+                12,
+            ),
+        )
+
+        self.regret.callable(version="1.2.3")(Original)
+
+        self.assertEqual(
+            (
+                Original.__name__,
+                Original.__doc__,
+                getattr(Original, "something", None),
+            ), (
+                "Original",
+                "Original class docstring.",
+                12,
             ),
         )

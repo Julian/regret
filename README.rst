@@ -38,7 +38,8 @@ Deprecations
 
     - [x] callables
         - [x] functions
-        - [ ] classes
+        - [x] classes
+            - [ ] subclassable classes
     - [ ] attributes
     - [ ] descriptors
         - [ ] classmethod
