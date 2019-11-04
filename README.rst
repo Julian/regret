@@ -40,6 +40,7 @@ Deprecations
         - [x] functions
         - [x] classes
             - [ ] subclassable classes
+            - [ ] old-style classes
     - [ ] attributes
     - [ ] descriptors
         - [ ] classmethod
