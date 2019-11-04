@@ -63,6 +63,9 @@ It is intended to:
 
     * be itself fully tested
 
+    * support removal date indication, and likely "policies" which automate
+      choosing default removal dates
+
     * minimize the amount of deprecation-related code required for authors
 
 In particular, as a lofty first milestone, it is intended to cover all
