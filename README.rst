@@ -46,6 +46,7 @@ Deprecations
     - [ ] modules
     - [ ] arguments to callables
         - [ ] mutual exclusion
+    - [ ] ``zope.interface``\s
 
 
 Design Goals
