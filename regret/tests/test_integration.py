@@ -31,6 +31,10 @@ def calculator_fn():
     return 9
 
 
+def divide():
+    return 7
+
+
 class TestRegret(SynchronousTestCase):
     def assertDeprecated(self, message, filename, fn, args=(), kwargs={}):
         # Sigh... assertWarns takes positional args positionally, instead of as
@@ -131,4 +135,35 @@ class TestRegret(SynchronousTestCase):
                 "OBJECTNAME deprecated in v1.2.3 "
                 "replaced by New hotness."
             ),
+        )
+
+    def test_addendum(self):
+        deprecated = regret.callable(
+            version="1.2.3",
+            addendum="Division is also terrible and we should all be friends.",
+        )(divide)
+
+        self.assertDeprecated(
+            message=(
+                "'divide' is deprecated. "
+                "Division is also terrible and we should all be friends."
+            ),
+            filename=__file__,
+            fn=deprecated,
+        )
+
+    def test_addendum_with_replacement(self):
+        deprecated = regret.callable(
+            version="1.2.3",
+            replacement=Calculator,
+            addendum="Division is also terrible and we should all be friends.",
+        )(divide)
+
+        self.assertDeprecated(
+            message=(
+                "'divide' is deprecated. Please use 'Calculator' instead. "
+                "Division is also terrible and we should all be friends."
+            ),
+            filename=__file__,
+            fn=deprecated,
         )

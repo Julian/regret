@@ -55,7 +55,7 @@ class Deprecator(object):
 
     # -- Deprecatable objects --
 
-    def callable(self, version, replacement=None):
+    def callable(self, version, replacement=None, addendum=None):
         """
         Deprecate a callable as of the given version.
 
@@ -71,12 +71,21 @@ class Deprecator(object):
                 optionally, an object that is the (direct or indirect)
                 replacement for the functionality previously performed
                 by the deprecated callable
+
+            addendum (str):
+
+                an optional additional message to include at the end of
+                warnings emitted for this deprecation
         """
 
         def deprecate(thing):
             @wraps(thing)
             def call_deprecated(*args, **kwargs):
-                self.emit_deprecation(object=thing, replacement=replacement)
+                self.emit_deprecation(
+                    object=thing,
+                    replacement=replacement,
+                    addendum=addendum,
+                )
                 return thing(*args, **kwargs)
 
             __doc__ = thing.__doc__
@@ -98,18 +107,19 @@ class EmittedDeprecation(object):
     _object = attr.ib()
     _name_of = attr.ib(default=qualname)
     _replacement = attr.ib(default=None)
+    _addendum = attr.ib(default=None)
 
     def message(self):
-        if self._replacement is None:
-            replacement_info = ""
-        else:
-            replacement_info = " Please use {!r} instead.".format(
-                self._name_of(self._replacement),
+        parts = ["{!r} is deprecated.".format(self._name_of(self._object))]
+        if self._replacement is not None:
+            parts.append(
+                "Please use {!r} instead.".format(
+                    self._name_of(self._replacement),
+                ),
             )
-        return "{name!r} is deprecated.{replacement_info}".format(
-            name=self._name_of(self._object),
-            replacement_info=replacement_info,
-        )
+        if self._addendum is not None:
+            parts.append(self._addendum)
+        return " ".join(parts)
 
 
 _DEPRECATOR = Deprecator()
