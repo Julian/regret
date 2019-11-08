@@ -323,6 +323,23 @@ class TestRegret(TestCase):
             )
         )
 
+    def test_class_via_callable_with_replacement_deprecation_docstring(self):
+        Deprecated = self.regret.callable(
+            version="v2.3.4",
+            replacement=Calculator,
+        )(Adder)
+        self.assertEqual(
+            Deprecated.__doc__, dedent(
+                """
+                Add things.
+
+                .. deprecated:: v2.3.4
+
+                    Please use `Calculator` instead.
+                """,
+            )
+        )
+
     def test_class_via_callable_with_no_docstring_does_not_get_notice(self):
         """
         If you're too lazy to add docstrings I ain't helping you.
