@@ -62,6 +62,11 @@ It is intended to:
       <https://en.wikipedia.org/wiki/Hipster_(contemporary_subculture)>`_,
       etc.)
 
+    * be documentation system agnostic, though potentially documentation
+      system aware (i.e. `Sphinx <https://www.sphinx-doc.org>`_,
+      `epydoc <https://en.wikipedia.org/wiki/Epydoc>`_, `Plaintext
+      <https://lmgtfy.com/?q=use+sphinx>`_, etc.)
+
     * be itself fully tested
 
     * support removal date indication, and likely "policies" which automate
