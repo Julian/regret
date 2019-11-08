@@ -3,6 +3,7 @@ from unittest import TestCase
 
 from regret import EmittedDeprecation, Deprecator
 from regret.testing import Recorder
+import regret
 
 
 class Adder(object):
@@ -29,6 +30,18 @@ def calculate():
 
 def add(x, y):
     return 12
+
+
+class Calculator(object):
+    def better(self):
+        return 13
+
+    @regret.callable(version="4.5.6", replacement=better)
+    def calculate(self):
+        """
+        12. Just 12.
+        """
+        return 12
 
 
 class TestRegret(TestCase):
@@ -220,6 +233,16 @@ class TestRegret(TestCase):
                 dedent(expected),
             ),
         )
+
+    def test_method_with_replacement_deprecation_notice_in_docstring(self):
+        expected = """
+        12. Just 12.
+
+        .. deprecated:: 4.5.6
+
+            Please use `Calculator.better` instead.
+        """
+        self.assertEqual(Calculator.calculate.__doc__, dedent(expected))
 
     def test_original_methods_are_not_mutated(self):
         """
