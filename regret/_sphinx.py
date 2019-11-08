@@ -8,4 +8,12 @@ def doc_with_deprecated_directive(object, replacement, name_of, version):
     Suitable for use with `regret.Deprecator`.
     """
 
-    return dedent(object.__doc__) + "\n.. deprecated:: {}\n".format(version)
+    parts = [
+        dedent(object.__doc__),
+        "\n.. deprecated:: {}\n".format(version),
+    ]
+    if replacement is not None:
+        parts.append(
+            "\n    Please use `{}` instead.\n".format(name_of(replacement)),
+        )
+    return "".join(parts)

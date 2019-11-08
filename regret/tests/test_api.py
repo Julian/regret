@@ -97,6 +97,23 @@ class TestRegret(TestCase):
             ),
         )
 
+    def test_function_with_replacement_deprecation_notice_in_docstring(self):
+        deprecated = self.regret.callable(
+            version="1.2.3",
+            replacement=add,
+        )(calculate)
+        self.assertEqual(
+            deprecated.__doc__, dedent(
+                """
+                Perform a super important calculation.
+
+                .. deprecated:: 1.2.3
+
+                    Please use `add` instead.
+                """,
+            )
+        )
+
     def test_function_is_wrapped(self):
         deprecated = self.regret.callable(version="1.2.3")(calculate)
         self.assertEqual(calculate.__name__, deprecated.__name__)
