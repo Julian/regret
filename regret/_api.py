@@ -110,10 +110,10 @@ class EmittedDeprecation(object):
     _addendum = attr.ib(default=None)
 
     def message(self):
-        parts = ["{!r} is deprecated.".format(self._name_of(self._object))]
+        parts = ["{} is deprecated.".format(self._name_of(self._object))]
         if self._replacement is not None:
             parts.append(
-                "Please use {!r} instead.".format(
+                "Please use {} instead.".format(
                     self._name_of(self._replacement),
                 ),
             )

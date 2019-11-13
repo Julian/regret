@@ -50,7 +50,7 @@ class TestRegret(SynchronousTestCase):
 
     def test_function(self):
         result = self.assertDeprecated(
-            message="'calculate' is deprecated.",
+            message="calculate is deprecated.",
             filename=__file__,
             fn=calculate,
         )
@@ -58,7 +58,7 @@ class TestRegret(SynchronousTestCase):
 
     def test_function_with_args(self):
         result = self.assertDeprecated(
-            message="'add' is deprecated.",
+            message="add is deprecated.",
             filename=__file__,
             fn=add,
             args=(9,),
@@ -69,8 +69,8 @@ class TestRegret(SynchronousTestCase):
     def test_function_with_replacement(self):
         result = self.assertDeprecated(
             message=(
-                "'calculator_fn' is deprecated. "
-                "Please use 'Calculator' instead."
+                "calculator_fn is deprecated. "
+                "Please use Calculator instead."
             ),
             filename=__file__,
             fn=calculator_fn,
@@ -80,7 +80,7 @@ class TestRegret(SynchronousTestCase):
     def test_method(self):
         calculator = Calculator()
         result = self.assertDeprecated(
-            message="'Calculator.calculate' is deprecated.",
+            message="Calculator.calculate is deprecated.",
             filename=__file__,
             fn=calculator.calculate,
         )
@@ -89,7 +89,7 @@ class TestRegret(SynchronousTestCase):
     def test_dunder_call(self):
         calculator = Calculator()
         result = self.assertDeprecated(
-            message="'Calculator.__call__' is deprecated.",
+            message="Calculator.__call__ is deprecated.",
             filename=__file__,
             fn=calculator,
         )
@@ -104,7 +104,7 @@ class TestRegret(SynchronousTestCase):
             return 12
 
         result = self.assertDeprecated(
-            message="'etaluclac' is deprecated.",
+            message="etaluclac is deprecated.",
             filename=__file__,
             fn=calculate,
         )
@@ -145,7 +145,7 @@ class TestRegret(SynchronousTestCase):
 
         self.assertDeprecated(
             message=(
-                "'divide' is deprecated. "
+                "divide is deprecated. "
                 "Division is also terrible and we should all be friends."
             ),
             filename=__file__,
@@ -161,7 +161,7 @@ class TestRegret(SynchronousTestCase):
 
         self.assertDeprecated(
             message=(
-                "'divide' is deprecated. Please use 'Calculator' instead. "
+                "divide is deprecated. Please use Calculator instead. "
                 "Division is also terrible and we should all be friends."
             ),
             filename=__file__,
