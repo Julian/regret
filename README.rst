@@ -12,9 +12,9 @@ regret
   :alt: Supported Python versions
   :target: https://pypi.org/project/regret/
 
-.. |CI| image:: https://travis-ci.com/Julian/regret.svg?branch=master
+.. |CI| image:: https://github.com/Julian/regret/workflows/CI/badge.svg
   :alt: Build status
-  :target: https://travis-ci.com/Julian/regret
+  :target: https://github.com/Julian/regret/actions?query=workflow%3ACI
 
 .. |Codecov| image:: https://codecov.io/gh/Julian/regret/branch/master/graph/badge.svg
   :alt: Codecov Code coverage
