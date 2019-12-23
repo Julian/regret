@@ -1,6 +1,3 @@
-import warnings
-
-from qualname import qualname
 from twisted.trial.unittest import SynchronousTestCase
 
 import regret
@@ -103,7 +100,7 @@ class TestRegret(SynchronousTestCase):
         def calculate():
             return 12
 
-        result = self.assertDeprecated(
+        self.assertDeprecated(
             message="etaluclac is deprecated.",
             filename=__file__,
             fn=calculate,
@@ -123,15 +120,15 @@ class TestRegret(SynchronousTestCase):
         )
 
         def replacement():
-            "New hotness."
+            """New hotness."""
 
         @deprecate.callable(version="v1.2.3", replacement=replacement)
         def calculate():
-            "Very important docstring for "
+            """Very important docstring for..."""
 
         self.assertEqual(
             calculate.__doc__, (
-                "Very important docstring for "
+                "Very important docstring for..."
                 "OBJECTNAME deprecated in v1.2.3 "
                 "replaced by New hotness."
             ),

@@ -139,7 +139,7 @@ class TestRegret(TestCase):
         """
 
         def original():
-            "Original function docstring."
+            """Original function docstring."""
 
         original.something = 12
         self.assertEqual(
@@ -253,7 +253,7 @@ class TestRegret(TestCase):
 
         class Class(object):
             def method(self):
-                "Original method docstring."
+                """Original method docstring."""
 
             method.something = 12
 
@@ -385,7 +385,7 @@ class TestRegret(TestCase):
         """
 
         class Original(object):
-            "Original class docstring."
+            """Original class docstring."""
 
         Original.something = 12
         self.assertEqual(
