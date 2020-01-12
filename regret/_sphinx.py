@@ -1,7 +1,13 @@
 from textwrap import dedent
 
 
-def doc_with_deprecated_directive(object, replacement, name_of, version):
+def doc_with_deprecated_directive(
+    object,
+    replacement,
+    removal_date,
+    name_of,
+    version,
+):
     """
     Add a `deprecated` directive to the provided object's docstring.
 
@@ -15,5 +21,9 @@ def doc_with_deprecated_directive(object, replacement, name_of, version):
     if replacement is not None:
         parts.append(
             "\n    Please use `{}` instead.\n".format(name_of(replacement)),
+        )
+    if removal_date is not None:
+        parts.append(
+            "\n    It will be removed on or after {}.\n".format(removal_date),
         )
     return "".join(parts)

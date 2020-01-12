@@ -55,7 +55,13 @@ class Deprecator(object):
 
     # -- Deprecatable objects --
 
-    def callable(self, version, replacement=None, addendum=None):
+    def callable(
+        self,
+        version,
+        replacement=None,
+        removal_date=None,
+        addendum=None,
+    ):
         """
         Deprecate a callable as of the given version.
 
@@ -72,6 +78,11 @@ class Deprecator(object):
                 replacement for the functionality previously performed
                 by the deprecated callable
 
+            removal_date (date):
+
+                optionally, a date when the object is expected to be
+                removed entirely
+
             addendum (str):
 
                 an optional additional message to include at the end of
@@ -84,6 +95,7 @@ class Deprecator(object):
                 self.emit_deprecation(
                     object=thing,
                     replacement=replacement,
+                    removal_date=removal_date,
                     addendum=addendum,
                 )
                 return thing(*args, **kwargs)
@@ -94,6 +106,7 @@ class Deprecator(object):
                     object=thing,
                     name_of=self._name_of,
                     replacement=replacement,
+                    removal_date=removal_date,
                     version=version,
                 )
 
@@ -107,10 +120,15 @@ class EmittedDeprecation(object):
     _object = attr.ib()
     _name_of = attr.ib(default=qualname)
     _replacement = attr.ib(default=None)
+    _removal_date = attr.ib(default=None)
     _addendum = attr.ib(default=None)
 
     def message(self):
         parts = ["{} is deprecated.".format(self._name_of(self._object))]
+        if self._removal_date is not None:
+            parts.append(
+                "It will be removed on or after {}.".format(self._removal_date)
+            )
         if self._replacement is not None:
             parts.append(
                 "Please use {} instead.".format(

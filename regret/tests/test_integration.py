@@ -1,3 +1,5 @@
+from datetime import date
+
 from twisted.trial.unittest import SynchronousTestCase
 
 import regret
@@ -107,16 +109,24 @@ class TestRegret(SynchronousTestCase):
         )
 
     def test_custom_docstring_modifier(self):
-        deprecate = regret.Deprecator(
-            name_of=lambda object: "OBJECTNAME",
-            new_docstring=lambda object, replacement, name_of, version: (
+        def new_docstring(
+            object,
+            replacement,
+            removal_date,
+            name_of,
+            version,
+        ):
+            return (
                 object.__doc__
                 + name_of(object)
                 + " deprecated in "
-                + version
-                + " replaced by "
+                + version + " replaced by "
                 + replacement.__doc__
             )
+
+        deprecate = regret.Deprecator(
+            name_of=lambda object: "OBJECTNAME",
+            new_docstring=new_docstring,
         )
 
         def replacement():
@@ -159,6 +169,74 @@ class TestRegret(SynchronousTestCase):
         self.assertDeprecated(
             message=(
                 "divide is deprecated. Please use Calculator instead. "
+                "Division is also terrible and we should all be friends."
+            ),
+            filename=__file__,
+            fn=deprecated,
+        )
+
+    def test_removal_date(self):
+        deprecated = regret.callable(
+            version="1.2.3",
+            removal_date=date(year=2012, month=12, day=12),
+        )(divide)
+
+        self.assertDeprecated(
+            message=(
+                "divide is deprecated. "
+                "It will be removed on or after 2012-12-12."
+            ),
+            filename=__file__,
+            fn=deprecated,
+        )
+
+    def test_removal_date_with_replacement(self):
+        deprecated = regret.callable(
+            version="1.2.3",
+            removal_date=date(year=2012, month=12, day=12),
+            replacement=Calculator,
+        )(divide)
+
+        self.assertDeprecated(
+            message=(
+                "divide is deprecated. "
+                "It will be removed on or after 2012-12-12. "
+                "Please use Calculator instead."
+            ),
+            filename=__file__,
+            fn=deprecated,
+        )
+
+    def test_removal_date_with_addendum(self):
+        deprecated = regret.callable(
+            version="1.2.3",
+            removal_date=date(year=2012, month=12, day=12),
+            addendum="Division is also terrible and we should all be friends.",
+        )(divide)
+
+        self.assertDeprecated(
+            message=(
+                "divide is deprecated. "
+                "It will be removed on or after 2012-12-12. "
+                "Division is also terrible and we should all be friends."
+            ),
+            filename=__file__,
+            fn=deprecated,
+        )
+
+    def test_removal_date_with_replacement_and_addendum(self):
+        deprecated = regret.callable(
+            version="1.2.3",
+            removal_date=date(year=2012, month=12, day=12),
+            replacement=Calculator,
+            addendum="Division is also terrible and we should all be friends.",
+        )(divide)
+
+        self.assertDeprecated(
+            message=(
+                "divide is deprecated. "
+                "It will be removed on or after 2012-12-12. "
+                "Please use Calculator instead. "
                 "Division is also terrible and we should all be friends."
             ),
             filename=__file__,
