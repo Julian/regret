@@ -42,6 +42,7 @@ Deprecations
             - [ ] subclassable classes
             - [ ] old-style classes
     - [ ] attributes
+        - [ ] of old-style classes
     - [ ] descriptors
         - [ ] classmethod
     - [ ] modules
