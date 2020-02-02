@@ -50,6 +50,8 @@ Deprecations
         - [ ] classmethod
     - [ ] modules
     - [ ] arguments to callables
+        - [ ] required arguments that will be removed
+        - [ ] optional arguments that are now required
         - [ ] mutual exclusion
     - [ ] ``zope.interface``\s
 
