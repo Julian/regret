@@ -22,10 +22,11 @@ class Deprecator(object):
 
         name_of:
 
-            a callable which given any Python object should
-            return a suitable name for the object. If unprovided,
-            `qualname.qualname` will be used, and therefore an object's
-            (non-fully-)qualified name will appear in messages.
+            a callable which given any Python object should return
+            a suitable name for the object. If unprovided, the
+            `__qualname__ <definition.__qualname__>` will be used, and
+            therefore an object's (non-fully-)qualified name will appear
+            in messages.
 
         new_docstring:
 
@@ -40,10 +41,11 @@ class Deprecator(object):
 
                 * ``version``, the version that deprecates the provided object
 
-            and it should return a single string which will become the new
-            docstring for a deprecated object. If unprovided, deprecation
-            docstrings will be constructed using syntax suitable for `Sphinx`,
-            via the `deprecated` directive.
+            and it should return a single string which will become
+            the new docstring for a deprecated object. If unprovided,
+            deprecation docstrings will be constructed using syntax
+            suitable for `Sphinx <sphinx:index>`, via the `deprecated`
+            directive.
     """
 
     _emit = attr.ib(default=_warnings.emit)
@@ -69,8 +71,8 @@ class Deprecator(object):
 
             version:
 
-                the first version in which the deprecated object was considered
-                deprecated
+                the first version in which the deprecated object was
+                considered deprecated
 
             replacement:
 
@@ -78,7 +80,7 @@ class Deprecator(object):
                 replacement for the functionality previously performed
                 by the deprecated callable
 
-            removal_date (date):
+            removal_date (datetime.date):
 
                 optionally, a date when the object is expected to be
                 removed entirely
@@ -116,6 +118,9 @@ class Deprecator(object):
 
 @attr.s(eq=True, frozen=True, hash=True)
 class EmittedDeprecation(object):
+    """
+    A single emitted deprecation.
+    """
 
     _object = attr.ib()
     _name_of = attr.ib(default=qualname)
