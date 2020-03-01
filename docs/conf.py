@@ -8,6 +8,8 @@
 
 import re
 
+import regret
+
 
 # -- Project information -----------------------------------------------------
 
@@ -15,10 +17,10 @@ project = u"regret"
 author = u"Julian Berman"
 copyright = u"2019, " + author
 
-# The short X.Y version
-version = u""
-# The full version, including alpha/beta/rc tags
-release = u""
+# version: The short X.Y version
+# release: The full version, including alpha/beta/rc tags.
+release = regret.__version__
+version = release.partition("-")[0]
 
 
 # -- General configuration ---------------------------------------------------
