@@ -34,7 +34,7 @@ class Deprecator(object):
             deprecated objects. It will be called with three *keyword*
             arguments:
 
-                * ``object``, the object that is being depreated
+                * ``object``, the object that is being deprecated
 
                 * ``name_of``, the callable described above for use in
                   calculating object names
