@@ -46,7 +46,7 @@ jobs:
           - name: 3.7
             toxenv: py37
           - name: 3.7
-            toxenv: docs-html
+            toxenv: docs-dirhtml
           - name: 3.7
             toxenv: docs-doctest
           - name: 3.7
