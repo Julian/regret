@@ -98,6 +98,7 @@ class TestRegret(SynchronousTestCase):
         etacerped = regret.Deprecator(
             name_of=lambda object: object.__name__[::-1],
         )
+
         @etacerped.callable(version="v1.2.3")
         def calculate():
             return 12
