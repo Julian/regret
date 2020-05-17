@@ -39,8 +39,7 @@ Deprecations
     - [x] callables
         - [x] functions
         - [x] classes
-            - [ ] subclassable classes
-            - [ ] old-style classes
+            - [x] subclassable classes
     - [ ] attributes
         - [ ] of modules
         - [ ] of classes
