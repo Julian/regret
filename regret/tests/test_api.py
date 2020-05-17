@@ -490,3 +490,54 @@ class TestRegret(TestCase):
                 Recorder(saw=[EmittedDeprecation(object=unbound)]),
             ),
         )
+
+    def test_inheritance(self):
+        class Inheritable(object):
+            pass
+
+        class SubclassOfInheritable(Inheritable):
+            pass
+
+        self.assertEqual(self.recorder, Recorder())
+
+        Uninheritable = self.regret.inheritance(version="2.3.4")(Inheritable)
+
+        class SubclassOfUninheritable(Uninheritable):
+            pass
+
+        self.assertEqual(
+            self.recorder,
+            Recorder(saw=[EmittedDeprecation(object=Uninheritable)]),
+        )
+
+    def test_inheritance_has_init_subclass(self):
+        class Inheritable(object):
+            def __init_subclass__(Subclass, **kwargs):
+                Subclass.init = kwargs
+
+        class SubclassOfInheritable(Inheritable, foo="bar"):
+            pass
+
+        self.assertEqual(SubclassOfInheritable.init, dict(foo="bar"))
+
+        Uninheritable = self.regret.inheritance(version="2.3.4")(Inheritable)
+
+        class SubclassOfUninheritable(Uninheritable, baz="quux"):
+            pass
+
+        self.assertEqual(SubclassOfUninheritable.init, dict(baz="quux"))
+        self.assertEqual(
+            self.recorder,
+            Recorder(saw=[EmittedDeprecation(object=Uninheritable)]),
+        )
+
+    def test_inheritance_nonclass(self):
+        def not_a_class():
+            pass
+
+        with self.assertRaises(Exception) as e:
+            class Subclass(not_a_class):
+                pass
+
+        with self.assertRaises(e.exception.__class__):
+            self.regret.inheritance(version="2.3.4")(not_a_class)

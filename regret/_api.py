@@ -115,6 +115,27 @@ class Deprecator(object):
             return call_deprecated
         return deprecate
 
+    def inheritance(self, version):
+        """
+        Deprecate allowing a class to be subclassed.
+
+        Arguments:
+
+            version:
+
+                the first version in which the deprecated object was
+                considered deprecated
+        """
+
+        def deprecate(cls):
+            class DeprecatedForSubclassing(cls):
+                def __init_subclass__(Subclass, *args, **kwargs):
+                    self.emit_deprecation(object=DeprecatedForSubclassing)
+                    super().__init_subclass__(**kwargs)
+            return DeprecatedForSubclassing
+
+        return deprecate
+
 
 @attr.s(eq=True, frozen=True, hash=True)
 class EmittedDeprecation(object):
