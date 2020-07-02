@@ -52,7 +52,9 @@ Deprecations
         - [ ] required arguments that will be removed
         - [ ] optional arguments that are now required
         - [ ] mutual exclusion
-    - [ ] ``zope.interface``\s
+    - [ ] interfaces
+        - [ ] PEP 544 protocols
+        - [ ] ``zope.interface``\s
 
 
 Design Goals
