@@ -8,3 +8,4 @@ from regret._api import _DEPRECATOR, Deprecator, EmittedDeprecation
 
 __version__ = metadata.version("regret")
 callable = _DEPRECATOR.callable
+inheritance = _DEPRECATOR.inheritance

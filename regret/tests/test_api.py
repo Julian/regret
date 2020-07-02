@@ -1,6 +1,7 @@
 from datetime import date
 from textwrap import dedent
 from unittest import TestCase
+import inspect
 
 from regret import EmittedDeprecation, Deprecator
 from regret.testing import Recorder
@@ -45,7 +46,7 @@ class Calculator(object):
         return 12
 
 
-class TestRegret(TestCase):
+class TestDeprecator(TestCase):
     def setUp(self):
         self.recorder = Recorder()
         self.regret = Deprecator(emit=self.recorder.emit)
@@ -541,3 +542,18 @@ class TestRegret(TestCase):
 
         with self.assertRaises(e.exception.__class__):
             self.regret.inheritance(version="2.3.4")(not_a_class)
+
+
+def public_members(thing):
+    return {
+        name for name, _ in inspect.getmembers(thing)
+        if not name.startswith("_")
+    }
+
+
+class TestRegretDefaultDeprecator(TestCase):
+    def test_it_exposes_deprecator_methods_in_default_configuration(self):
+        self.assertGreaterEqual(
+            public_members(regret),
+            public_members(regret.Deprecator),
+        )
