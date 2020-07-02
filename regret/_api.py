@@ -52,7 +52,7 @@ class Deprecator(object):
     _name_of = attr.ib(default=qualname)
     _new_docstring = attr.ib(default=_sphinx.doc_with_deprecated_directive)
 
-    def emit_deprecation(self, **kwargs):
+    def _emit_deprecation(self, **kwargs):
         self._emit(EmittedDeprecation(name_of=self._name_of, **kwargs))
 
     # -- Deprecatable objects --
@@ -94,7 +94,7 @@ class Deprecator(object):
         def deprecate(thing):
             @wraps(thing)
             def call_deprecated(*args, **kwargs):
-                self.emit_deprecation(
+                self._emit_deprecation(
                     object=thing,
                     replacement=replacement,
                     removal_date=removal_date,
@@ -130,7 +130,7 @@ class Deprecator(object):
         def deprecate(cls):
             class DeprecatedForSubclassing(cls):
                 def __init_subclass__(Subclass, *args, **kwargs):
-                    self.emit_deprecation(object=DeprecatedForSubclassing)
+                    self._emit_deprecation(object=DeprecatedForSubclassing)
                     super().__init_subclass__(**kwargs)
             return DeprecatedForSubclassing
 
