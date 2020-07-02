@@ -19,7 +19,7 @@ class Adder(object):
     def __eq__(self, other):
         return self.value == other.value
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return "<Adder {}>".format(self.value)
 
 
@@ -35,11 +35,11 @@ def add(x, y):
 
 
 class Calculator(object):
-    def better(self):
+    def better(self):  # pragma: no cover
         return 13
 
     @regret.callable(version="4.5.6", replacement=better)
-    def calculate(self):
+    def calculate(self):  # pragma: no cover
         """
         12. Just 12.
         """
@@ -127,7 +127,7 @@ class TestDeprecator(TestCase):
 
     def test_method_gets_deprecation_notice_in_docstring(self):
         class Calculator(object):
-            def _calculate(self):
+            def _calculate(self):  # pragma: no cover
                 """
                 Perform a super important calculation.
                 """
@@ -168,7 +168,7 @@ class TestDeprecator(TestCase):
         """
         If you're too lazy to add docstrings I ain't helping you.
         """
-        def calculate():
+        def calculate():  # pragma: no cover
             return 12
         deprecated = self.regret.callable(version="v2.3.4")(calculate)
         self.assertIsNone(deprecated.__doc__)
@@ -179,7 +179,7 @@ class TestDeprecator(TestCase):
         """
         class Lazy(object):
             @self.regret.callable(version="v2.3.4")
-            def method():
+            def method():  # pragma: no cover
                 pass
         self.assertIsNone(Lazy.method.__doc__)
 
@@ -208,7 +208,7 @@ class TestDeprecator(TestCase):
 
         class Class(object):
             @self.regret.callable(version="v2.3.4", removal_date=removal_date)
-            def method():
+            def method():  # pragma: no cover
                 pass
         self.regret.callable(version="1.2.3", removal_date=removal_date)(
             calculate,
@@ -350,7 +350,7 @@ class TestDeprecator(TestCase):
 
     def test_method_is_wrapped(self):
         class Calculator(object):
-            def _calculate(self):
+            def _calculate(self):  # pragma: no cover
                 """
                 Perform a super important calculation.
                 """
@@ -533,7 +533,7 @@ class TestDeprecator(TestCase):
         )
 
     def test_inheritance_nonclass(self):
-        def not_a_class():
+        def not_a_class():  # pragma: no cover
             pass
 
         with self.assertRaises(Exception) as e:
