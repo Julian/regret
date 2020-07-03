@@ -52,6 +52,7 @@ Deprecations
         - [ ] required arguments that will be removed
         - [ ] optional arguments that are now required
         - [ ] deprecated values for arguments
+        - [ ] type changes for argument
         - [ ] mutual exclusion
     - [ ] interfaces
         - [ ] PEP 544 protocols
