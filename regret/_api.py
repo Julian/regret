@@ -144,7 +144,7 @@ class EmittedDeprecation(object):
     """
 
     _object = attr.ib()
-    _name_of = attr.ib(default=qualname)
+    _name_of = attr.ib(default=qualname, repr=False)
     _replacement = attr.ib(default=None)
     _removal_date = attr.ib(default=None)
     _addendum = attr.ib(default=None)
