@@ -81,6 +81,9 @@ It is intended to:
     * support removal date indication, and likely "policies" which automate
       choosing default removal dates
 
+    * make "clean code" trivially easy to deprecate, and make complex
+      code *possible* to deprecate
+
     * minimize the amount of deprecation-related code required for authors
 
 In particular, as a lofty first milestone, it is intended to cover all
