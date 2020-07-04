@@ -145,9 +145,9 @@ class EmittedDeprecation(object):
 
     _object = attr.ib()
     _name_of = attr.ib(default=qualname, repr=False)
-    _replacement = attr.ib(default=None)
-    _removal_date = attr.ib(default=None)
-    _addendum = attr.ib(default=None)
+    _replacement = attr.ib(default=None, repr=False)
+    _removal_date = attr.ib(default=None, repr=False)
+    _addendum = attr.ib(default=None, repr=False)
 
     def message(self):
         parts = ["{} is deprecated.".format(self._name_of(self._object))]
