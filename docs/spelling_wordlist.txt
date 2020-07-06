@@ -6,4 +6,5 @@ docstrings
 param
 subclassable
 subclassed
+subclassing
 versioning
