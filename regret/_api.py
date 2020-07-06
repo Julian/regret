@@ -3,7 +3,7 @@ from functools import wraps
 from qualname import qualname
 import attr
 
-from regret import _sphinx, _warnings
+from regret import _sphinx, _warnings, emitted
 
 
 @attr.s(eq=True, frozen=True)
@@ -53,7 +53,7 @@ class Deprecator(object):
     _new_docstring = attr.ib(default=_sphinx.doc_with_deprecated_directive)
 
     def _emit_deprecation(self, **kwargs):
-        self._emit(EmittedDeprecation(name_of=self._name_of, **kwargs))
+        self._emit(emitted.Deprecation(name_of=self._name_of, **kwargs))
 
     # -- Deprecatable objects --
 
@@ -95,7 +95,7 @@ class Deprecator(object):
             @wraps(thing)
             def call_deprecated(*args, **kwargs):
                 self._emit_deprecation(
-                    object=thing,
+                    kind=emitted.Callable(object=thing),
                     replacement=replacement,
                     removal_date=removal_date,
                     addendum=addendum,
@@ -128,42 +128,18 @@ class Deprecator(object):
         """
 
         def deprecate(cls):
+            @wraps(cls, updated=())
             class DeprecatedForSubclassing(cls):
-                def __init_subclass__(Subclass, *args, **kwargs):
-                    self._emit_deprecation(object=DeprecatedForSubclassing)
+                def __init_subclass__(Subclass, **kwargs):
+                    self._emit_deprecation(
+                        kind=emitted.Inheritance(
+                            type=DeprecatedForSubclassing,
+                        ),
+                    )
                     super().__init_subclass__(**kwargs)
             return DeprecatedForSubclassing
 
         return deprecate
-
-
-@attr.s(eq=True, frozen=True, hash=True)
-class EmittedDeprecation(object):
-    """
-    A single emitted deprecation.
-    """
-
-    _object = attr.ib()
-    _name_of = attr.ib(default=qualname, repr=False)
-    _replacement = attr.ib(default=None, repr=False)
-    _removal_date = attr.ib(default=None, repr=False)
-    _addendum = attr.ib(default=None, repr=False)
-
-    def message(self):
-        parts = ["{} is deprecated.".format(self._name_of(self._object))]
-        if self._removal_date is not None:
-            parts.append(
-                "It will be removed on or after {}.".format(self._removal_date)
-            )
-        if self._replacement is not None:
-            parts.append(
-                "Please use {} instead.".format(
-                    self._name_of(self._replacement),
-                ),
-            )
-        if self._addendum is not None:
-            parts.append(self._addendum)
-        return " ".join(parts)
 
 
 _DEPRECATOR = Deprecator()

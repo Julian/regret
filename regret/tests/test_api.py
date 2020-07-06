@@ -3,7 +3,8 @@ from textwrap import dedent
 from unittest import TestCase
 import inspect
 
-from regret import EmittedDeprecation, Deprecator
+from regret import Deprecator
+from regret.emitted import Callable, Deprecation, Inheritance
 from regret.testing import Recorder
 import regret
 
@@ -58,7 +59,7 @@ class TestDeprecator(TestCase):
                 self.recorder,
             ), (
                 12,
-                Recorder(saw=[EmittedDeprecation(object=calculate)]),
+                Recorder(saw=[Deprecation(kind=Callable(object=calculate))]),
             ),
         )
 
@@ -76,7 +77,7 @@ class TestDeprecator(TestCase):
         self.assertEqual(
             (Calculator().calculate(), self.recorder), (
                 12,
-                Recorder(saw=[EmittedDeprecation(object=unbound)]),
+                Recorder(saw=[Deprecation(kind=Callable(object=unbound))]),
             ),
         )
 
@@ -87,7 +88,9 @@ class TestDeprecator(TestCase):
                 self.recorder,
             ), (
                 Adder(),
-                Recorder(saw=[EmittedDeprecation(object=Adder)]),
+                Recorder(
+                    saw=[Deprecation(kind=Callable(object=Adder))],
+                ),
             ),
         )
 
@@ -98,7 +101,7 @@ class TestDeprecator(TestCase):
                 self.recorder,
             ), (
                 12,
-                Recorder(saw=[EmittedDeprecation(object=add)]),
+                Recorder(saw=[Deprecation(kind=Callable(object=add))]),
             ),
         )
 
@@ -109,7 +112,7 @@ class TestDeprecator(TestCase):
                 self.recorder,
             ), (
                 Adder(11),
-                Recorder(saw=[EmittedDeprecation(object=Adder)]),
+                Recorder(saw=[Deprecation(kind=Callable(object=Adder))]),
             ),
         )
 
@@ -197,8 +200,8 @@ class TestDeprecator(TestCase):
         self.regret.callable(version="1.2.3", removal_date=removal_date)(
             calculate,
         )()
-        deprecation = EmittedDeprecation(
-            object=calculate,
+        deprecation = Deprecation(
+            kind=Callable(object=calculate),
             removal_date=removal_date,
         )
         self.assertEqual(self.recorder, Recorder(saw=[deprecation]))
@@ -213,8 +216,8 @@ class TestDeprecator(TestCase):
         self.regret.callable(version="1.2.3", removal_date=removal_date)(
             calculate,
         )()
-        deprecation = EmittedDeprecation(
-            object=calculate,
+        deprecation = Deprecation(
+            kind=Callable(object=calculate),
             removal_date=removal_date,
         )
         self.assertEqual(self.recorder, Recorder(saw=[deprecation]))
@@ -249,7 +252,10 @@ class TestDeprecator(TestCase):
                 12,
                 Recorder(
                     saw=[
-                        EmittedDeprecation(object=calculate, replacement=add),
+                        Deprecation(
+                            kind=Callable(object=calculate),
+                            replacement=add,
+                        ),
                     ],
                 ),
             ),
@@ -270,8 +276,8 @@ class TestDeprecator(TestCase):
                 Adder(),
                 Recorder(
                     saw=[
-                        EmittedDeprecation(
-                            object=Adder,
+                        Deprecation(
+                            kind=Callable(Adder),
                             replacement=Subtractor,
                         ),
                     ],
@@ -371,7 +377,7 @@ class TestDeprecator(TestCase):
 
     def test_class_via_callable_is_wrapped(self):
         Deprecated = self.regret.callable(version="1.2.3")(Adder)
-        self.assertEqual(Adder.__name__, Deprecated.__name__)
+        self.assertEqual(Deprecated.__name__, Adder.__name__)
 
     def test_original_functions_are_not_mutated(self):
         """
@@ -388,7 +394,7 @@ class TestDeprecator(TestCase):
             (
                 original.__name__,
                 original.__doc__,
-                getattr(original, "__dict__", {}),
+                vars(original),
             ), (
                 "original",
                 "Original function docstring.",
@@ -402,7 +408,7 @@ class TestDeprecator(TestCase):
             (
                 original.__name__,
                 original.__doc__,
-                getattr(original, "__dict__", {}),
+                vars(original),
             ), (
                 "original",
                 "Original function docstring.",
@@ -429,7 +435,7 @@ class TestDeprecator(TestCase):
             (
                 Class.method.__name__,
                 Class.method.__doc__,
-                getattr(Class.method, "__dict__", {}),
+                vars(Class.method),
             ), (
                 "method",
                 "Original method docstring.",
@@ -488,7 +494,7 @@ class TestDeprecator(TestCase):
         self.assertEqual(
             (Calculator()(), self.recorder), (
                 12,
-                Recorder(saw=[EmittedDeprecation(object=unbound)]),
+                Recorder(saw=[Deprecation(kind=Callable(object=unbound))]),
             ),
         )
 
@@ -508,7 +514,7 @@ class TestDeprecator(TestCase):
 
         self.assertEqual(
             self.recorder,
-            Recorder(saw=[EmittedDeprecation(object=Uninheritable)]),
+            Recorder(saw=[Deprecation(kind=Inheritance(type=Uninheritable))]),
         )
 
     def test_inheritance_has_init_subclass(self):
@@ -529,7 +535,7 @@ class TestDeprecator(TestCase):
         self.assertEqual(SubclassOfUninheritable.init, dict(baz="quux"))
         self.assertEqual(
             self.recorder,
-            Recorder(saw=[EmittedDeprecation(object=Uninheritable)]),
+            Recorder(saw=[Deprecation(kind=Inheritance(type=Uninheritable))]),
         )
 
     def test_inheritance_nonclass(self):
@@ -542,6 +548,57 @@ class TestDeprecator(TestCase):
 
         with self.assertRaises(e.exception.__class__):
             self.regret.inheritance(version="2.3.4")(not_a_class)
+
+    def test_class_with_deprecated_inheritance_is_wrapped(self):
+        Uninheritable = self.regret.inheritance(version="1.2.3")(Adder)
+        self.assertEqual(
+            (
+                Uninheritable.__name__,
+                Uninheritable.__doc__,
+                public_members(Uninheritable),
+            ), (
+                Adder.__name__,
+                Adder.__doc__,
+                public_members(Adder),
+            ),
+        )
+
+    def test_original_classes_are_not_mutated_via_inheritance(self):
+        """
+        Deprecating inheritance in one spot does not mutate the original class.
+
+        Any existing references are unchanged.
+        """
+
+        class Original(object):
+            """Original class docstring."""
+
+        Original.something = 12
+        self.assertEqual(
+            (
+                Original.__name__,
+                Original.__doc__,
+                getattr(Original, "something", None),
+            ), (
+                "Original",
+                "Original class docstring.",
+                12,
+            ),
+        )
+
+        self.regret.inheritance(version="1.2.3")(Original)
+
+        self.assertEqual(
+            (
+                Original.__name__,
+                Original.__doc__,
+                getattr(Original, "something", None),
+            ), (
+                "Original",
+                "Original class docstring.",
+                12,
+            ),
+        )
 
 
 def public_members(thing):

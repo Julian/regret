@@ -15,6 +15,11 @@ class Calculator(object):
         return 12
 
 
+CalculatorWithDeprecatedInheritance = regret.inheritance(version="1.2.3")(
+    Calculator,
+)
+
+
 @regret.callable(version="1.2.3")
 def calculate():
     return 12
@@ -242,4 +247,15 @@ class TestRegret(SynchronousTestCase):
             ),
             filename=__file__,
             fn=deprecated,
+        )
+
+    def test_inheritance(self):
+        def subclass():
+            class Subclass(CalculatorWithDeprecatedInheritance):
+                pass
+
+        self.assertDeprecated(
+            message="Subclassing from Calculator is deprecated.",
+            filename=__file__,
+            fn=subclass,
         )
