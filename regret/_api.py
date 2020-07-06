@@ -15,10 +15,10 @@ class Deprecator(object):
 
         emit:
 
-            a callable which will be called with one argument, an
-            `EmittedDeprecation` instance, whenever a deprecated object
-            has been used. If unprovided, by default, a warning will be
-            shown using the standard library `warnings` module.
+            a callable which will be called with one argument, a
+            `regret.emitted.Deprecation` instance, whenever a deprecated
+            object has been used. If unprovided, by default, a warning
+            will be shown using the standard library `warnings` module.
 
         name_of:
 
