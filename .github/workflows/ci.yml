@@ -35,18 +35,18 @@ jobs:
             toxenv: py36
           - name: 3.7
             toxenv: py37
-          - name: 3.7
-            toxenv: docs-dirhtml
-          - name: 3.7
-            toxenv: docs-doctest
-          - name: 3.7
-            toxenv: docs-linkcheck
-          - name: 3.7
-            toxenv: docs-spelling
-          - name: 3.7
-            toxenv: docs-style
           - name: 3.8
             toxenv: py38
+          - name: 3.8
+            toxenv: docs-dirhtml
+          - name: 3.8
+            toxenv: docs-doctest
+          - name: 3.8
+            toxenv: docs-linkcheck
+          - name: 3.8
+            toxenv: docs-spelling
+          - name: 3.8
+            toxenv: docs-style
 
     steps:
     - uses: actions/checkout@v2
