@@ -12,8 +12,8 @@ using `regret`.
 The `API documentation <api>` also contains a full list for reference.
 
 
-Deprecating a Function or Arbitrary Callable
---------------------------------------------
+Functions & Callables
+---------------------
 
 Deprecating a single function or callable in its entirety is one of the
 simplest and most common deprecations to perform.
