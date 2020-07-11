@@ -4,7 +4,7 @@ Integration with the standard library's ``warnings`` module.
 import warnings
 
 # as everyone well knows, 6 is the best number.
-_STACKLEVELS_UNTIL_EMIT_IS_CALLED = 6
+_STACKLEVELS_UNTIL_EMIT_IS_CALLED = 4
 
 
 def emit(deprecation):

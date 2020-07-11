@@ -1,4 +1,5 @@
 from datetime import date
+import sys
 
 from twisted.trial.unittest import SynchronousTestCase
 
@@ -40,13 +41,14 @@ def divide():
 
 
 class TestRegret(SynchronousTestCase):
-    def assertDeprecated(self, message, filename, fn, args=(), kwargs={}):
+    def assertDeprecated(self, message, fn, args=(), kwargs={}):
         # Sigh... assertWarns takes positional args positionally, instead of as
         # a sequence.
         return self.assertWarns(
             DeprecationWarning,
             message,
-            filename,
+            # sigh, see https://twistedmatrix.com/trac/ticket/9363
+            sys.modules[self.assertWarns.__module__].__file__,
             fn,
             *args,
             **kwargs
@@ -55,7 +57,6 @@ class TestRegret(SynchronousTestCase):
     def test_function(self):
         result = self.assertDeprecated(
             message="calculate is deprecated.",
-            filename=__file__,
             fn=calculate,
         )
         self.assertEqual(result, 12)
@@ -63,7 +64,6 @@ class TestRegret(SynchronousTestCase):
     def test_function_with_args(self):
         result = self.assertDeprecated(
             message="add is deprecated.",
-            filename=__file__,
             fn=add,
             args=(9,),
             kwargs=dict(y=3),
@@ -76,7 +76,6 @@ class TestRegret(SynchronousTestCase):
                 "calculator_fn is deprecated. "
                 "Please use Calculator instead."
             ),
-            filename=__file__,
             fn=calculator_fn,
         )
         self.assertEqual(result, 9)
@@ -85,7 +84,6 @@ class TestRegret(SynchronousTestCase):
         calculator = Calculator()
         result = self.assertDeprecated(
             message="Calculator.calculate is deprecated.",
-            filename=__file__,
             fn=calculator.calculate,
         )
         self.assertEqual(result, 12)
@@ -94,7 +92,6 @@ class TestRegret(SynchronousTestCase):
         calculator = Calculator()
         result = self.assertDeprecated(
             message="Calculator.__call__ is deprecated.",
-            filename=__file__,
             fn=calculator,
         )
         self.assertEqual(result, 12)
@@ -110,7 +107,6 @@ class TestRegret(SynchronousTestCase):
 
         self.assertDeprecated(
             message="etaluclac is deprecated.",
-            filename=__file__,
             fn=calculate,
         )
 
@@ -161,7 +157,6 @@ class TestRegret(SynchronousTestCase):
                 "divide is deprecated. "
                 "Division is also terrible and we should all be friends."
             ),
-            filename=__file__,
             fn=deprecated,
         )
 
@@ -177,7 +172,6 @@ class TestRegret(SynchronousTestCase):
                 "divide is deprecated. Please use Calculator instead. "
                 "Division is also terrible and we should all be friends."
             ),
-            filename=__file__,
             fn=deprecated,
         )
 
@@ -192,7 +186,6 @@ class TestRegret(SynchronousTestCase):
                 "divide is deprecated. "
                 "It will be removed on or after 2012-12-12."
             ),
-            filename=__file__,
             fn=deprecated,
         )
 
@@ -209,7 +202,6 @@ class TestRegret(SynchronousTestCase):
                 "It will be removed on or after 2012-12-12. "
                 "Please use Calculator instead."
             ),
-            filename=__file__,
             fn=deprecated,
         )
 
@@ -226,7 +218,6 @@ class TestRegret(SynchronousTestCase):
                 "It will be removed on or after 2012-12-12. "
                 "Division is also terrible and we should all be friends."
             ),
-            filename=__file__,
             fn=deprecated,
         )
 
@@ -245,7 +236,6 @@ class TestRegret(SynchronousTestCase):
                 "Please use Calculator instead. "
                 "Division is also terrible and we should all be friends."
             ),
-            filename=__file__,
             fn=deprecated,
         )
 
@@ -256,6 +246,5 @@ class TestRegret(SynchronousTestCase):
 
         self.assertDeprecated(
             message="Subclassing from Calculator is deprecated.",
-            filename=__file__,
             fn=subclass,
         )
