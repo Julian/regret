@@ -43,7 +43,6 @@ Deprecations
     - [ ] attributes
         - [ ] of modules
         - [ ] of classes
-            - [ ] of old-style classes
         - [ ] of instances
     - [ ] descriptors
         - [ ] classmethod
