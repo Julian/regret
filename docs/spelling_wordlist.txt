@@ -8,6 +8,7 @@ param
 subclassable
 subclassability
 subclassed
+subclasses
 subclassing
 todo
 versioning
