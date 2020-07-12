@@ -39,7 +39,7 @@ Deprecations
     - [x] callables
         - [x] functions
         - [x] classes
-            - [x] subclassable classes
+            - [ ] subclassable classes
     - [ ] attributes
         - [ ] of modules
         - [ ] of classes
@@ -56,6 +56,7 @@ Deprecations
     - [ ] interfaces
         - [ ] PEP 544 protocols
         - [ ] ``zope.interface``\s
+    - [x] inheritability of a class
 
 
 Design Goals
