@@ -10,5 +10,6 @@ subclassability
 subclassed
 subclasses
 subclassing
+superclasses
 todo
 versioning
