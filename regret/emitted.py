@@ -17,9 +17,6 @@ class Deprecation(object):
     _removal_date = attr.ib(default=None, repr=False)
     _addendum = attr.ib(default=None, repr=False)
 
-    def stacklevels_added(self):
-        return getattr(self._kind, "stacklevels_added", int)()
-
     def message(self):
         parts = [self._kind.message(name_of=self._name_of)]
         if self._removal_date is not None:
@@ -58,9 +55,6 @@ class Inheritance(object):
     """
 
     _type = attr.ib()
-
-    def stacklevels_added(self):
-        return 1  # __init_subclass__
 
     def message(self, name_of):
         return "Subclassing from {} is deprecated.".format(

@@ -41,14 +41,25 @@ def divide():
 
 
 class TestRegret(SynchronousTestCase):
-    def assertDeprecated(self, message, fn, args=(), kwargs={}):
-        # Sigh... assertWarns takes positional args positionally, instead of as
-        # a sequence.
+    def assertDeprecated(
+        self,
+        message,
+        fn,
+        *,
+        filename=None,
+        args=(),
+        kwargs={},
+    ):
+        if filename is None:
+            # sigh, see https://twistedmatrix.com/trac/ticket/9363
+            filename = sys.modules[self.assertWarns.__module__].__file__
+
+        # Sigh... assertWarns takes positional args positionally,
+        # instead of as a sequence.
         return self.assertWarns(
             DeprecationWarning,
             message,
-            # sigh, see https://twistedmatrix.com/trac/ticket/9363
-            sys.modules[self.assertWarns.__module__].__file__,
+            filename,
             fn,
             *args,
             **kwargs
@@ -246,5 +257,6 @@ class TestRegret(SynchronousTestCase):
 
         self.assertDeprecated(
             message="Subclassing from Calculator is deprecated.",
+            filename=__file__,
             fn=subclass,
         )
