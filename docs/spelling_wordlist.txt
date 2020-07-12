@@ -3,8 +3,10 @@ callables
 deprecations
 docstring
 docstrings
+inheritability
 param
 subclassable
+subclassability
 subclassed
 subclassing
 todo
