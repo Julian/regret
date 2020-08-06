@@ -1,8 +1,14 @@
 """
 Objects emitted whilst a deprecated object is being used.
 """
-from qualname import qualname
 import attr
+
+
+def _qualname(obj):
+    """
+    Return the (non-fully-)qualified name of the given object.
+    """
+    return obj.__qualname__
 
 
 @attr.s(eq=True, frozen=True, hash=True)
@@ -12,7 +18,7 @@ class Deprecation(object):
     """
 
     _kind = attr.ib()
-    _name_of = attr.ib(default=qualname, repr=False)
+    _name_of = attr.ib(default=_qualname, repr=False)
     _replacement = attr.ib(default=None, repr=False)
     _removal_date = attr.ib(default=None, repr=False)
     _addendum = attr.ib(default=None, repr=False)

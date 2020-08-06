@@ -1,6 +1,5 @@
 from functools import wraps
 
-from qualname import qualname
 import attr
 
 from regret import _sphinx, _warnings, emitted
@@ -49,7 +48,7 @@ class Deprecator(object):
     """
 
     _emit = attr.ib(default=_warnings.emit)
-    _name_of = attr.ib(default=qualname)
+    _name_of = attr.ib(default=emitted._qualname)
     _new_docstring = attr.ib(default=_sphinx.doc_with_deprecated_directive)
 
     def _emit_deprecation(self, **kwargs):
