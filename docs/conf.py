@@ -6,9 +6,8 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
+import importlib.metadata
 import re
-
-import regret
 
 
 # -- Project information -----------------------------------------------------
@@ -19,7 +18,7 @@ copyright = u"2019, " + author
 
 # version: The short X.Y version
 # release: The full version, including alpha/beta/rc tags.
-release = regret.__version__
+release = importlib.metadata.version("regret")
 version = release.partition("-")[0]
 
 
