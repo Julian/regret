@@ -7,7 +7,7 @@ possible.*
 
 This page attempts to demonstrate a variety of practical deprecations
 that library authors face, alongside how to perform the deprecation
-using `regret`.
+using :ref:`regret`.
 
 The `API documentation <api>` also contains a full list for reference.
 
@@ -85,7 +85,7 @@ and cons of inheritance <https://www.youtube.com/watch?v=3MNVP9-hglc>`_.
 
 For library authors however who have released public APIs that heavily
 depend on or require users to inherit from provided superclasses,
-`regret` provides a mechanism for deprecating the inheritability of
+:ref:`regret` provides a mechanism for deprecating the inheritability of
 classes.
 
 Consider for example:
