@@ -51,6 +51,11 @@ of:
 
 .. seealso::
 
+    :pep:`387`
+
+        The PEP covering the backwards compatibility policy for Python itself
+        as a language
+
     `compatibility`
 
         :ref:`regret`'s own deprecation policy
