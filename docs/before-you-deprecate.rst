@@ -48,6 +48,12 @@ of:
 
     * how will changes to the deprecation policy itself be done?
 
+Your policy will likely fail to predict all of the intricate
+deprecations that you may need over your package's long and healthy
+lifetime. Judgment calls may still have to be made (`empathetically
+<Empathize>`), but a policy sets an initial set of guidelines which can
+be built upon later.
+
 
 .. seealso::
 
@@ -200,10 +206,16 @@ indicate either a UX issue in finding the appropriate public APIs (which
 can be used to improve your package's overall experience) or the lack of
 an API entirely.
 
+An API marked "experimental" and not-to-be-relied-upon will *still* be
+relied upon if it remains unchanged for a number of years in the wild,
+and breaking it, while justified, will still break downstream users. Do
+so knowingly, if you do do so.
+
 You may choose not to remove a *private* API if it would cause
 significant breakage due to its evident use. Doing so indicates
 empathy! (Though, in contrast, *not* doing so, and removing the API,
 should not be weaponized into a *lack* of empathy!)
+
 
 Take situations like these as ways to improve the clarity of your
 policies and guidance or of your documentation overall, and as ways to
