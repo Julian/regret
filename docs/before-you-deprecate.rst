@@ -201,7 +201,7 @@ they may be.
 
 Empathy in this case means -- if you've clearly defined something as
 private, but you nonetheless see thousands of uses of the private API
-in downstream code, simply take pause. At very least, this often may
+in downstream code, simply take pause. At the very least, this often may
 indicate either a UX issue in finding the appropriate public APIs (which
 can be used to improve your package's overall experience) or the lack of
 an API entirely.
@@ -218,7 +218,7 @@ should not be weaponized into a *lack* of empathy!)
 
 
 Take situations like these as ways to improve the clarity of your
-policies and guidance or of your documentation overall, and as ways to
+policies and guidance of your documentation overall, and as ways to
 build healthy relationships, *if* that is your decision.
 
 
