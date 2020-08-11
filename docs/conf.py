@@ -9,7 +9,6 @@
 import importlib.metadata
 import re
 
-
 # -- Project information -----------------------------------------------------
 
 project = u"regret"
