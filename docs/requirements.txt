@@ -1,4 +1,4 @@
+.
 pygments-github-lexers
 sphinx>3
 sphinxcontrib-spelling>5
-.
