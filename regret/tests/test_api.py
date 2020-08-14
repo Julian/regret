@@ -49,19 +49,25 @@ class Calculator(object):
 
 class TestDeprecator(TestCase):
     def setUp(self):
-        self.recorder = Recorder()
-        self.regret = Deprecator(emit=self.recorder.emit)
+        self._recorder = Recorder()
+        self._expected_deprecations = []
+        self.addCleanup(
+            self.assertEqual,
+            self._recorder,
+            Recorder(saw=self._expected_deprecations),
+        )
+        self.regret = Deprecator(emit=self._recorder.emit)
+
+    def assertNoDeprecations(self):
+        self.assertEqual(self._recorder, Recorder())
+
+    def expect_deprecation(self, **kwargs):
+        self._expected_deprecations.append(Deprecation(**kwargs))
 
     def test_function(self):
-        self.assertEqual(
-            (
-                self.regret.callable(version="1.2.3")(calculate)(),
-                self.recorder,
-            ), (
-                12,
-                Recorder(saw=[Deprecation(kind=Callable(object=calculate))]),
-            ),
-        )
+        deprecated = self.regret.callable(version="1.2.3")(calculate)
+        self.expect_deprecation(kind=Callable(object=calculate))
+        self.assertEqual(deprecated(), 12)
 
     def test_method(self):
         class Calculator(object):
@@ -70,51 +76,23 @@ class TestDeprecator(TestCase):
 
             calculate = self.regret.callable(version="1.2.3")(_calculate)
 
-        unbound = getattr(
-            Calculator._calculate, "im_func", Calculator._calculate,
-        )
-
-        self.assertEqual(
-            (Calculator().calculate(), self.recorder), (
-                12,
-                Recorder(saw=[Deprecation(kind=Callable(object=unbound))]),
-            ),
-        )
+        self.expect_deprecation(kind=Callable(object=Calculator._calculate))
+        self.assertEqual(Calculator().calculate(), 12)
 
     def test_class_via_callable(self):
-        self.assertEqual(
-            (
-                self.regret.callable(version="1.2.3")(Adder)(),
-                self.recorder,
-            ), (
-                Adder(),
-                Recorder(
-                    saw=[Deprecation(kind=Callable(object=Adder))],
-                ),
-            ),
-        )
+        Deprecated = self.regret.callable(version="1.2.3")(Adder)
+        self.expect_deprecation(kind=Callable(object=Adder))
+        self.assertEqual(Deprecated(), Adder())
 
     def test_function_with_args(self):
-        self.assertEqual(
-            (
-                self.regret.callable(version="1.2.3")(add)(9, y=3),
-                self.recorder,
-            ), (
-                12,
-                Recorder(saw=[Deprecation(kind=Callable(object=add))]),
-            ),
-        )
+        deprecated = self.regret.callable(version="1.2.3")(add)
+        self.expect_deprecation(kind=Callable(object=add))
+        self.assertEqual(deprecated(9, y=3), 12)
 
     def test_class_with_args_via_callable(self):
-        self.assertEqual(
-            (
-                self.regret.callable(version="1.2.3")(Adder)(9, y=2),
-                self.recorder,
-            ), (
-                Adder(11),
-                Recorder(saw=[Deprecation(kind=Callable(object=Adder))]),
-            ),
-        )
+        Deprecated = self.regret.callable(version="1.2.3")(Adder)
+        self.expect_deprecation(kind=Callable(object=Adder))
+        self.assertEqual(Deprecated(9, y=2), Adder(11))
 
     def test_function_gets_deprecation_notice_in_docstring(self):
         deprecated = self.regret.callable(version="v2.3.4")(calculate)
@@ -197,30 +175,33 @@ class TestDeprecator(TestCase):
 
     def test_function_with_removal_date(self):
         removal_date = date(year=2012, month=12, day=12)
-        self.regret.callable(version="1.2.3", removal_date=removal_date)(
-            calculate,
-        )()
-        deprecation = Deprecation(
+        deprecated = self.regret.callable(
+            version="1.2.3",
+            removal_date=removal_date,
+        )(calculate)
+        self.expect_deprecation(
             kind=Callable(object=calculate),
             removal_date=removal_date,
         )
-        self.assertEqual(self.recorder, Recorder(saw=[deprecation]))
+        self.assertEqual(deprecated(), 12)
 
     def test_method_with_removal_date(self):
         removal_date = date(year=2012, month=12, day=12)
 
         class Class(object):
-            @self.regret.callable(version="v2.3.4", removal_date=removal_date)
-            def method():  # pragma: no cover
-                pass
-        self.regret.callable(version="1.2.3", removal_date=removal_date)(
-            calculate,
-        )()
-        deprecation = Deprecation(
-            kind=Callable(object=calculate),
+            def _method(self):  # pragma: no cover
+                return 12
+
+            method = self.regret.callable(
+                version="v2.3.4",
+                removal_date=removal_date,
+            )(_method)
+
+        self.expect_deprecation(
+            kind=Callable(object=Class._method),
             removal_date=removal_date,
         )
-        self.assertEqual(self.recorder, Recorder(saw=[deprecation]))
+        self.assertEqual(Class().method(), 12)
 
     def test_function_with_removal_date_deprecation_notice_in_docstring(self):
         removal_date = date(year=2012, month=12, day=12)
@@ -241,49 +222,30 @@ class TestDeprecator(TestCase):
         )
 
     def test_function_with_replacement(self):
-        self.assertEqual(
-            (
-                self.regret.callable(
-                    version="1.2.3",
-                    replacement=add,
-                )(calculate)(),
-                self.recorder,
-            ), (
-                12,
-                Recorder(
-                    saw=[
-                        Deprecation(
-                            kind=Callable(object=calculate),
-                            replacement=add,
-                        ),
-                    ],
-                ),
-            ),
+        deprecated = self.regret.callable(
+            version="1.2.3",
+            replacement=add,
+        )(calculate)
+        self.expect_deprecation(
+            kind=Callable(object=calculate),
+            replacement=add,
         )
+        self.assertEqual(deprecated(), 12)
 
     def test_class_via_callable_with_replacement(self):
         class Subtractor(object):
             pass
 
-        self.assertEqual(
-            (
-                self.regret.callable(
-                    version="1.2.3",
-                    replacement=Subtractor,
-                )(Adder)(),
-                self.recorder,
-            ), (
-                Adder(),
-                Recorder(
-                    saw=[
-                        Deprecation(
-                            kind=Callable(Adder),
-                            replacement=Subtractor,
-                        ),
-                    ],
-                ),
-            ),
+        Deprecated = self.regret.callable(
+            version="1.2.3",
+            replacement=Subtractor,
+        )(Adder)
+
+        self.expect_deprecation(
+            kind=Callable(Adder),
+            replacement=Subtractor,
         )
+        self.assertEqual(Deprecated(), Adder())
 
     def test_function_with_replacement_deprecation_notice_in_docstring(self):
         deprecated = self.regret.callable(
@@ -487,16 +449,8 @@ class TestDeprecator(TestCase):
 
             __call__ = self.regret.callable(version="1.2.3")(_calculate)
 
-        unbound = getattr(
-            Calculator._calculate, "im_func", Calculator._calculate,
-        )
-
-        self.assertEqual(
-            (Calculator()(), self.recorder), (
-                12,
-                Recorder(saw=[Deprecation(kind=Callable(object=unbound))]),
-            ),
-        )
+        self.expect_deprecation(kind=Callable(object=Calculator._calculate))
+        self.assertEqual(Calculator()(), 12)
 
     def test_inheritance(self):
         class Inheritable(object):
@@ -505,17 +459,14 @@ class TestDeprecator(TestCase):
         class SubclassOfInheritable(Inheritable):
             pass
 
-        self.assertEqual(self.recorder, Recorder())
+        self.assertNoDeprecations()
 
         Uninheritable = self.regret.inheritance(version="2.3.4")(Inheritable)
 
         class SubclassOfUninheritable(Uninheritable):
             pass
 
-        self.assertEqual(
-            self.recorder,
-            Recorder(saw=[Deprecation(kind=Inheritance(type=Uninheritable))]),
-        )
+        self.expect_deprecation(kind=Inheritance(type=Uninheritable))
 
     def test_inheritance_has_init_subclass(self):
         class Inheritable(object):
@@ -532,11 +483,8 @@ class TestDeprecator(TestCase):
         class SubclassOfUninheritable(Uninheritable, baz="quux"):
             pass
 
+        self.expect_deprecation(kind=Inheritance(type=Uninheritable))
         self.assertEqual(SubclassOfUninheritable.init, dict(baz="quux"))
-        self.assertEqual(
-            self.recorder,
-            Recorder(saw=[Deprecation(kind=Inheritance(type=Uninheritable))]),
-        )
 
     def test_inheritance_nonclass(self):
         def not_a_class():  # pragma: no cover
