@@ -47,11 +47,11 @@ Deprecations
     - [ ] descriptors
         - [ ] classmethod
     - [ ] modules
-    - [ ] arguments to callables
-        - [ ] required arguments that will be removed
-        - [ ] optional arguments that are now required
-        - [ ] deprecated values for arguments
-        - [ ] type changes for argument
+    - [ ] parameters to callables
+        - [ ] required parameters that will be removed
+        - [ ] optional parameters that are now required
+        - [ ] deprecated values for parameters
+        - [ ] type changes for parameter
         - [ ] mutual exclusion
     - [ ] interfaces
         - [ ] PEP 544 protocols
