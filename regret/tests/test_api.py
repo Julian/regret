@@ -1,12 +1,12 @@
-import inspect
 from datetime import date
 from textwrap import dedent
 from unittest import TestCase
+import inspect
 
-import regret
 from regret import Deprecator
 from regret.emitted import Callable, Deprecation, Inheritance
 from regret.testing import Recorder
+import regret
 
 
 class Adder(object):

@@ -1,5 +1,5 @@
-import sys
 from datetime import date
+import sys
 
 from twisted.trial.unittest import SynchronousTestCase
 
