@@ -27,14 +27,12 @@ class Deprecation(object):
         parts = [self._kind.message(name_of=self._name_of)]
         if self._removal_date is not None:
             parts.append(
-                "It will be removed on or after {}.".format(self._removal_date)
+                f"It will be removed on or after {self._removal_date}.",
             )
         if self._replacement is not None:
             parts.append(
-                "Please use {} instead.".format(
-                    self._name_of(self._replacement),
-                ),
-            )
+                f"Please use {self._name_of(self._replacement)} instead.",
+            ),
         if self._addendum is not None:
             parts.append(self._addendum)
         return " ".join(parts)
@@ -51,7 +49,7 @@ class Callable(object):
     _object = attr.ib()
 
     def message(self, name_of):
-        return "{} is deprecated.".format(name_of(self._object))
+        return f"{name_of(self._object)} is deprecated."
 
 
 @attr.s(eq=True, frozen=True, hash=True)
@@ -63,6 +61,4 @@ class Inheritance(object):
     _type = attr.ib()
 
     def message(self, name_of):
-        return "Subclassing from {} is deprecated.".format(
-            name_of(self._type),
-        )
+        return f"Subclassing from {name_of(self._type)} is deprecated."

@@ -21,7 +21,7 @@ class Adder(object):
         return self.value == other.value
 
     def __repr__(self):  # pragma: no cover
-        return "<Adder {}>".format(self.value)
+        return f"<Adder {self.value}>"
 
 
 def calculate():

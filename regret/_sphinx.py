@@ -16,14 +16,14 @@ def doc_with_deprecated_directive(
 
     parts = [
         dedent(object.__doc__),
-        "\n.. deprecated:: {}\n".format(version),
+        f"\n.. deprecated:: {version}\n",
     ]
     if replacement is not None:
         parts.append(
-            "\n    Please use `{}` instead.\n".format(name_of(replacement)),
+            f"\n    Please use `{name_of(replacement)}` instead.\n",
         )
     if removal_date is not None:
         parts.append(
-            "\n    It will be removed on or after {}.\n".format(removal_date),
+            f"\n    It will be removed on or after {removal_date}.\n",
         )
     return "".join(parts)
