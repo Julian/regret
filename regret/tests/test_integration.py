@@ -6,7 +6,7 @@ from twisted.trial.unittest import SynchronousTestCase
 import regret
 
 
-class Calculator(object):
+class Calculator:
     @regret.callable(version="1.2.3")
     def __call__(self):
         return 12

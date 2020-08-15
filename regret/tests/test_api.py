@@ -9,7 +9,7 @@ from regret.testing import Recorder
 import regret
 
 
-class Adder(object):
+class Adder:
     """
     Add things.
     """
@@ -35,7 +35,7 @@ def add(x, y):
     return 12
 
 
-class Calculator(object):
+class Calculator:
     def better(self):  # pragma: no cover
         return 13
 
@@ -70,7 +70,7 @@ class TestDeprecator(TestCase):
         self.assertEqual(deprecated(), 12)
 
     def test_method(self):
-        class Calculator(object):
+        class Calculator:
             def _calculate(self):
                 return 12
 
@@ -107,7 +107,7 @@ class TestDeprecator(TestCase):
         )
 
     def test_method_gets_deprecation_notice_in_docstring(self):
-        class Calculator(object):
+        class Calculator:
             def _calculate(self):  # pragma: no cover
                 """
                 Perform a super important calculation.
@@ -158,7 +158,7 @@ class TestDeprecator(TestCase):
         """
         If you're too lazy to add docstrings I ain't helping you.
         """
-        class Lazy(object):
+        class Lazy:
             @self.regret.callable(version="v2.3.4")
             def method():  # pragma: no cover
                 pass
@@ -169,7 +169,7 @@ class TestDeprecator(TestCase):
         If you're too lazy to add docstrings I ain't helping you.
         """
         @self.regret.callable(version="v2.3.4")
-        class Lazy(object):
+        class Lazy:
             pass
         self.assertIsNone(Lazy.__doc__)
 
@@ -188,7 +188,7 @@ class TestDeprecator(TestCase):
     def test_method_with_removal_date(self):
         removal_date = date(year=2012, month=12, day=12)
 
-        class Class(object):
+        class Class:
             def _method(self):  # pragma: no cover
                 return 12
 
@@ -233,7 +233,7 @@ class TestDeprecator(TestCase):
         self.assertEqual(deprecated(), 12)
 
     def test_class_via_callable_with_replacement(self):
-        class Subtractor(object):
+        class Subtractor:
             pass
 
         Deprecated = self.regret.callable(
@@ -317,7 +317,7 @@ class TestDeprecator(TestCase):
         self.assertEqual(calculate.__name__, deprecated.__name__)
 
     def test_method_is_wrapped(self):
-        class Calculator(object):
+        class Calculator:
             def _calculate(self):  # pragma: no cover
                 """
                 Perform a super important calculation.
@@ -385,7 +385,7 @@ class TestDeprecator(TestCase):
         Any existing references are unchanged.
         """
 
-        class Class(object):
+        class Class:
             def method(self):
                 """Original method docstring."""
 
@@ -412,7 +412,7 @@ class TestDeprecator(TestCase):
         Any existing references are unchanged.
         """
 
-        class Original(object):
+        class Original:
             """Original class docstring."""
 
         Original.something = 12
@@ -443,7 +443,7 @@ class TestDeprecator(TestCase):
         )
 
     def test_dunder_call(self):
-        class Calculator(object):
+        class Calculator:
             def _calculate(self):
                 return 12
 
@@ -453,7 +453,7 @@ class TestDeprecator(TestCase):
         self.assertEqual(Calculator()(), 12)
 
     def test_inheritance(self):
-        class Inheritable(object):
+        class Inheritable:
             pass
 
         class SubclassOfInheritable(Inheritable):
@@ -469,7 +469,7 @@ class TestDeprecator(TestCase):
         self.expect_deprecation(kind=Inheritance(type=Uninheritable))
 
     def test_inheritance_has_init_subclass(self):
-        class Inheritable(object):
+        class Inheritable:
             def __init_subclass__(Subclass, **kwargs):
                 Subclass.init = kwargs
 
@@ -518,7 +518,7 @@ class TestDeprecator(TestCase):
         Any existing references are unchanged.
         """
 
-        class Original(object):
+        class Original:
             """Original class docstring."""
 
         Original.something = 12

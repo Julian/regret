@@ -6,7 +6,7 @@ from regret import _sphinx, _warnings, emitted
 
 
 @attr.s(eq=True, frozen=True)
-class Deprecator(object):
+class Deprecator:
     """
     Deprecators help manifest regret.
 

@@ -12,7 +12,7 @@ def _qualname(obj):
 
 
 @attr.s(eq=True, frozen=True, hash=True)
-class Deprecation(object):
+class Deprecation:
     """
     A single emitted deprecation.
     """
@@ -41,7 +41,7 @@ class Deprecation(object):
 # --* Representations of deprecated things *--
 
 @attr.s(eq=True, frozen=True, hash=True)
-class Callable(object):
+class Callable:
     """
     A parameter for a particular callable.
     """
@@ -53,7 +53,7 @@ class Callable(object):
 
 
 @attr.s(eq=True, frozen=True, hash=True)
-class Inheritance(object):
+class Inheritance:
     """
     The subclassing of a given parent type.
     """

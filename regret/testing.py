@@ -5,7 +5,7 @@ import attr
 
 
 @attr.s(eq=True)
-class Recorder(object):
+class Recorder:
 
     saw = attr.ib(factory=list)
 
