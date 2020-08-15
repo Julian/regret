@@ -1,5 +1,5 @@
 """
-Integration with the standard library's ``warnings`` module.
+Integration with the standard library's `warnings` module.
 """
 import warnings
 
