@@ -51,15 +51,14 @@ class TestDeprecator(TestCase):
     def setUp(self):
         self._recorder = Recorder()
         self._expected_deprecations = []
-        self.addCleanup(
-            self.assertEqual,
-            self._recorder,
-            Recorder(saw=self._expected_deprecations),
-        )
+        self.addCleanup(self.assertSaw, self._expected_deprecations)
         self.regret = Deprecator(emit=self._recorder.emit)
 
+    def assertSaw(self, deprecations):
+        self.assertEqual(self._recorder, Recorder(saw=deprecations))
+
     def assertNoDeprecations(self):
-        self.assertEqual(self._recorder, Recorder())
+        self.assertSaw(deprecations=[])
 
     def expect_deprecation(self, **kwargs):
         self._expected_deprecations.append(Deprecation(**kwargs))
