@@ -15,6 +15,6 @@ repos:
     hooks:
     -   id: python-safety-dependencies-check
 -   repo: https://github.com/timothycrosley/isort
-    rev: 5.3.2
+    rev: 5.4.2
     hooks:
     -   id: isort
