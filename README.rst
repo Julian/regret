@@ -24,7 +24,7 @@ regret
   :alt: ReadTheDocs status
   :target: https://regret.readthedocs.io/en/stable/
 
-``Regret`` is a library for deprecating functionality in Python
+``regret`` is a library for deprecating functionality in Python
 libraries and applications.
 
 Its documentation lives on `Read the Docs
@@ -34,7 +34,7 @@ Its documentation lives on `Read the Docs
 Deprecations
 ------------
 
-``Regret`` can deprecate:
+``regret`` can deprecate:
 
     - [x] callables
         - [x] functions
@@ -62,7 +62,7 @@ Deprecations
 Design Goals
 ------------
 
-``Regret`` is meant to cover all of the deprecations an author may encounter.
+``regret`` is meant to cover all of the deprecations an author may encounter.
 
 It is intended to:
 

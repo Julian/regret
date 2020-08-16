@@ -8,7 +8,7 @@ Making a design or implementation mistake and having to pay for it later
 can be a significant burden [#]_ for a library, package or codebase. This
 burden weighs heavily both on maintainer(s) and on users of the code.
 
-Most of the functionality provided by :mod:`regret` is aimed towards
+Most of the functionality provided by :ref:`regret` is aimed towards
 these inevitable moments *after* a mistake has been made and is to be
 corrected.
 
@@ -64,7 +64,7 @@ guidelines which can be built upon later.
 
     `compatibility`
 
-        :mod:`regret`'s own deprecation policy
+        :ref:`regret`'s own deprecation policy
 
     `Twisted Compatibility Policy <https://twistedmatrix.com/documents/current/core/development/policy/compatibility-policy.html>`_
 
@@ -171,7 +171,7 @@ been considered in the course of changes made to the package.
 
     `public API <compatibility:Public API>`
 
-        :mod:`regret`'s own public API definition
+        :ref:`regret`'s own public API definition
 
     `The SemVer specification, step 1 <https://semver.org/#semantic-versioning-specification-semver>`_
 

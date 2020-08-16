@@ -7,7 +7,7 @@ possible.*
 
 This page attempts to demonstrate a variety of practical deprecations
 that library authors face, alongside how to perform the deprecation
-using :mod:`regret`.
+using :ref:`regret`.
 
 The `API Reference <api/modules>` also contains a full list for completeness.
 
@@ -83,7 +83,7 @@ Parameters
 There are various scenarios in which a callable's signature may require
 deprecation.
 
-:mod:`regret` can help deprecate a parameter (argument) which previously
+:ref:`regret` can help deprecate a parameter (argument) which previously
 was required and which now is to be removed.
 
 Consider again our ``greeting`` function, but where we have decided to
@@ -136,7 +136,7 @@ and cons of inheritance <https://www.youtube.com/watch?v=3MNVP9-hglc>`_.
 
 For library authors however who have released public APIs that heavily
 depend on or require users to inherit from provided superclasses,
-:mod:`regret` provides a mechanism for deprecating the inheritability of
+:ref:`regret` provides a mechanism for deprecating the inheritability of
 classes.
 
 Consider for example:

@@ -1,8 +1,8 @@
 ==================================
-:mod:`regret`'s Deprecation Policy
+:ref:`regret`'s Deprecation Policy
 ==================================
 
-This document is :mod:`regret`'s own deprecation policy.
+This document is :ref:`regret`'s own deprecation policy.
 
 
 Public API

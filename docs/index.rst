@@ -1,3 +1,5 @@
+.. _regret:
+
 .. include:: ../README.rst
 
 
