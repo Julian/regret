@@ -179,7 +179,6 @@ class _PartiallyDeprecated:
                     )
 
         self.__regret_maybe_emit_deprecation__ = _maybe_emit_deprecation
-        self.__regretted_callable__ = callable
         self.__regret_parameter__ = lambda name: _PartiallyDeprecated(
             emit=emit,
             callable=callable,
@@ -193,7 +192,9 @@ class _PartiallyDeprecated:
 
     def __call__(self, *args, **kwargs):
         self.__regret_maybe_emit_deprecation__(*args, **kwargs)
-        return self.__regretted_callable__(*args, **kwargs)
+        # we call __wrapped__ rather than inspect.unwrap because we only need
+        # to do this once, and don't want to unwrap something underneath
+        return self.__wrapped__(*args, **kwargs)
 
 
 _DEPRECATOR = Deprecator()
