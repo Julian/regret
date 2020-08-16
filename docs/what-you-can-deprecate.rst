@@ -88,8 +88,8 @@ was required and which now is to be removed.
 
 Consider again our ``greeting`` function, but where we have decided to
 replace the separate specification of first and last names with a single
-``name`` parameter`, <https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/>`_
-and therefore wish to deprecate the existing ones:
+``name`` parameter\ `, <https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/>`_
+and therefore wish to deprecate providing the name in separate parameters:
 
 .. testcode::
 
@@ -102,8 +102,8 @@ and therefore wish to deprecate the existing ones:
                 name += f" {last_name}"
         return f"Hello {name}!"
 
-at which point using the function with the previous parameters will show
-a deprecation warning:
+After the above, using the function with the previous parameters will
+show a deprecation warning:
 
 .. testcode::
 
