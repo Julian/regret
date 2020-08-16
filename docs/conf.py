@@ -200,6 +200,10 @@ autodoc_default_options = {
     "member-order": "bysource",
 }
 
+# -- Options for autosectionlabel extension ----------------------------------
+
+autosectionlabel_prefix_document = True
+
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.

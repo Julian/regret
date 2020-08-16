@@ -8,7 +8,7 @@ Making a design or implementation mistake and having to pay for it later
 can be a significant burden [#]_ for a library, package or codebase. This
 burden weighs heavily both on maintainer(s) and on users of the code.
 
-Most of the functionality provided by :ref:`regret` is aimed towards
+Most of the functionality provided by :mod:`regret` is aimed towards
 these inevitable moments *after* a mistake has been made and is to be
 corrected.
 
@@ -51,8 +51,8 @@ of:
 Your policy will likely fail to predict all of the intricate
 deprecations that you may need over your package's long and healthy
 lifetime. Judgment calls may still have to be made (`empathetically
-<Empathize>`), but a policy sets an initial set of guidelines which can
-be built upon later.
+<before-you-deprecate:Empathize>`), but a policy sets an initial set of
+guidelines which can be built upon later.
 
 
 .. seealso::
@@ -64,7 +64,7 @@ be built upon later.
 
     `compatibility`
 
-        :ref:`regret`'s own deprecation policy
+        :mod:`regret`'s own deprecation policy
 
     `Twisted Compatibility Policy <https://twistedmatrix.com/documents/current/core/development/policy/compatibility-policy.html>`_
 
@@ -74,9 +74,9 @@ be built upon later.
 Document Your Public API
 ------------------------
 
-A `deprecation policy <Have a Policy>` can clarify to users of a package
-what to expect as the package evolves and changes APIs or objects over
-time.
+A `deprecation policy <before-you-deprecate:Have a Policy>` can clarify
+to users of a package what to expect as the package evolves and changes
+APIs or objects over time.
 
 Simply specifying how deprecations will be handled however is not enough.
 Even with a clear policy on how deprecations will be handled, a key additional
@@ -169,9 +169,9 @@ been considered in the course of changes made to the package.
 
 .. seealso::
 
-    `public API`
+    `public API <compatibility:Public API>`
 
-        :ref:`regret`'s own public API definition
+        :mod:`regret`'s own public API definition
 
     `The SemVer specification, step 1 <https://semver.org/#semantic-versioning-specification-semver>`_
 
@@ -185,8 +185,9 @@ been considered in the course of changes made to the package.
 Empathize
 ---------
 
-Having a `policy <Have a Policy>` for how you'll deprecate things, and
-having a `definition <Document Your Public API>` of what it is that is
+Having a `policy <before-you-deprecate:Have a Policy>`
+for how you'll deprecate things, and having a `definition
+<before-you-deprecate:Document Your Public API>` of what it is that is
 subject to deprecation are key steps in setting clear expectations.
 
 The reality is -- they'll never be enough.
