@@ -49,24 +49,15 @@ class Calculator:
 
 class TestDeprecator(TestCase):
     def setUp(self):
-        self._recorder = Recorder()
-        self._expected_deprecations = []
-        self.addCleanup(self.assertSaw, self._expected_deprecations)
-        self.regret = Deprecator(emit=self._recorder.emit)
-
-    def assertSaw(self, deprecations):
-        self.assertEqual(self._recorder, Recorder(saw=deprecations))
-
-    def assertNoDeprecations(self):
-        self.assertSaw(deprecations=[])
-
-    def expect_deprecation(self, **kwargs):
-        self._expected_deprecations.append(Deprecation(**kwargs))
+        self.recorder = Recorder()
+        self.regret = Deprecator(emit=self.recorder.emit)
 
     def test_function(self):
         deprecated = self.regret.callable(version="1.2.3")(calculate)
-        self.expect_deprecation(kind=Callable(object=calculate))
-        self.assertEqual(deprecated(), 12)
+        with self.recorder.expect(
+            Deprecation(kind=Callable(object=calculate)),
+        ):
+            self.assertEqual(deprecated(), 12)
 
     def test_method(self):
         class Calculator:
@@ -75,23 +66,25 @@ class TestDeprecator(TestCase):
 
             calculate = self.regret.callable(version="1.2.3")(_calculate)
 
-        self.expect_deprecation(kind=Callable(object=Calculator._calculate))
-        self.assertEqual(Calculator().calculate(), 12)
+        with self.recorder.expect(
+            Deprecation(kind=Callable(object=Calculator._calculate)),
+        ):
+            self.assertEqual(Calculator().calculate(), 12)
 
     def test_class_via_callable(self):
         Deprecated = self.regret.callable(version="1.2.3")(Adder)
-        self.expect_deprecation(kind=Callable(object=Adder))
-        self.assertEqual(Deprecated(), Adder())
+        with self.recorder.expect(Deprecation(kind=Callable(object=Adder))):
+            self.assertEqual(Deprecated(), Adder())
 
     def test_function_with_args(self):
         deprecated = self.regret.callable(version="1.2.3")(add)
-        self.expect_deprecation(kind=Callable(object=add))
-        self.assertEqual(deprecated(9, y=3), 12)
+        with self.recorder.expect(Deprecation(kind=Callable(object=add))):
+            self.assertEqual(deprecated(9, y=3), 12)
 
     def test_class_with_args_via_callable(self):
         Deprecated = self.regret.callable(version="1.2.3")(Adder)
-        self.expect_deprecation(kind=Callable(object=Adder))
-        self.assertEqual(Deprecated(9, y=2), Adder(11))
+        with self.recorder.expect(Deprecation(kind=Callable(object=Adder))):
+            self.assertEqual(Deprecated(9, y=2), Adder(11))
 
     def test_function_gets_deprecation_notice_in_docstring(self):
         deprecated = self.regret.callable(version="v2.3.4")(calculate)
@@ -178,11 +171,14 @@ class TestDeprecator(TestCase):
             version="1.2.3",
             removal_date=removal_date,
         )(calculate)
-        self.expect_deprecation(
-            kind=Callable(object=calculate),
-            removal_date=removal_date,
-        )
-        self.assertEqual(deprecated(), 12)
+
+        with self.recorder.expect(
+            Deprecation(
+                kind=Callable(object=calculate),
+                removal_date=removal_date,
+            ),
+        ):
+            self.assertEqual(deprecated(), 12)
 
     def test_method_with_removal_date(self):
         removal_date = date(year=2012, month=12, day=12)
@@ -196,11 +192,13 @@ class TestDeprecator(TestCase):
                 removal_date=removal_date,
             )(_method)
 
-        self.expect_deprecation(
-            kind=Callable(object=Class._method),
-            removal_date=removal_date,
-        )
-        self.assertEqual(Class().method(), 12)
+        with self.recorder.expect(
+            Deprecation(
+                kind=Callable(object=Class._method),
+                removal_date=removal_date,
+            ),
+        ):
+            self.assertEqual(Class().method(), 12)
 
     def test_function_with_removal_date_deprecation_notice_in_docstring(self):
         removal_date = date(year=2012, month=12, day=12)
@@ -225,11 +223,14 @@ class TestDeprecator(TestCase):
             version="1.2.3",
             replacement=add,
         )(calculate)
-        self.expect_deprecation(
-            kind=Callable(object=calculate),
-            replacement=add,
-        )
-        self.assertEqual(deprecated(), 12)
+
+        with self.recorder.expect(
+            Deprecation(
+                kind=Callable(object=calculate),
+                replacement=add,
+            ),
+        ):
+            self.assertEqual(deprecated(), 12)
 
     def test_class_via_callable_with_replacement(self):
         class Subtractor:
@@ -240,11 +241,10 @@ class TestDeprecator(TestCase):
             replacement=Subtractor,
         )(Adder)
 
-        self.expect_deprecation(
-            kind=Callable(Adder),
-            replacement=Subtractor,
-        )
-        self.assertEqual(Deprecated(), Adder())
+        with self.recorder.expect(
+            Deprecation(kind=Callable(object=Adder), replacement=Subtractor),
+        ):
+            self.assertEqual(Deprecated(), Adder())
 
     def test_function_with_replacement_deprecation_notice_in_docstring(self):
         deprecated = self.regret.callable(
@@ -448,64 +448,72 @@ class TestDeprecator(TestCase):
 
             __call__ = self.regret.callable(version="1.2.3")(_calculate)
 
-        self.expect_deprecation(kind=Callable(object=Calculator._calculate))
-        self.assertEqual(Calculator()(), 12)
+        with self.recorder.expect(
+            Deprecation(kind=Callable(object=Calculator._calculate)),
+        ):
+            self.assertEqual(Calculator()(), 12)
 
     def test_function_parameter(self):
         @self.regret.parameter(version="1.2.3", name="z")
         def add3(x, y, z):
             return x + y + z
 
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="z",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        )
-        self.assertEqual(add3(1, 2, z=3), 6)
+        ):
+            self.assertEqual(add3(1, 2, z=3), 6)
 
     def test_function_parameter_positionally(self):
         @self.regret.parameter(version="1.2.3", name="z")
         def add3(x, y, z):
             return x + y + z
 
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="z",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        )
-        self.assertEqual(add3(1, 2, 3), 6)
+        ):
+            self.assertEqual(add3(1, 2, 3), 6)
 
     def test_function_parameter_keyword_only(self):
         @self.regret.parameter(version="1.2.3", name="z")
         def add3(x, y, *, z):
             return x + y + z
 
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="z",
-                    kind=inspect.Parameter.KEYWORD_ONLY,
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
                 ),
             ),
-        )
-        self.assertEqual(add3(1, 2, z=3), 6)
+        ):
+            self.assertEqual(add3(1, 2, z=3), 6)
 
     def test_function_parameter_unprovided_does_not_warn(self):
         @self.regret.parameter(version="1.2.3", name="z")
         def add3(x, y, z=0):
             return x + y + z
 
-        self.assertEqual(add3(1, 2), 3)
-        self.assertNoDeprecations()
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, 2), 3)
 
     def test_function_with_deprecated_parameter_is_wrapped(self):
         deprecated = self.regret.parameter(version="1.2.3", name="y")(add)
@@ -552,25 +560,27 @@ class TestDeprecator(TestCase):
         def add3(x, y, z):
             return x + y + z
 
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="y",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        )
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="z",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        )
-        self.assertEqual(add3(1, 2, z=3), 6)
+        ):
+            self.assertEqual(add3(1, 2, z=3), 6)
 
     def test_multiple_function_parameters_positionally(self):
         @self.regret.parameter(version="1.2.3", name="y")
@@ -578,25 +588,27 @@ class TestDeprecator(TestCase):
         def add3(x, y, z):
             return x + y + z
 
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="y",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        )
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="z",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        )
-        self.assertEqual(add3(1, 2, 3), 6)
+        ):
+            self.assertEqual(add3(1, 2, 3), 6)
 
     def test_multiple_function_parameters_keyword_only(self):
         @self.regret.parameter(version="1.2.3", name="y")
@@ -604,25 +616,27 @@ class TestDeprecator(TestCase):
         def add3(x, *, y, z):
             return x + y + z
 
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="y",
-                    kind=inspect.Parameter.KEYWORD_ONLY,
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
                 ),
             ),
-        )
-        self.expect_deprecation(
-            kind=Parameter(
-                callable=add3,
-                parameter=inspect.Parameter(
-                    name="z",
-                    kind=inspect.Parameter.KEYWORD_ONLY,
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
                 ),
             ),
-        )
-        self.assertEqual(add3(1, y=2, z=3), 6)
+        ):
+            self.assertEqual(add3(1, y=2, z=3), 6)
 
     def test_multiple_function_parameters_warn_in_definition_order(self):
         """
@@ -637,17 +651,20 @@ class TestDeprecator(TestCase):
         def add5(v, w, x, y, z):
             return v + w + x + y + z
 
-        for each in "v", "x", "y", "z":
-            self.expect_deprecation(
-                kind=Parameter(
-                    callable=add5,
-                    parameter=inspect.Parameter(
-                        name=each,
-                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        with self.recorder.expect(
+            *[
+                Deprecation(
+                    kind=Parameter(
+                        callable=add5,
+                        parameter=inspect.Parameter(
+                            name=each,
+                            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        ),
                     ),
-                ),
-            )
-        self.assertEqual(add5(1, 2, 3, 4, 5), 15)
+                ) for each in "vxyz"
+            ],
+        ):
+            self.assertEqual(add5(1, 2, 3, 4, 5), 15)
 
     def test_multiple_function_parameters_unprovided_does_not_warn(self):
         @self.regret.parameter(version="1.2.3", name="y")
@@ -655,8 +672,8 @@ class TestDeprecator(TestCase):
         def add3(x, y=0, z=0):
             return x + y + z
 
-        self.assertEqual(add3(1), 1)
-        self.assertNoDeprecations()
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1), 1)
 
     def test_function_with_multiple_deprecated_parameters_is_wrapped(self):
         deprecated = self.regret.parameter(
@@ -674,17 +691,17 @@ class TestDeprecator(TestCase):
         class Inheritable:
             pass
 
-        class SubclassOfInheritable(Inheritable):
-            pass
-
-        self.assertNoDeprecations()
+        with self.recorder.expect_clean():
+            class SubclassOfInheritable(Inheritable):
+                pass
 
         Uninheritable = self.regret.inheritance(version="2.3.4")(Inheritable)
 
-        class SubclassOfUninheritable(Uninheritable):
-            pass
-
-        self.expect_deprecation(kind=Inheritance(type=Uninheritable))
+        with self.recorder.expect(
+            Deprecation(kind=Inheritance(type=Uninheritable)),
+        ):
+            class SubclassOfUninheritable(Uninheritable):
+                pass
 
     def test_inheritance_has_init_subclass(self):
         class Inheritable:
@@ -698,10 +715,12 @@ class TestDeprecator(TestCase):
 
         Uninheritable = self.regret.inheritance(version="2.3.4")(Inheritable)
 
-        class SubclassOfUninheritable(Uninheritable, baz="quux"):
-            pass
+        with self.recorder.expect(
+            Deprecation(kind=Inheritance(type=Uninheritable)),
+        ):
+            class SubclassOfUninheritable(Uninheritable, baz="quux"):
+                pass
 
-        self.expect_deprecation(kind=Inheritance(type=Uninheritable))
         self.assertEqual(SubclassOfUninheritable.init, dict(baz="quux"))
 
     def test_inheritance_nonclass(self):
