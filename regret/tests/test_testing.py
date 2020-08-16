@@ -63,3 +63,18 @@ class TestRecorder(TestCase):
                 emitted.Deprecation(kind=emitted.Callable(object=int)),
             ):
                 deprecated()
+
+    def test_it_can_expect_no_deprecations(self):
+        recorder = testing.Recorder()
+        with recorder.expect_clean():
+            pass
+
+    def test_it_fails_for_unexpected_deprecations(self):
+        recorder = testing.Recorder()
+        regret = Deprecator(emit=recorder.emit)
+
+        deprecated = regret.callable(version="1.2.3")(calculate)
+
+        with self.assertRaises(testing.ExpectedDifferentDeprecations):
+            with recorder.expect_clean():
+                deprecated()
