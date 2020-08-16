@@ -3,7 +3,6 @@ from textwrap import dedent
 from unittest import TestCase
 import inspect
 
-from regret import Deprecator
 from regret.emitted import Callable, Deprecation, Inheritance, Parameter
 from regret.testing import Recorder
 import regret
@@ -50,7 +49,7 @@ class Calculator:
 class TestDeprecator(TestCase):
     def setUp(self):
         self.recorder = Recorder()
-        self.regret = Deprecator(emit=self.recorder.emit)
+        self.regret = regret.Deprecator(emit=self.recorder.emit)
 
     def test_function(self):
         deprecated = self.regret.callable(version="1.2.3")(calculate)
