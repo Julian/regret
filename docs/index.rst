@@ -11,4 +11,4 @@ Contents
     before-you-deprecate
     what-you-can-deprecate
     compatibility
-    api
+    api/modules

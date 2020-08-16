@@ -9,7 +9,7 @@ This page attempts to demonstrate a variety of practical deprecations
 that library authors face, alongside how to perform the deprecation
 using :mod:`regret`.
 
-The `API documentation <api>` also contains a full list for reference.
+The `API Reference <api/modules>` also contains a full list for completeness.
 
 .. testsetup::
 
