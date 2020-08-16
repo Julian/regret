@@ -14,6 +14,7 @@ subclassable
 subclassed
 subclasses
 subclassing
+submodules
 superclasses
 todo
 versioning
