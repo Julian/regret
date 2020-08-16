@@ -3,6 +3,7 @@ from textwrap import dedent
 from unittest import TestCase
 import inspect
 
+from regret._api import NoSuchParameter
 from regret.emitted import Callable, Deprecation, Inheritance, Parameter
 from regret.testing import Recorder
 import regret
@@ -685,6 +686,27 @@ class TestDeprecator(TestCase):
             )(add)
         )
         self.assertEqual(add.__name__, deprecated.__name__)
+
+    def test_deprecating_non_existent_parameter_errors(self):
+        with self.assertRaises(NoSuchParameter) as e:
+            self.regret.parameter(
+                version="1.2.3",
+                name="there-is-no-such-parameter",
+            )(add)
+        self.assertIn("there-is-no-such-parameter", str(e.exception))
+
+    def test_deprecating_partially_non_existent_parameters_errors(self):
+        with self.assertRaises(NoSuchParameter) as e:
+            self.regret.parameter(
+                version="1.2.3",
+                name="there-is-no-such-parameter",
+            )(
+                self.regret.parameter(
+                    version="1.2.3",
+                    name="x",
+                )(add)
+            )
+        self.assertIn("there-is-no-such-parameter", str(e.exception))
 
     def test_inheritance(self):
         class Inheritable:

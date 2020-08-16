@@ -6,6 +6,10 @@ import attr
 from regret import _sphinx, _warnings, emitted
 
 
+class NoSuchParameter(Exception):
+    pass
+
+
 @attr.s(eq=True, frozen=True)
 class Deprecator:
     """
@@ -165,6 +169,9 @@ class _PartiallyDeprecated:
         wraps(callable)(self)
 
         signature = inspect.signature(callable)
+        for each in deprecated_parameters:
+            if each not in signature.parameters:
+                raise NoSuchParameter(each)
 
         def _maybe_emit_deprecation(*args, **kwargs):
             arguments = signature.bind(*args, **kwargs).arguments
@@ -179,17 +186,23 @@ class _PartiallyDeprecated:
                     )
             return callable(*args, **kwargs)
 
+        def _regret_additional_parameter(name):
+            if name not in signature.parameters:
+                raise NoSuchParameter(name)
+
+            return _PartiallyDeprecated(
+                emit=emit,
+                callable=callable,
+                deprecated_parameters=[
+                    each
+                    for each in signature.parameters
+                    if each == name
+                    or each in deprecated_parameters
+                ],
+            )
+
         self.__regret_maybe_emit_deprecation__ = _maybe_emit_deprecation
-        self.__regret_parameter__ = lambda name: _PartiallyDeprecated(
-            emit=emit,
-            callable=callable,
-            deprecated_parameters=[  # keep these in signature definition order
-                each
-                for each in signature.parameters
-                if each == name
-                or each in deprecated_parameters
-            ],
-        )
+        self.__regret_parameter__ = _regret_additional_parameter
 
     def __call__(self, *args, **kwargs):
         return self.__regret_maybe_emit_deprecation__(*args, **kwargs)
