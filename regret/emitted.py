@@ -62,3 +62,16 @@ class Inheritance:
 
     def message(self, name_of):
         return f"Subclassing from {name_of(self._type)} is deprecated."
+
+
+@attr.s(eq=True, frozen=True, hash=True)
+class Parameter(object):
+    """
+    A parameter for a particular callable.
+    """
+
+    _callable = attr.ib()
+    _parameter = attr.ib()
+
+    def message(self, name_of):
+        return f"The {self._parameter.name!r} parameter is deprecated."

@@ -9,5 +9,5 @@ class Recorder:
 
     saw = attr.ib(factory=list)
 
-    def emit(self, deprecation):
+    def emit(self, deprecation, extra_stacklevel):
         self.saw.append(deprecation)

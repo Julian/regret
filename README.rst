@@ -48,10 +48,10 @@ Deprecations
         - [ ] classmethod
     - [ ] modules
     - [ ] parameters to callables
-        - [ ] required parameters that will be removed
+        - [x] previously required parameters that will be removed
         - [ ] optional parameters that are now required
         - [ ] deprecated values for parameters
-        - [ ] type changes for parameter
+        - [ ] type changes for parameters
         - [ ] mutual exclusion
     - [ ] interfaces
         - [ ] PEP 544 protocols

@@ -77,6 +77,57 @@ deprecation warning:
         Link to ``regret.Deprecator.Class`` once it exists.
 
 
+Parameters
+----------
+
+There are various scenarios in which a callable's signature may require
+deprecation.
+
+:ref:`regret` can help deprecate a parameter (argument) which previously
+was required and which now is to be removed.
+
+Consider again our ``greeting`` function, but where we have decided to
+replace the separate specification of first and last names with a single
+``name`` parameter`, <https://www.kalzumeus.com/2010/06/17/falsehoods-programmers-believe-about-names/>`_
+and therefore wish to deprecate the existing ones:
+
+.. testcode::
+
+    @regret.parameter(version="v1.2.3", name="first_name")
+    @regret.parameter(version="v1.2.3", name="last_name")
+    def greeting(first_name=None, last_name=None, *, name=None):
+        if first_name is not None:
+            name = first_name
+            if last_name is not None:
+                name += f" {last_name}"
+        return f"Hello {name}!"
+
+at which point using the function with the previous parameters will show
+a deprecation warning:
+
+.. testcode::
+
+    print(greeting("Joe", "Smith"))
+
+.. testoutput::
+
+    ...: DeprecationWarning: The 'first_name' parameter is deprecated.
+      print(greeting("Joe", "Smith"))
+    ...: DeprecationWarning: The 'last_name' parameter is deprecated.
+      print(greeting("Joe", "Smith"))
+    Hello Joe Smith!
+
+but via the new parameter, will not:
+
+.. testcode::
+
+    print(greeting(name="Joe Smith"))
+
+.. testoutput::
+
+    Hello Joe Smith!
+
+
 Subclassability
 ---------------
 

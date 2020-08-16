@@ -31,6 +31,11 @@ def add(x, y):
     return x + y
 
 
+@regret.parameter(version="1.2.3", name="z")
+def add3(x, y, z):
+    return x + y + z
+
+
 @regret.callable(version="1.2.3", replacement=Calculator)
 def calculator_fn():
     return 9
@@ -248,6 +253,13 @@ class TestRegret(SynchronousTestCase):
                 "Division is also terrible and we should all be friends."
             ),
             fn=deprecated,
+        )
+
+    def test_function_parameter(self):
+        self.assertDeprecated(
+            message="The 'z' parameter is deprecated.",
+            fn=add3,
+            kwargs=dict(x=1, y=2, z=3),
         )
 
     def test_inheritance(self):

@@ -1,4 +1,5 @@
 from functools import wraps
+import inspect
 
 import attr
 
@@ -51,8 +52,11 @@ class Deprecator:
     _name_of = attr.ib(default=emitted._qualname)
     _new_docstring = attr.ib(default=_sphinx.doc_with_deprecated_directive)
 
-    def _emit_deprecation(self, **kwargs):
-        self._emit(emitted.Deprecation(name_of=self._name_of, **kwargs))
+    def _emit_deprecation(self, extra_stacklevel=0, **kwargs):
+        self._emit(
+            deprecation=emitted.Deprecation(name_of=self._name_of, **kwargs),
+            extra_stacklevel=extra_stacklevel,
+        )
 
     # -- Deprecatable objects --
 
@@ -114,6 +118,17 @@ class Deprecator:
             return call_deprecated
         return deprecate
 
+    def parameter(self, version, name):
+        def deprecate(thing):
+            if hasattr(thing, "__regret_parameter__"):
+                return thing.__regret_parameter__(name)
+            return _PartiallyDeprecated(
+                emit=self._emit_deprecation,
+                callable=thing,
+                deprecated_parameters=[name],
+            )
+        return deprecate
+
     def inheritance(self, version):
         """
         Deprecate allowing a class to be subclassed.
@@ -139,6 +154,46 @@ class Deprecator:
             return DeprecatedForSubclassing
 
         return deprecate
+
+
+class _PartiallyDeprecated:
+    """
+    A partially deprecated callable.
+    """
+
+    def __init__(self, emit, callable, deprecated_parameters):
+        wraps(callable)(self)
+
+        signature = inspect.signature(callable)
+
+        def _maybe_emit_deprecation(*args, **kwargs):
+            arguments = signature.bind(*args, **kwargs).arguments
+            for name in deprecated_parameters:
+                if name in arguments:
+                    emit(
+                        kind=emitted.Parameter(
+                            callable=self,
+                            parameter=signature.parameters[name],
+                        ),
+                        extra_stacklevel=1,
+                    )
+
+        self.__regret_maybe_emit_deprecation__ = _maybe_emit_deprecation
+        self.__regretted_callable__ = callable
+        self.__regret_parameter__ = lambda name: _PartiallyDeprecated(
+            emit=emit,
+            callable=callable,
+            deprecated_parameters=[  # keep these in signature definition order
+                each
+                for each in signature.parameters
+                if each == name
+                or each in deprecated_parameters
+            ],
+        )
+
+    def __call__(self, *args, **kwargs):
+        self.__regret_maybe_emit_deprecation__(*args, **kwargs)
+        return self.__regretted_callable__(*args, **kwargs)
 
 
 _DEPRECATOR = Deprecator()
