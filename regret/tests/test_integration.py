@@ -1,4 +1,5 @@
 from datetime import date
+import collections
 import sys
 
 from twisted.trial.unittest import SynchronousTestCase
@@ -95,6 +96,24 @@ class TestRegret(SynchronousTestCase):
             fn=calculator_fn,
         )
         self.assertEqual(result, 9)
+
+    def test_function_with_builtin_replacement(self):
+        """
+        This will never happen. Right?
+        """
+        deprecated = regret.callable(
+            version="1.2.3",
+            replacement=str,
+        )(collections.UserString)
+        result = self.assertDeprecated(
+            message=(
+                "UserString is deprecated. "
+                "Please use str instead."
+            ),
+            fn=deprecated,
+            args=("foo",),
+        )
+        self.assertEqual(result, "foo")
 
     def test_method(self):
         calculator = Calculator()
