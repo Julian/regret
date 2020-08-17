@@ -18,8 +18,8 @@ class TestRecorder(TestCase):
         deprecated = regret.callable(version="1.2.3")(calculate)
 
         with recorder.expect(
-            emitted.Deprecation(kind=emitted.Callable(object=calculate)),
-            emitted.Deprecation(kind=emitted.Callable(object=calculate)),
+            emitted.Deprecation(kind=emitted.Callable(object=deprecated)),
+            emitted.Deprecation(kind=emitted.Callable(object=deprecated)),
         ):
             deprecated()
             deprecated()
@@ -32,8 +32,8 @@ class TestRecorder(TestCase):
 
         with self.assertRaises(testing.ExpectedDifferentDeprecations):
             with recorder.expect(
-                emitted.Deprecation(kind=emitted.Callable(object=calculate)),
-                emitted.Deprecation(kind=emitted.Callable(object=calculate)),
+                emitted.Deprecation(kind=emitted.Callable(object=deprecated)),
+                emitted.Deprecation(kind=emitted.Callable(object=deprecated)),
             ):
                 deprecated()
 
@@ -45,8 +45,8 @@ class TestRecorder(TestCase):
 
         with self.assertRaises(testing.ExpectedDifferentDeprecations):
             with recorder.expect(
-                emitted.Deprecation(kind=emitted.Callable(object=calculate)),
-                emitted.Deprecation(kind=emitted.Callable(object=calculate)),
+                emitted.Deprecation(kind=emitted.Callable(object=deprecated)),
+                emitted.Deprecation(kind=emitted.Callable(object=deprecated)),
             ):
                 deprecated()
                 deprecated()

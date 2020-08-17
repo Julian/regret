@@ -55,35 +55,40 @@ class TestDeprecator(TestCase):
     def test_function(self):
         deprecated = self.regret.callable(version="1.2.3")(calculate)
         with self.recorder.expect(
-            Deprecation(kind=Callable(object=calculate)),
+            Deprecation(kind=Callable(object=deprecated)),
         ):
             self.assertEqual(deprecated(), 12)
 
     def test_method(self):
         class Calculator:
-            def _calculate(self):
+            @self.regret.callable(version="1.2.3")
+            def calculate(self):
                 return 12
 
-            calculate = self.regret.callable(version="1.2.3")(_calculate)
-
         with self.recorder.expect(
-            Deprecation(kind=Callable(object=Calculator._calculate)),
+            Deprecation(kind=Callable(object=Calculator.calculate)),
         ):
             self.assertEqual(Calculator().calculate(), 12)
 
     def test_class_via_callable(self):
         Deprecated = self.regret.callable(version="1.2.3")(Adder)
-        with self.recorder.expect(Deprecation(kind=Callable(object=Adder))):
+        with self.recorder.expect(
+            Deprecation(kind=Callable(object=Deprecated)),
+        ):
             self.assertEqual(Deprecated(), Adder())
 
     def test_function_with_args(self):
         deprecated = self.regret.callable(version="1.2.3")(add)
-        with self.recorder.expect(Deprecation(kind=Callable(object=add))):
+        with self.recorder.expect(
+            Deprecation(kind=Callable(object=deprecated)),
+        ):
             self.assertEqual(deprecated(9, y=3), 12)
 
     def test_class_with_args_via_callable(self):
         Deprecated = self.regret.callable(version="1.2.3")(Adder)
-        with self.recorder.expect(Deprecation(kind=Callable(object=Adder))):
+        with self.recorder.expect(
+            Deprecation(kind=Callable(object=Deprecated)),
+        ):
             self.assertEqual(Deprecated(9, y=2), Adder(11))
 
     def test_function_gets_deprecation_notice_in_docstring(self):
@@ -174,7 +179,7 @@ class TestDeprecator(TestCase):
 
         with self.recorder.expect(
             Deprecation(
-                kind=Callable(object=calculate),
+                kind=Callable(object=deprecated),
                 removal_date=removal_date,
             ),
         ):
@@ -184,17 +189,16 @@ class TestDeprecator(TestCase):
         removal_date = date(year=2012, month=12, day=12)
 
         class Class:
-            def _method(self):  # pragma: no cover
-                return 12
-
-            method = self.regret.callable(
+            @self.regret.callable(
                 version="v2.3.4",
                 removal_date=removal_date,
-            )(_method)
+            )
+            def method(self):  # pragma: no cover
+                return 12
 
         with self.recorder.expect(
             Deprecation(
-                kind=Callable(object=Class._method),
+                kind=Callable(object=Class.method),
                 removal_date=removal_date,
             ),
         ):
@@ -226,7 +230,7 @@ class TestDeprecator(TestCase):
 
         with self.recorder.expect(
             Deprecation(
-                kind=Callable(object=calculate),
+                kind=Callable(object=deprecated),
                 replacement=add,
             ),
         ):
@@ -242,7 +246,10 @@ class TestDeprecator(TestCase):
         )(Adder)
 
         with self.recorder.expect(
-            Deprecation(kind=Callable(object=Adder), replacement=Subtractor),
+            Deprecation(
+                kind=Callable(object=Deprecated),
+                replacement=Subtractor,
+            ),
         ):
             self.assertEqual(Deprecated(), Adder())
 
@@ -443,13 +450,12 @@ class TestDeprecator(TestCase):
 
     def test_dunder_call(self):
         class Calculator:
-            def _calculate(self):
+            @self.regret.callable(version="1.2.3")
+            def __call__(self):
                 return 12
 
-            __call__ = self.regret.callable(version="1.2.3")(_calculate)
-
         with self.recorder.expect(
-            Deprecation(kind=Callable(object=Calculator._calculate)),
+            Deprecation(kind=Callable(object=Calculator.__call__)),
         ):
             self.assertEqual(Calculator()(), 12)
 

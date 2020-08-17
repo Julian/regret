@@ -102,7 +102,7 @@ class Deprecator:
             @wraps(thing)
             def call_deprecated(*args, **kwargs):
                 self._emit_deprecation(
-                    kind=emitted.Callable(object=thing),
+                    kind=emitted.Callable(object=call_deprecated),
                     replacement=replacement,
                     removal_date=removal_date,
                     addendum=addendum,
