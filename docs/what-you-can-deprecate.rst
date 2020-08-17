@@ -77,6 +77,37 @@ deprecation warning:
         Link to ``regret.Deprecator.Class`` once it exists.
 
 
+Replacements
+============
+
+It is often the case when deprecating an object that a newer replacement
+API subsumes its functionality, and is meant to be used instead.
+
+`regret.callable` accommodates this common use case by allowing you to
+specify which object is the replacement while deprecating:
+
+.. testcode::
+
+    def better_greeting(first_name, last_name):
+        return f"Hello {first_name} {last_name}! You are amazing!"
+
+    @regret.callable(version="1.0.0", replacement=better_greeting)
+    def greeting(first_name, last_name):
+        return f"Hello {first_name} {last_name}!"
+
+which will then show the replacement object in warnings emitted:
+
+.. testcode::
+
+    print(greeting("Joe", "Smith"))
+
+.. testoutput::
+
+    ...: DeprecationWarning: greeting is deprecated. Please use better_greeting instead.
+      print(greeting("Joe", "Smith"))
+    Hello Joe Smith!
+
+
 Parameters
 ----------
 
