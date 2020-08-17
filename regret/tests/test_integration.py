@@ -291,3 +291,23 @@ class TestRegret(SynchronousTestCase):
             filename=__file__,
             fn=subclass,
         )
+
+    def test_nested_callable(self):
+        """
+        Ensure we do something sensible with things that are deprecated as
+        nested callables inside some locals.
+
+        This probably should never happen, but ensure it doesn't blow up,
+        essentially.
+        """
+        @regret.callable(version="1.2.3")
+        def nested_thing():
+            return 12
+
+        self.assertDeprecated(
+            message=(
+                "TestRegret.test_nested_callable.<locals>.nested_thing "
+                "is deprecated."
+            ),
+            fn=nested_thing,
+        )
