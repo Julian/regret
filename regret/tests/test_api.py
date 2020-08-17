@@ -820,3 +820,41 @@ class TestRegretDefaultDeprecator(TestCase):
             public_members(regret),
             public_members(regret.Deprecator),
         )
+
+
+class TestUnwrap(TestCase):
+    """
+    Deprecated things can be unwrapped into what they started as.
+    """
+
+    def assertUnwraps(self, thing, expected):
+        self.assertIs(inspect.unwrap(thing(expected)), expected)
+
+    def test_function(self):
+        self.assertUnwraps(regret.callable(version="1.2.3"), add)
+
+    def test_method(self):
+        self.assertUnwraps(regret.callable(version="1.2.3"), Adder.__eq__)
+
+    def test_class_via_callable(self):
+        self.assertUnwraps(regret.callable(version="1.2.3"), Adder)
+
+    def test_parameter(self):
+        self.assertUnwraps(
+            regret.parameter(version="1.2.3", name="y"),
+            add,
+        )
+
+    def test_multiple_parameters(self):
+        self.assertUnwraps(
+            lambda fn: regret.parameter(version="1.2.3", name="x")(
+                regret.parameter(version="1.2.3", name="y")(fn)
+            ),
+            add,
+        )
+
+    def test_inheritance(self):
+        class Class:
+            pass
+
+        self.assertUnwraps(regret.inheritance(version="1.2.3"), Adder)
