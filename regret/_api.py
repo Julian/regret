@@ -167,7 +167,7 @@ class _PartiallyDeprecated:
     def __init__(self, emit, callable, deprecated_parameters=()):
         wraps(callable)(self)
 
-        signature = inspect.signature(callable)
+        signature = inspect.signature(callable, follow_wrapped=False)
         kwargs_name = next(
             (
                 name

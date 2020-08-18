@@ -1,4 +1,5 @@
 from datetime import date
+from functools import wraps
 from textwrap import dedent
 from unittest import TestCase
 import inspect
@@ -32,7 +33,7 @@ def calculate():
 
 
 def add(x, y):
-    return 12
+    return x + y
 
 
 class Calculator:
@@ -804,6 +805,60 @@ class TestDeprecator(TestCase):
                 )(add)
             )
         self.assertIn("there-is-no-such-parameter", str(e.exception))
+
+    def test_function_parameter_on_already_wrapped_function(self):
+        """
+        Deprecating a parameter of a function that has otherwise already been
+        wrapped (and e.g. already has a ``__wrapped`` attribute, and therefore
+        is seen by `inspect`'s ``follow_wrapped`` argument as having another
+        layer) only considers the topmost layer.
+
+        I.e., if you add a parameter in a wrapper, you can deprecate that
+        parameter, not just ones on the lowest level callable.
+        """
+
+        @self.regret.parameter(version="1.2.3", name="z")
+        @wraps(add)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        with self.recorder.expect(
+            kind=Parameter(
+                callable=add3,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(x=1, y=2, z=3), 6)
+
+    def test_function_parameter_on_doubly_wrapped_function(self):
+        """
+        Ensure we don't trivially implement unwrapping functions in a naive way
+        by only not-unwrapping once.
+
+        I.e., if you add a parameter in a double wrapper, you can
+        deprecate that parameter, not just ones on the lowest level
+        callable.
+        """
+
+        @self.regret.parameter(version="1.2.3", name="z")
+        @wraps(add)
+        @wraps(calculate)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        with self.recorder.expect(
+            kind=Parameter(
+                callable=add3,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(x=1, y=2, z=3), 6)
 
     def test_inheritance(self):
         class Inheritable:
