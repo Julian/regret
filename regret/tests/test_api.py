@@ -560,6 +560,40 @@ class TestDeprecator(TestCase):
             ),
         )
 
+    def test_function_parameter_via_kwargs(self):
+        @self.regret.parameter(version="1.2.3", name="z")
+        def add3(x, y, **kwargs):
+            return x + y + kwargs.get("z", 0)
+
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+        ):
+            self.assertEqual(add3(1, 2, z=3), 6)
+
+    def test_function_parameter_via_kwargs_unprovided_does_not_warn(self):
+        @self.regret.parameter(version="1.2.3", name="z")
+        def add3(x, y, **kwargs):
+            return x + y + kwargs.get("z", 0)
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, 2), 3)
+
+    def test_function_parameter_via_kwargs_other_kwargs_does_not_warn(self):
+        @self.regret.parameter(version="1.2.3", name="z")
+        def add3(x, y, **kwargs):
+            return x + y + sum(kwargs.values())
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, 2, foo=12), 15)
+
     def test_multiple_function_parameters(self):
         @self.regret.parameter(version="1.2.3", name="y")
         @self.regret.parameter(version="1.2.3", name="z")
@@ -680,6 +714,91 @@ class TestDeprecator(TestCase):
 
         with self.recorder.expect_clean():
             self.assertEqual(add3(1), 1)
+
+    def test_multiple_function_parameters_via_kwargs(self):
+        @self.regret.parameter(version="1.2.3", name="y")
+        @self.regret.parameter(version="1.2.3", name="z")
+        def add3(x, **kwargs):
+            return x + kwargs.get("y", 0) + kwargs.get("z", 0)
+
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+        ):
+            self.assertEqual(add3(1, y=2, z=3), 6)
+
+    def test_multiple_function_parameters_via_kwargs_unprovided(self):
+        @self.regret.parameter(version="1.2.3", name="y")
+        @self.regret.parameter(version="1.2.3", name="z")
+        def add3(x, **kwargs):
+            return x + kwargs.get("y", 0) + kwargs.get("z", 0)
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1), 1)
+
+    def test_multiple_function_parameters_via_kwargs_warns_sorted_order(self):
+        @self.regret.parameter(version="1.2.3", name="z")
+        @self.regret.parameter(version="1.2.3", name="v")
+        @self.regret.parameter(version="1.2.3", name="x")
+        @self.regret.parameter(version="1.2.3", name="y")
+        def add5(w, **kwargs):
+            return w + sum(kwargs.values())
+
+        with self.recorder.expect(
+            Deprecation(
+                kind=Parameter(
+                    callable=add5,
+                    parameter=inspect.Parameter(
+                        name="v",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=Parameter(
+                    callable=add5,
+                    parameter=inspect.Parameter(
+                        name="x",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=Parameter(
+                    callable=add5,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=Parameter(
+                    callable=add5,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+        ):
+            self.assertEqual(add5(1, z=2, y=3, x=4, v=5), 15)
 
     def test_function_with_multiple_deprecated_parameters_is_wrapped(self):
         deprecated = self.regret.parameter(

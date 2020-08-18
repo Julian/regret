@@ -168,33 +168,56 @@ class _PartiallyDeprecated:
         wraps(callable)(self)
 
         signature = inspect.signature(callable)
+        kwargs_name = next(
+            (
+                name
+                for name, parameter in reversed(signature.parameters.items())
+                if parameter.kind == inspect.Parameter.VAR_KEYWORD
+            ), None,
+        )
 
         def _maybe_emit_deprecation(*args, **kwargs):
             arguments = signature.bind(*args, **kwargs).arguments
             for name in deprecated_parameters:
                 if name in arguments:
-                    emit(
-                        kind=emitted.Parameter(
-                            callable=self,
-                            parameter=signature.parameters[name],
-                        ),
-                        extra_stacklevel=1,
+                    parameter = signature.parameters[name]
+                elif (
+                    kwargs_name is not None
+                    and name in arguments.get(kwargs_name, {})
+                ):
+                    parameter = inspect.Parameter(
+                        name=name,
+                        kind=inspect.Parameter.KEYWORD_ONLY,
                     )
+                else:  # our best friend, the peephole optimizer bug.
+                    continue  # pragma: no cover
+
+                emit(
+                    kind=emitted.Parameter(callable=self, parameter=parameter),
+                    extra_stacklevel=1,
+                )
             return callable(*args, **kwargs)
 
         def _regret_additional_parameter(name):
-            if name not in signature.parameters:
+            if name not in signature.parameters and kwargs_name is None:
                 raise NoSuchParameter(name)
+
+            order = {
+                parameter: index
+                for index, parameter in enumerate(signature.parameters)
+            }
+            signature_ordered = sorted(
+                list(deprecated_parameters) + [name],
+                key=lambda each: (
+                    order.get(each, order.get(kwargs_name, -1)),
+                    each,
+                ),
+            )
 
             return _PartiallyDeprecated(
                 emit=emit,
                 callable=callable,
-                deprecated_parameters=[
-                    each
-                    for each in signature.parameters
-                    if each == name
-                    or each in deprecated_parameters
-                ],
+                deprecated_parameters=signature_ordered,
             )
 
         self.__regret_maybe_emit_deprecation__ = _maybe_emit_deprecation
