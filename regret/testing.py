@@ -5,6 +5,8 @@ from contextlib import contextmanager
 
 import attr
 
+from regret.emitted import Deprecation
+
 
 class ExpectedDifferentDeprecations(AssertionError):
     pass
@@ -21,8 +23,14 @@ class Recorder:
         """
         self._saw.append(deprecation)
 
+    def expect(self, **kwargs):
+        """
+        Expect a given set of deprecations to be emitted.
+        """
+        return self.expect_deprecations(Deprecation(**kwargs))
+
     @contextmanager
-    def expect(self, *deprecations):
+    def expect_deprecations(self, *deprecations):
         """
         Expect a given set of deprecations to be emitted.
         """
@@ -35,4 +43,4 @@ class Recorder:
         """
         Expect no deprecations to be emitted.
         """
-        return self.expect()
+        return self.expect_deprecations()
