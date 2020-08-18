@@ -129,8 +129,7 @@ class Deprecator:
             return _PartiallyDeprecated(
                 emit=self._emit_deprecation,
                 callable=thing,
-                deprecated_parameters=[name],
-            )
+            ).__regret_parameter__(name)
         return deprecate
 
     def inheritance(self, version):
@@ -165,13 +164,10 @@ class _PartiallyDeprecated:
     A partially deprecated callable.
     """
 
-    def __init__(self, emit, callable, deprecated_parameters):
+    def __init__(self, emit, callable, deprecated_parameters=()):
         wraps(callable)(self)
 
         signature = inspect.signature(callable)
-        for each in deprecated_parameters:
-            if each not in signature.parameters:
-                raise NoSuchParameter(each)
 
         def _maybe_emit_deprecation(*args, **kwargs):
             arguments = signature.bind(*args, **kwargs).arguments
