@@ -860,6 +860,71 @@ class TestDeprecator(TestCase):
         ):
             self.assertEqual(add3(x=1, y=2, z=3), 6)
 
+    def test_inner_function_parameter_on_already_wrapped_function(self):
+        """
+        Deprecating a parameter of a function that has otherwise already been
+        wrapped (and e.g. already has a ``__wrapped`` attribute, and therefore
+        is seen by `inspect`'s ``follow_wrapped`` argument as having another
+        layer) only considers the topmost layer.
+
+        I.e., if you add a parameter in a wrapper, you can deprecate that
+        parameter, not just ones on the lowest level callable.
+        """
+
+        @self.regret.parameter(version="1.2.3", name="x")
+        @wraps(add)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        # FIXME: Technically the argument here *is* keyword only. Also
+        # technically, that can not be the case (e.g. if add3 took *args
+        # and passed it along to the underlying wrapped function). In
+        # that case we'd mis-report the parameter as being keyword only
+        # in the deprecation message in the current implementation. At
+        # some point that can be slightly improved, though in general
+        # it's not easy to get e.g. the *union* of all signatures in a
+        # wrapped stack of functions via inspect.Signature, let alone to
+        # know whether all of those parameters actually can be passed
+        # all the way through. So for now, this seems OK even if it's
+        # slightly wrong in the positional case.
+        with self.recorder.expect(
+            kind=Parameter(
+                callable=add3,
+                parameter=inspect.Parameter(
+                    name="x",
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(x=1, y=2, z=3), 6)
+
+    def test_inner_function_parameter_on_doubly_wrapped_function(self):
+        """
+        Ensure we don't trivially implement unwrapping functions in a naive way
+        by only not-unwrapping once.
+
+        I.e., if you add a parameter in a double wrapper, you can
+        deprecate that parameter, not just ones on the lowest level
+        callable.
+        """
+
+        @self.regret.parameter(version="1.2.3", name="x")
+        @wraps(add)
+        @wraps(calculate)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        with self.recorder.expect(
+            kind=Parameter(
+                callable=add3,
+                parameter=inspect.Parameter(
+                    name="x",
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(x=1, y=2, z=3), 6)
+
     def test_inheritance(self):
         class Inheritable:
             pass
