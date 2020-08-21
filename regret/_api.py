@@ -126,7 +126,7 @@ class Deprecator:
         def deprecate(thing):
             if hasattr(thing, "__regret_parameter__"):
                 return thing.__regret_parameter__(name)
-            return _PartiallyDeprecated(
+            return PartiallyDeprecated(
                 emit=self._emit_deprecation,
                 callable=thing,
             ).__regret_parameter__(name)
@@ -159,7 +159,7 @@ class Deprecator:
         return deprecate
 
 
-class _PartiallyDeprecated:
+class PartiallyDeprecated:
     """
     A partially deprecated callable.
     """
@@ -214,7 +214,7 @@ class _PartiallyDeprecated:
                 ),
             )
 
-            return _PartiallyDeprecated(
+            return PartiallyDeprecated(
                 emit=emit,
                 callable=callable,
                 deprecated_parameters=signature_ordered,
