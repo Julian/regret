@@ -123,6 +123,26 @@ class Deprecator:
         return deprecate
 
     def parameter(self, version, name):
+        """
+        Deprecate a parameter that was previously required and will be removed.
+
+        Arguments:
+
+            version:
+
+                the first version in which the deprecated parameter was
+                considered deprecated
+
+            name:
+
+                the name of the parameter as specified in the callable's
+                signature.
+
+                Deprecating a parameter that was previously accepted
+                only via arbitrary keyword arguments ("``kwargs``") is
+                also supported and should be specified using the name of
+                the parameter as retrieved from the keyword arguments.
+        """
         def deprecate(thing):
             if hasattr(thing, "__regret_parameter__"):
                 return thing.__regret_parameter__(name)
