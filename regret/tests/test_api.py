@@ -440,6 +440,15 @@ class TestDeprecator(TestCase):
         with self.recorder.expect(kind=Callable(object=Calculator.__call__)):
             self.assertEqual(Calculator()(), 12)
 
+    def test_dunder_call_used_indirectly(self):
+        class Calculator:
+            @self.regret.callable(version="1.2.3")
+            def __lt__(self, other):
+                return 12 < other
+
+        with self.recorder.expect(kind=Callable(object=Calculator.__lt__)):
+            self.assertTrue(Calculator() < 100)
+
     def test_function_parameter(self):
         @self.regret.parameter(version="1.2.3", name="z")
         def add3(x, y, z):
