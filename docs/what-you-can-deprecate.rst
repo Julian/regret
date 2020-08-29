@@ -114,6 +114,10 @@ Parameters
 There are various scenarios in which a callable's signature may require
 deprecation.
 
+
+Removing a Required Parameter
+=============================
+
 :ref:`regret` can help deprecate a parameter (argument) which previously
 was required and which now is to be removed.
 
