@@ -1,13 +1,8 @@
 from functools import wraps
-import inspect
 
 import attr
 
-from regret import _sphinx, _warnings, emitted
-
-
-class NoSuchParameter(Exception):
-    pass
+from regret import _inspect, _sphinx, _warnings, emitted
 
 
 @attr.s(eq=True, frozen=True)
@@ -187,57 +182,23 @@ class PartiallyDeprecated:
     def __init__(self, emit, callable, deprecated_parameters=()):
         wraps(callable)(self)
 
-        signature = inspect.signature(callable, follow_wrapped=False)
-        kwargs_name = next(
-            (
-                name
-                for name, parameter in reversed(signature.parameters.items())
-                if parameter.kind == inspect.Parameter.VAR_KEYWORD
-            ), None,
+        signature = _inspect.SignatureWithRegret.for_callable(
+            callable, deprecated=deprecated_parameters,
         )
 
         def _maybe_emit_deprecation(*args, **kwargs):
-            arguments = signature.bind(*args, **kwargs).arguments
-            for name in deprecated_parameters:
-                if name in arguments:
-                    parameter = signature.parameters[name]
-                elif (
-                    kwargs_name is not None
-                    and name in arguments.get(kwargs_name, {})
-                ):
-                    parameter = inspect.Parameter(
-                        name=name,
-                        kind=inspect.Parameter.KEYWORD_ONLY,
-                    )
-                else:  # our best friend, the peephole optimizer bug.
-                    continue  # pragma: no cover
-
+            for each in signature.deprecated_parameters_used(*args, **kwargs):
                 emit(
-                    kind=emitted.Parameter(callable=self, parameter=parameter),
+                    kind=emitted.Parameter(callable=self, parameter=each),
                     extra_stacklevel=1,
                 )
             return callable(*args, **kwargs)
 
         def _regret_additional_parameter(name):
-            if name not in signature.parameters and kwargs_name is None:
-                raise NoSuchParameter(name)
-
-            order = {
-                parameter: index
-                for index, parameter in enumerate(signature.parameters)
-            }
-            signature_ordered = sorted(
-                list(deprecated_parameters) + [name],
-                key=lambda each: (
-                    order.get(each, order.get(kwargs_name, -1)),
-                    each,
-                ),
-            )
-
             return PartiallyDeprecated(
                 emit=emit,
                 callable=callable,
-                deprecated_parameters=signature_ordered,
+                deprecated_parameters=signature.deprecated_insorted(name),
             )
 
         self.__regret_maybe_emit_deprecation__ = _maybe_emit_deprecation

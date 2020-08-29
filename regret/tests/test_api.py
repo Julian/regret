@@ -4,7 +4,7 @@ from textwrap import dedent
 from unittest import TestCase
 import inspect
 
-from regret._api import NoSuchParameter
+from regret._inspect import NoSuchParameter
 from regret.emitted import Callable, Deprecation, Inheritance, Parameter
 from regret.testing import Recorder
 import regret
