@@ -139,12 +139,11 @@ class Deprecator:
                 the parameter as retrieved from the keyword arguments.
         """
         def deprecate(thing):
-            if hasattr(thing, "__regret_parameter__"):
-                return thing.__regret_parameter__(name)
-            return PartiallyDeprecated(
-                emit=self._emit_deprecation,
+            return with_deprecated_parameter(
                 callable=thing,
-            ).__regret_parameter__(name)
+                emit=self._emit_deprecation,
+                name=name,
+            )
         return deprecate
 
     def inheritance(self, version):
@@ -174,38 +173,37 @@ class Deprecator:
         return deprecate
 
 
-class PartiallyDeprecated:
+def with_deprecated_parameter(callable, emit, name):
     """
-    A partially deprecated callable.
+    Return a callable which has deprecated the parameter of the given name.
+
+    The returned callable can be used to chain additional deprecated
+    parameters.
     """
 
-    def __init__(self, emit, callable, deprecated_parameters=()):
-        wraps(callable)(self)
+    if hasattr(callable, "__regret_parameter__"):
+        return callable.__regret_parameter__(name)
 
-        signature = _inspect.SignatureWithRegret.for_callable(
-            callable, deprecated=deprecated_parameters,
-        )
+    signature = _inspect.SignatureWithRegret.for_callable(callable)
 
-        def _maybe_emit_deprecation(*args, **kwargs):
-            for each in signature.deprecated_parameters_used(*args, **kwargs):
-                emit(
-                    kind=emitted.Parameter(callable=self, parameter=each),
-                    extra_stacklevel=1,
-                )
-            return callable(*args, **kwargs)
-
-        def _regret_additional_parameter(name):
-            return PartiallyDeprecated(
-                emit=emit,
-                callable=callable,
-                deprecated_parameters=signature.deprecated_insorted(name),
+    @wraps(callable)
+    def partially_deprecated(*args, **kwargs):
+        for each in signature.deprecated_parameters_used(*args, **kwargs):
+            emit(
+                kind=emitted.Parameter(
+                    callable=partially_deprecated,
+                    parameter=each,
+                ),
             )
+        return callable(*args, **kwargs)
 
-        self.__regret_maybe_emit_deprecation__ = _maybe_emit_deprecation
-        self.__regret_parameter__ = _regret_additional_parameter
+    def __regret_parameter__(new):
+        nonlocal signature
+        signature = signature.with_parameter(new)
+        return partially_deprecated
+    partially_deprecated.__regret_parameter__ = __regret_parameter__
 
-    def __call__(self, *args, **kwargs):
-        return self.__regret_maybe_emit_deprecation__(*args, **kwargs)
+    return __regret_parameter__(name)
 
 
 _DEPRECATOR = Deprecator()

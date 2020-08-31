@@ -18,7 +18,7 @@ class SignatureWithRegret:
     """
 
     _signature = attr.ib()
-    _deprecated = attr.ib(converter=list)
+    _deprecated = attr.ib(factory=list)
 
     def __attrs_post_init__(self):
         self.kwargs_parameter_name = next(
@@ -50,7 +50,7 @@ class SignatureWithRegret:
             or self.kwargs_parameter_name is not None
         )
 
-    def deprecated_insorted(self, name):
+    def with_parameter(self, name):
         """
         Return the deprecated parameter names with one additional one added.
 
@@ -59,7 +59,7 @@ class SignatureWithRegret:
         if not self.would_accept(name):
             raise NoSuchParameter(name)
 
-        return sorted(
+        deprecated = sorted(
             self._deprecated + [name],
             key=lambda each: (
                 self._order.get(
@@ -69,6 +69,7 @@ class SignatureWithRegret:
                 each,
             ),
         )
+        return attr.evolve(self, deprecated=deprecated)
 
     def deprecated_parameters_used(self, *args, **kwargs):
         arguments = self._signature.bind(*args, **kwargs).arguments
