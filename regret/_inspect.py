@@ -41,22 +41,22 @@ class SignatureWithRegret:
             **kwargs
         )
 
-    def would_not_accept(self, name):
+    def would_accept(self, name):
         """
-        Does this signature not know about a parameter with the given name?
+        Does this signature know about a parameter with the given name?
         """
         return (
-            name not in self._signature.parameters
-            and self.kwargs_parameter_name is None
+            name in self._signature.parameters
+            or self.kwargs_parameter_name is not None
         )
 
     def deprecated_insorted(self, name):
         """
-        Return the deprecated parameter namess with one additional one added.
+        Return the deprecated parameter names with one additional one added.
 
         Inserts the new parameter name in sorted (signature) order.
         """
-        if self.would_not_accept(name):
+        if not self.would_accept(name):
             raise NoSuchParameter(name)
 
         return sorted(
