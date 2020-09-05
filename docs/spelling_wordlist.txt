@@ -6,6 +6,8 @@ deprecations
 docstring
 docstrings
 inheritability
+# this obviously isn't a word, but is used in (mis)used
+mis
 param
 positionally
 runtime

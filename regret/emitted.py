@@ -1,27 +1,49 @@
 """
 Objects emitted whilst a deprecated object is being used.
 """
+from datetime import date
+from typing import Any, Callable, Optional, Type
+import inspect
+
+try:  # pragma: no cover
+    from typing import Protocol
+except ImportError:  # pragma: no cover
+    from typing_extensions import Protocol
+
 import attr
 
 
-def _qualname(obj):
+class Kind(Protocol):
+    """
+    A type of deprecated thing that has been (mis)-used.
+
+    Will be emitted within `Deprecation` objects.
+    """
+
+    def message(self, name_of) -> str:
+        """
+        A suitable message (within a warning or otherwise) for this kind.
+        """
+
+
+def _qualname(obj: Any) -> str:
     """
     Return the (non-fully-)qualified name of the given object.
     """
     return obj.__qualname__
 
 
-@attr.s(eq=True, frozen=True, hash=True)
+@attr.define(kw_only=True)
 class Deprecation:
     """
     A single emitted deprecation.
     """
 
-    _kind = attr.ib()
-    _name_of = attr.ib(default=_qualname, repr=False)
-    _replacement = attr.ib(default=None, repr=False)
-    _removal_date = attr.ib(default=None, repr=False)
-    _addendum = attr.ib(default=None, repr=False)
+    _kind: Kind
+    _name_of: Callable[[Any], str] = attr.field(default=_qualname, repr=False)
+    _replacement: Optional[Any] = attr.field(default=None, repr=False)
+    _removal_date: Optional[date] = attr.field(default=None, repr=False)
+    _addendum: Optional[str] = attr.field(default=None, repr=False)
 
     def message(self):
         parts = [self._kind.message(name_of=self._name_of)]
@@ -38,40 +60,40 @@ class Deprecation:
         return " ".join(parts)
 
 
-# --* Representations of deprecated things *--
+# --* Implementations of deprecated Kinds *--
 
-@attr.s(eq=True, frozen=True, hash=True)
+@attr.define()
 class Callable:
     """
     A parameter for a particular callable.
     """
 
-    _object = attr.ib()
+    _object: Any
 
     def message(self, name_of):
         return f"{name_of(self._object)} is deprecated."
 
 
-@attr.s(eq=True, frozen=True, hash=True)
+@attr.define()
 class Inheritance:
     """
     The subclassing of a given parent type.
     """
 
-    _type = attr.ib()
+    _type: Type
 
     def message(self, name_of):
         return f"Subclassing from {name_of(self._type)} is deprecated."
 
 
-@attr.s(eq=True, frozen=True, hash=True)
+@attr.define()
 class Parameter(object):
     """
     A parameter for a particular callable.
     """
 
-    _callable = attr.ib()
-    _parameter = attr.ib()
+    _callable: Callable
+    _parameter: inspect.Parameter
 
     def message(self, name_of):
         return f"The {self._parameter.name!r} parameter is deprecated."
