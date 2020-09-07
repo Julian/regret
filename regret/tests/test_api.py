@@ -505,6 +505,14 @@ class TestDeprecator(TestCase):
         with self.recorder.expect_clean():
             self.assertEqual(add3(1, 2), 3)
 
+    def test_function_parameter_fully_unprovided_errors(self):
+        @self.regret.parameter(version="1.2.3", name="z")
+        def add3(x, y, z):  # pragma: no cover
+            return x + y + z
+
+        with self.assertRaises(TypeError):
+            add3(1, 2)
+
     def test_function_with_deprecated_parameter_is_wrapped(self):
         deprecated = self.regret.parameter(version="1.2.3", name="y")(add)
         self.assertEqual(add.__name__, deprecated.__name__)
