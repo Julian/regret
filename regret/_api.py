@@ -146,6 +146,47 @@ class Deprecator:
             )
         return deprecate
 
+    def optional_parameter(self, version, name, default):
+        """
+        Deprecate a parameter that was optional and will become required.
+
+        Arguments:
+
+            version:
+
+                the first version in which the parameter was to warn
+                when unprovided
+
+            name:
+
+                the name of the parameter as specified in the callable's
+                signature.
+
+                Requiring an optional parameter that was previously
+                accepted only via arbitrary keyword arguments
+                ("``kwargs``") is also supported and should be specified
+                using the name of the parameter as retrieved from the
+                keyword arguments.
+
+            default:
+
+                whilst the parameter remains optional, the value that
+                should be used when it is unprovided by a caller.
+
+                It will be passed through to the wrapped callable,
+                which can therefore assume the argument will always be
+                present.
+        """
+
+        def deprecate(thing):
+            return with_future_required_parameter(
+                callable=thing,
+                emit=self._emit_deprecation,
+                name=name,
+                default=default,
+            )
+        return deprecate
+
     def inheritance(self, version):
         """
         Deprecate allowing a class to be subclassed.
@@ -188,18 +229,55 @@ def with_deprecated_parameter(callable, emit, name):
 
     @wraps(callable)
     def partially_deprecated(*args, **kwargs):
-        for each in signature.deprecated_parameters_used(*args, **kwargs):
+        bound = signature.bind(*args, **kwargs)
+        for each in signature.deprecated_parameters_used(bound):
             emit(
                 kind=emitted.Parameter(
                     callable=partially_deprecated,
                     parameter=each,
                 ),
             )
-        return callable(*args, **kwargs)
+        return callable(*bound.args, **bound.kwargs)
 
     def __regret_parameter__(new):
         nonlocal signature
         signature = signature.with_parameter(new)
+        return partially_deprecated
+    partially_deprecated.__regret_parameter__ = __regret_parameter__
+
+    return __regret_parameter__(name)
+
+
+def with_future_required_parameter(callable, emit, name, default):
+    """
+    Return a callable which warns if the given parameter is unprovided.
+
+    The returned callable can be used to chain additional deprecated
+    parameters.
+    """
+
+    signature = _inspect.SignatureWithRegret.for_callable(callable)
+
+    @wraps(callable)
+    def partially_deprecated(*args, **kwargs):
+        bound = signature.bind(*args, **kwargs)
+        for each, default in signature.missing_optional(bound):
+            bound.arguments[name] = default
+            emit(
+                kind=emitted.OptionalParameter(
+                    callable=partially_deprecated,
+                    parameter=each,
+                    default=default,
+                ),
+            )
+        return callable(*bound.args, **bound.kwargs)
+
+    def __regret_parameter__(new):
+        nonlocal signature
+        signature = signature.with_optional_parameter(
+            name=new,
+            default=default,
+        )
         return partially_deprecated
     partially_deprecated.__regret_parameter__ = __regret_parameter__
 

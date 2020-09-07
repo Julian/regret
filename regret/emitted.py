@@ -67,7 +67,7 @@ class Inheritance:
 @attr.s(eq=True, frozen=True, hash=True)
 class Parameter(object):
     """
-    A parameter for a particular callable.
+    A parameter for a particular callable which should no longer be used.
     """
 
     _callable = attr.ib()
@@ -75,3 +75,21 @@ class Parameter(object):
 
     def message(self, name_of):
         return f"The {self._parameter.name!r} parameter is deprecated."
+
+
+@attr.s(eq=True, frozen=True, hash=True)
+class OptionalParameter(object):
+    """
+    A parameter for a particular callable which will become mandatory.
+    """
+
+    _callable = attr.ib()
+    _parameter = attr.ib()
+    _default = attr.ib()
+
+    def message(self, name_of):
+        return (
+            f"Calling {name_of(self._callable)} without providing the "
+            f"{self._parameter.name!r} parameter is deprecated. Using "
+            f"{self._default!r} as a default."
+        )

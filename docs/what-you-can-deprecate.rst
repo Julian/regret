@@ -163,6 +163,58 @@ but via the new parameter, will not:
     Hello Joe Smith!
 
 
+Making a New or Previously-Optional Parameter Required
+======================================================
+
+:ref:`regret` can help make a parameter which previously was *not*
+required slowly become required.
+
+Again in our ``greeting`` function, perhaps we have decided to allow
+specifying how excited to make the greeting, by specifying whether to
+end it with a period or exclamation point. We wish to ultimately force
+users of the function to specify one or the other, but until then, a
+default is being chosen.
+
+.. testcode::
+
+    @regret.optional_parameter(version="v1.2.3", name="end", default="!")
+    def greeting(first_name, last_name, end):
+        return f"Hello {first_name} {last_name}{end}"
+
+.. note::
+
+    :ref:`regret` can and should handle ensuring that the default is
+    used when not provided by the caller.
+
+    Your wrapped function can assume a value will always be provided.
+
+    `None` can be used as a default if appropriate (and will not be
+    interpreted with any meaning), as can any other Python object.
+
+After the above, using the function without explicitly passing the ``end``
+parameter will show a deprecation warning:
+
+.. testcode::
+
+    print(greeting("Joe", "Smith"))
+
+.. testoutput::
+
+    ...: DeprecationWarning: Calling greeting without providing the 'end' parameter is deprecated. Using '!' as a default.
+      print(greeting("Joe", "Smith"))
+    Hello Joe Smith!
+
+but when properly specifying the new parameter, will not:
+
+.. testcode::
+
+    print(greeting("Joe", "Smith", end="."))
+
+.. testoutput::
+
+    Hello Joe Smith.
+
+
 Subclassability
 ---------------
 

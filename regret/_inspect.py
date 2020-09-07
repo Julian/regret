@@ -19,6 +19,7 @@ class SignatureWithRegret:
 
     _signature = attr.ib()
     _deprecated = attr.ib(factory=list)
+    _defaults_for_optional_parameters = attr.ib(factory=dict)
 
     def __attrs_post_init__(self):
         self.kwargs_parameter_name = next(
@@ -50,7 +51,7 @@ class SignatureWithRegret:
             or self.kwargs_parameter_name is not None
         )
 
-    def with_parameter(self, name):
+    def with_parameter(self, name, **kwargs):
         """
         Return the deprecated parameter names with one additional one added.
 
@@ -69,10 +70,19 @@ class SignatureWithRegret:
                 each,
             ),
         )
-        return attr.evolve(self, deprecated=deprecated)
+        return attr.evolve(self, deprecated=deprecated, **kwargs)
 
-    def deprecated_parameters_used(self, *args, **kwargs):
-        arguments = self._signature.bind(*args, **kwargs).arguments
+    def with_optional_parameter(self, name, default):
+        return self.with_parameter(
+            name,
+            defaults_for_optional_parameters={
+                name: default,
+                **self._defaults_for_optional_parameters,
+            }
+        )
+
+    def deprecated_parameters_used(self, bound_arguments):
+        arguments = bound_arguments.arguments
         for name in self._deprecated:
             if name in arguments:
                 yield self._signature.parameters[name]
@@ -84,3 +94,14 @@ class SignatureWithRegret:
                     name=name,
                     kind=inspect.Parameter.KEYWORD_ONLY,
                 )
+
+    def missing_optional(self, bound_arguments):
+        for name in self._deprecated:
+            if name not in bound_arguments.arguments:
+                yield (
+                    self._signature.parameters[name],
+                    self._defaults_for_optional_parameters[name],
+                )
+
+    def bind(self, *args, **kwargs):
+        return self._signature.bind_partial(*args, **kwargs)

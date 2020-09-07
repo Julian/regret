@@ -37,6 +37,11 @@ def add3(x, y, z):
     return x + y + z
 
 
+@regret.optional_parameter(version="1.2.3", name="z", default=0)
+def add4(w, x, y, z):
+    return w + x + y + z
+
+
 @regret.callable(version="1.2.3", replacement=Calculator)
 def calculator_fn():
     return 9
@@ -279,6 +284,16 @@ class TestRegret(SynchronousTestCase):
             message="The 'z' parameter is deprecated.",
             fn=add3,
             kwargs=dict(x=1, y=2, z=3),
+        )
+
+    def test_optional_function_parameter(self):
+        self.assertDeprecated(
+            message=(
+                "Calling add4 without providing the 'z' parameter "
+                "is deprecated. Using 0 as a default."
+            ),
+            fn=add4,
+            kwargs=dict(w=0, x=1, y=2),
         )
 
     def test_inheritance(self):
