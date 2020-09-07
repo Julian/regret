@@ -1,13 +1,19 @@
 from datetime import date
 from functools import wraps
 from textwrap import dedent
-from unittest import TestCase
+from unittest import TestCase, skipIf
 import inspect
 
 from regret._inspect import NoSuchParameter
 from regret.emitted import Callable, Deprecation, Inheritance, Parameter
 from regret.testing import Recorder
 import regret
+
+try:  # pragma: no cover
+    exec("def f(x, /): pass")
+    HAS_POSITIONAL_ONLY = True
+except SyntaxError:  # pragma: no cover
+    HAS_POSITIONAL_ONLY = False
 
 
 class Adder:
@@ -481,6 +487,14 @@ class TestDeprecator(TestCase):
         ):
             self.assertEqual(add3(1, 2, 3), 6)
 
+    def test_function_parameter_unprovided_does_not_warn(self):
+        @self.regret.parameter(version="1.2.3", name="z")
+        def add3(x, y, z=0):
+            return x + y + z
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, 2), 3)
+
     def test_function_parameter_keyword_only(self):
         @self.regret.parameter(version="1.2.3", name="z")
         def add3(x, y, *, z):
@@ -497,13 +511,59 @@ class TestDeprecator(TestCase):
         ):
             self.assertEqual(add3(1, 2, z=3), 6)
 
-    def test_function_parameter_unprovided_does_not_warn(self):
+    def test_function_parameter_keyword_only_unprovided_does_not_warn(self):
         @self.regret.parameter(version="1.2.3", name="z")
-        def add3(x, y, z=0):
+        def add3(x, y, *, z=0):
             return x + y + z
 
         with self.recorder.expect_clean():
             self.assertEqual(add3(1, 2), 3)
+
+    @skipIf(not HAS_POSITIONAL_ONLY, "Positional-only parameters are 3.8+")
+    def test_function_parameter_positional_only(self):
+        local = locals()
+        exec(
+            dedent(
+                """
+                @self.regret.parameter(version="1.2.3", name="x")
+                def add3(x, /, y, z):
+                    return x + y + z
+                """,
+            ),
+            globals(),
+            local,
+        )
+        add3 = local["add3"]
+
+        with self.recorder.expect(
+            kind=Parameter(
+                callable=add3,
+                parameter=inspect.Parameter(
+                    name="x",
+                    kind=inspect.Parameter.POSITIONAL_ONLY,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(1, 2, 3), 6)
+
+    @skipIf(not HAS_POSITIONAL_ONLY, "Positional-only parameters are 3.8+")
+    def test_function_parameter_positional_only_unprovided_does_not_warn(self):
+        local = locals()
+        exec(
+            dedent(
+                """
+                @self.regret.parameter(version="1.2.3", name="x")
+                def add3(x=0, /, y=0, z=0):
+                    return x + y + z
+                """,
+            ),
+            globals(),
+            local,
+        )
+        add3 = local["add3"]
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(y=1, z=2), 3)
 
     def test_function_parameter_fully_unprovided_errors(self):
         @self.regret.parameter(version="1.2.3", name="z")
