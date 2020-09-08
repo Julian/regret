@@ -1179,6 +1179,23 @@ class TestDeprecator(TestCase):
         ):
             self.assertEqual(add3(1, 2), 3)
 
+    def test_optional_kwargs_function_parameter_positional_or_keyword(self):
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, y, z, **kwargs):
+            return x + y + z
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=add3,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                ),
+                default=0,
+            ),
+        ):
+            self.assertEqual(add3(1, 2), 3)
+
     def test_optional_kwargs_function_parameter_provided_does_not_warn(self):
         @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
         def add3(x, y, *, z, **kwargs):
@@ -1186,6 +1203,23 @@ class TestDeprecator(TestCase):
 
         with self.recorder.expect_clean():
             self.assertEqual(add3(1, 2, z=3), 6)
+
+    def test_optional_kwargs_function_parameter_missing_with_other_kwarg(self):
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def addmany(x, y, *, z, **kwargs):
+            return x + y + z + sum(kwargs.values())
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=addmany,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+                default=0,
+            ),
+        ):
+            self.assertEqual(addmany(1, 2, foo=12), 15)
 
     def test_optional_kwargs_function_parameter_unmodified_kwargs(self):
         """
@@ -1217,6 +1251,23 @@ class TestDeprecator(TestCase):
 
         with self.recorder.expect_clean():
             self.assertEqual(add3(1, 2, z=3), 6)
+
+    def test_optional_kwargs_function_parameter_unmodified_other_kwarg(self):
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def addmany(x, y, **kwargs):
+            return x + y + sum(kwargs.values())
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=addmany,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+                default=0,
+            ),
+        ):
+            self.assertEqual(addmany(1, 2, foo=12), 15)
 
     def test_inheritance(self):
         class Inheritable:
