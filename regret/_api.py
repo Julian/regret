@@ -261,8 +261,8 @@ def with_future_required_parameter(callable, emit, name, default):
     @wraps(callable)
     def partially_deprecated(*args, **kwargs):
         bound = signature.bind(*args, **kwargs)
-        for each, default in signature.missing_optional(bound):
-            bound.arguments[name] = default
+        for each in signature.missing_optional(bound):
+            default = signature.set_default(bound, parameter=each)
             emit(
                 kind=emitted.OptionalParameter(
                     callable=partially_deprecated,

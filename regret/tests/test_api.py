@@ -1187,6 +1187,37 @@ class TestDeprecator(TestCase):
         with self.recorder.expect_clean():
             self.assertEqual(add3(1, 2, z=3), 6)
 
+    def test_optional_kwargs_function_parameter_unmodified_kwargs(self):
+        """
+        Modifying the signature is easier, but if desired, letting the arg
+        still be provided via kwargs is supported.
+
+        The deprecated optional parameter will always be present.
+        """
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, y, **kwargs):
+            return x + y + kwargs["z"]
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=add3,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+                default=0,
+            ),
+        ):
+            self.assertEqual(add3(1, 2), 3)
+
+    def test_optional_kwargs_function_parameter_unmodified_but_provided(self):
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, y, **kwargs):
+            return x + y + kwargs["z"]
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, 2, z=3), 6)
+
     def test_inheritance(self):
         class Inheritable:
             pass

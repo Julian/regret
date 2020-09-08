@@ -96,12 +96,37 @@ class SignatureWithRegret:
                 )
 
     def missing_optional(self, bound_arguments):
+        kwargs = bound_arguments.arguments.get(self.kwargs_parameter_name, ())
+
         for name in self._deprecated:
-            if name not in bound_arguments.arguments:
-                yield (
-                    self._signature.parameters[name],
-                    self._defaults_for_optional_parameters[name],
-                )
+            if name not in bound_arguments.arguments and name not in kwargs:
+                parameter = self._signature.parameters.get(name)
+                if (
+                    parameter is None
+                    and self.kwargs_parameter_name is not None
+                ):
+                    parameter = inspect.Parameter(
+                        name=name,
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    )
+                yield parameter
 
     def bind(self, *args, **kwargs):
         return self._signature.bind_partial(*args, **kwargs)
+
+    def set_default(self, bound_arguments, parameter):
+        """
+        Set the default for the given parameter within some bound arguments.
+        """
+
+        name = parameter.name
+        default = self._defaults_for_optional_parameters[name]
+        if name in self._signature.parameters:
+            bound_arguments.arguments[name] = default
+        else:
+            kwargs = bound_arguments.arguments.setdefault(
+                self.kwargs_parameter_name,
+                {},
+            )
+            kwargs[name] = default
+        return default
