@@ -49,7 +49,7 @@ Deprecations
     - [ ] modules
     - [ ] parameters to callables
         - [x] previously required parameters that will be removed
-        - [ ] optional parameters that are now required
+        - [x] optional parameters that are now required
         - [ ] deprecated values for parameters
         - [ ] type changes for parameters
         - [ ] mutual exclusion
