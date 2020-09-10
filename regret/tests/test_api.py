@@ -817,42 +817,17 @@ class TestDeprecator(TestCase):
             return w + sum(kwargs.values())
 
         with self.recorder.expect_deprecations(
-            Deprecation(
-                kind=Parameter(
-                    callable=add5,
-                    parameter=inspect.Parameter(
-                        name="v",
-                        kind=inspect.Parameter.KEYWORD_ONLY,
+            *[
+                Deprecation(
+                    kind=Parameter(
+                        callable=add5,
+                        parameter=inspect.Parameter(
+                            name=each,
+                            kind=inspect.Parameter.KEYWORD_ONLY,
+                        ),
                     ),
-                ),
-            ),
-            Deprecation(
-                kind=Parameter(
-                    callable=add5,
-                    parameter=inspect.Parameter(
-                        name="x",
-                        kind=inspect.Parameter.KEYWORD_ONLY,
-                    ),
-                ),
-            ),
-            Deprecation(
-                kind=Parameter(
-                    callable=add5,
-                    parameter=inspect.Parameter(
-                        name="y",
-                        kind=inspect.Parameter.KEYWORD_ONLY,
-                    ),
-                ),
-            ),
-            Deprecation(
-                kind=Parameter(
-                    callable=add5,
-                    parameter=inspect.Parameter(
-                        name="z",
-                        kind=inspect.Parameter.KEYWORD_ONLY,
-                    ),
-                ),
-            ),
+                ) for each in "vxyz"
+            ],
         ):
             self.assertEqual(add5(1, z=2, y=3, x=4, v=5), 15)
 
@@ -1268,6 +1243,296 @@ class TestDeprecator(TestCase):
             ),
         ):
             self.assertEqual(addmany(1, 2, foo=12), 15)
+
+    def test_multiple_optional_function_parameters(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.recorder.expect_deprecations(
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
+                    default=0,
+                ),
+            ),
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
+                    default=0,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(1), 1)
+
+    def test_multiple_optional_function_parameters_provided(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, y=2, z=1), 4)
+
+    def test_multiple_optional_function_parameters_provided_positionally(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, 2, 1), 4)
+
+    def test_multiple_optional_function_parameters_keyword_only(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, *, y, z):
+            return x + y + z
+
+        with self.recorder.expect_deprecations(
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+        ):
+            self.assertEqual(add3(1), 1)
+
+    def test_multiple_optional_function_parameters_keyword_only_provided(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, *, y, z):
+            return x + y + z
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, y=2, z=3), 6)
+
+    @skipIf(not HAS_POSITIONAL_ONLY, "Positional-only parameters are 3.8+")
+    def test_multiple_optional_positional_function_parameters(self):
+        local = locals()
+        exec(
+            dedent(
+                """
+                @self.regret.optional_parameter(
+                    version="1.2.3",
+                    name="x",
+                    default=0,
+                )
+                @self.regret.optional_parameter(
+                    version="1.2.3",
+                    name="y",
+                    default=0,
+                )
+                def add3(x, y, /, z):
+                    return x + y + z
+                """,
+            ),
+        )
+        add3 = local["add3"]
+
+        with self.recorder.expect_deprecations(
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="x",
+                        kind=inspect.Parameter.POSITIONAL_ONLY,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.POSITIONAL_ONLY,
+                    ),
+                ),
+            ),
+        ):
+            self.assertEqual(add3(z=1), 1)
+
+    @skipIf(not HAS_POSITIONAL_ONLY, "Positional-only parameters are 3.8+")
+    def test_multiple_optional_positional_function_parameters_provided(self):
+        local = locals()
+        exec(
+            dedent(
+                """
+                @self.regret.optional_parameter(
+                    version="1.2.3",
+                    name="x",
+                    default=0,
+                )
+                @self.regret.optional_parameter(
+                    version="1.2.3",
+                    name="y",
+                    default=0,
+                )
+                def add3(x, y, /, z):
+                    return x + y + z
+                """,
+            ),
+        )
+        add3 = local["add3"]
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, 2, z=3), 6)
+
+    def test_multiple_optional_parameters_warn_in_definition_order(self):
+        """
+        No matter what order parameters are deprecated in, warnings are emitted
+        in the definition order that parameters were originally defined in.
+        """
+
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="v", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="x", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        def add5(v, w, x, y, z):
+            return v + w + x + y + z
+
+        with self.recorder.expect_deprecations(
+            *[
+                Deprecation(
+                    kind=OptionalParameter(
+                        callable=add5,
+                        default=0,
+                        parameter=inspect.Parameter(
+                            name=each,
+                            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                        ),
+                    ),
+                ) for each in "vxyz"
+            ],
+        ):
+            self.assertEqual(add5(w=15), 15)
+
+    def test_multiple_optional_function_parameters_via_kwargs(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, **kwargs):
+            return x + kwargs.get("y", 0) + kwargs.get("z", 0)
+
+        with self.recorder.expect_deprecations(
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ),
+                ),
+            ),
+        ):
+            self.assertEqual(add3(1), 1)
+
+    def test_multiple_function_parameters_via_kwargs_provided(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, **kwargs):
+            return x + kwargs.get("y", 0) + kwargs.get("z", 0)
+
+        with self.recorder.expect_clean():
+            self.assertEqual(add3(1, y=2, z=3), 6)
+
+    def test_multiple_optional_parameters_via_kwargs_warns_in_order(self):
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="v", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="x", default=0)
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        def add5(w, **kwargs):
+            return w + sum(kwargs.values())
+
+        with self.recorder.expect_deprecations(
+            *[
+                Deprecation(
+                    kind=OptionalParameter(
+                        callable=add5,
+                        default=0,
+                        parameter=inspect.Parameter(
+                            name=each,
+                            kind=inspect.Parameter.KEYWORD_ONLY,
+                        ),
+                    ),
+                ) for each in "vxyz"
+            ],
+        ):
+            self.assertEqual(add5(w=15), 15)
+
+    def test_function_with_multiple_optional_parameters_is_wrapped(self):
+        deprecated = self.regret.optional_parameter(
+            version="1.2.3",
+            name="x",
+            default=0
+        )(
+            self.regret.optional_parameter(
+                version="1.2.3",
+                name="y",
+                default=0,
+            )(add)
+        )
+        self.assertEqual(add.__name__, deprecated.__name__)
+
+    def test_deprecating_non_existent_optional_parameter_errors(self):
+        with self.assertRaises(NoSuchParameter) as e:
+            self.regret.optional_parameter(
+                version="1.2.3",
+                name="there-is-no-such-parameter",
+                default=0,
+            )(add)
+        self.assertIn("there-is-no-such-parameter", str(e.exception))
+
+    def test_deprecating_partially_nonexistent_optional_parameter_errors(self):
+        with self.assertRaises(NoSuchParameter) as e:
+            self.regret.optional_parameter(
+                version="1.2.3",
+                name="there-is-no-such-parameter",
+                default=0,
+            )(
+                self.regret.optional_parameter(
+                    version="1.2.3",
+                    default=0,
+                    name="x",
+                )(add)
+            )
+        self.assertIn("there-is-no-such-parameter", str(e.exception))
 
     def test_inheritance(self):
         class Inheritable:

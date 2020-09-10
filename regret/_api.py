@@ -256,6 +256,9 @@ def with_future_required_parameter(callable, emit, name, default):
     parameters.
     """
 
+    if hasattr(callable, "__regret_parameter__"):
+        return callable.__regret_parameter__(name)
+
     signature = _inspect.SignatureWithRegret.for_callable(callable)
 
     @wraps(callable)
