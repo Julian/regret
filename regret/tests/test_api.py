@@ -1534,6 +1534,80 @@ class TestDeprecator(TestCase):
             )
         self.assertIn("there-is-no-such-parameter", str(e.exception))
 
+    def test_function_optional_parameter_on_already_wrapped_function(self):
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        @wraps(add)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=add3,
+                default=0,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(x=1, y=2), 3)
+
+    def test_function_optional_parameter_on_doubly_wrapped_function(self):
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        @wraps(add)
+        @wraps(calculate)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=add3,
+                default=0,
+                parameter=inspect.Parameter(
+                    name="z",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(x=1, y=2), 3)
+
+    def test_inner_optional_function_parameter_on_wrapped_function(self):
+        @self.regret.optional_parameter(version="1.2.3", name="x", default=0)
+        @wraps(add)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=add3,
+                default=0,
+                parameter=inspect.Parameter(
+                    name="x",
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(y=2, z=3), 5)
+
+    def test_inner_optional_function_parameter_doubly_wrapped(self):
+        @self.regret.optional_parameter(version="1.2.3", name="x", default=0)
+        @wraps(add)
+        @wraps(calculate)
+        def add3(z, **kwargs):
+            return add(add(**kwargs), z)
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=add3,
+                default=0,
+                parameter=inspect.Parameter(
+                    name="x",
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ),
+            ),
+        ):
+            self.assertEqual(add3(y=2, z=3), 5)
+
     def test_inheritance(self):
         class Inheritable:
             pass
