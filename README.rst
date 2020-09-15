@@ -69,22 +69,29 @@ It is intended to:
     * be versioning system agnostic (i.e. `SemVer
       <https://semver.org/>`_, `CalVer <https://calver.org/>`_, `HipsTer
       <https://en.wikipedia.org/wiki/Hipster_(contemporary_subculture)>`_,
-      etc.)
+      etc.), because deprecations originate from a version, a point in
+      time, or both.
 
-    * be documentation system agnostic, though potentially documentation
-      system aware (i.e. `Sphinx <https://www.sphinx-doc.org>`_,
-      `epydoc <https://en.wikipedia.org/wiki/Epydoc>`_, `Plaintext
-      <https://lmgtfy.com/?q=use+sphinx>`_, etc.)
+    * be documentation system aware (i.e. `Sphinx
+      <https://www.sphinx-doc.org>`_, `epydoc
+      <https://en.wikipedia.org/wiki/Epydoc>`_, `Plaintext
+      <https://lmgtfy.com/?q=use+sphinx>`_, etc.), because deprecations
+      need communication.
 
-    * be itself fully tested
+    * be itself fully tested, because deprecations must not break the
+      code they deprecate
 
-    * support removal date indication, and likely "policies" which automate
-      choosing default removal dates
+    * support removal date indication, and likely "policies" which
+      automate choosing default removal dates, because deprecations
+      ultimately intend some ultimate change
 
     * make "clean code" trivially easy to deprecate, and make complex
-      code *possible* to deprecate
+      code *possible* to deprecate, because the deprecation process is
+      fraught with edge cases and unforeseen necessity.
 
-    * minimize the amount of deprecation-related code required for authors
+    * minimize the amount of deprecation-related code required for
+      authors, since deprecations are boring, and we all want to focus on
+      developing our libraries instead.
 
 In particular, as a lofty first milestone, it is intended to cover all
 of the specific deprecations required for these `jsonschema issues
