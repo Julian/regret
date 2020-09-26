@@ -1622,6 +1622,35 @@ class TestDeprecator(TestCase):
             class SubclassOfUninheritable(Uninheritable):
                 pass
 
+    def test_mixed_function_parameters(self):
+        @self.regret.parameter(version="1.2.3", name="y")
+        @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.recorder.expect_deprecations(
+            Deprecation(
+                kind=Parameter(
+                    callable=add3,
+                    parameter=inspect.Parameter(
+                        name="y",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
+                ),
+            ),
+            Deprecation(
+                kind=OptionalParameter(
+                    callable=add3,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="z",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
+                ),
+            ),
+        ):
+            self.assertEqual(add3(1, 2), 3)
+
     def test_inheritance_has_init_subclass(self):
         class Inheritable:
             def __init_subclass__(Subclass, **kwargs):

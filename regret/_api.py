@@ -139,10 +139,9 @@ class Deprecator:
                 the parameter as retrieved from the keyword arguments.
         """
         def deprecate(thing):
-            return with_deprecated_parameter(
-                callable=thing,
-                emit=self._emit_deprecation,
+            return regretted(thing).with_parameter(
                 name=name,
+                emit=self._emit_deprecation,
             )
         return deprecate
 
@@ -179,10 +178,9 @@ class Deprecator:
         """
 
         def deprecate(thing):
-            return with_future_required_parameter(
-                callable=thing,
-                emit=self._emit_deprecation,
+            return regretted(thing).with_optional_parameter(
                 name=name,
+                emit=self._emit_deprecation,
                 default=default,
             )
         return deprecate
@@ -214,77 +212,62 @@ class Deprecator:
         return deprecate
 
 
-def with_deprecated_parameter(callable, emit, name):
+@attr.s
+class Regretted:
     """
-    Return a callable which has deprecated the parameter of the given name.
-
-    The returned callable can be used to chain additional deprecated
-    parameters.
+    A partially regretted callable.
     """
 
-    if hasattr(callable, "__regret_parameter__"):
-        return callable.__regret_parameter__(name)
+    callable = attr.ib()
+    signature = attr.ib()
 
-    signature = _inspect.SignatureWithRegret.for_callable(callable)
+    @classmethod
+    def for_callable(cls, callable, **kwargs):
+        return cls(
+            callable=callable,
+            signature=_inspect.SignatureWithRegret.for_callable(callable),
+            **kwargs
+        )
 
-    @wraps(callable)
-    def partially_deprecated(*args, **kwargs):
-        bound = signature.bind(*args, **kwargs)
-        for each in signature.deprecated_parameters_used(bound):
-            emit(
-                kind=emitted.Parameter(
-                    callable=partially_deprecated,
-                    parameter=each,
-                ),
-            )
-        return callable(*bound.args, **bound.kwargs)
+    def with_parameter(self, emit, name):
+        self.signature = self.signature.with_parameter(name)
+        return self.wrapper(emit=emit)
 
-    def __regret_parameter__(new):
-        nonlocal signature
-        signature = signature.with_parameter(new)
-        return partially_deprecated
-    partially_deprecated.__regret_parameter__ = __regret_parameter__
-
-    return __regret_parameter__(name)
-
-
-def with_future_required_parameter(callable, emit, name, default):
-    """
-    Return a callable which warns if the given parameter is unprovided.
-
-    The returned callable can be used to chain additional deprecated
-    parameters.
-    """
-
-    if hasattr(callable, "__regret_parameter__"):
-        return callable.__regret_parameter__(name)
-
-    signature = _inspect.SignatureWithRegret.for_callable(callable)
-
-    @wraps(callable)
-    def partially_deprecated(*args, **kwargs):
-        bound = signature.bind(*args, **kwargs)
-        for each in signature.missing_optional(bound):
-            default = signature.set_default(bound, parameter=each)
-            emit(
-                kind=emitted.OptionalParameter(
-                    callable=partially_deprecated,
-                    parameter=each,
-                    default=default,
-                ),
-            )
-        return callable(*bound.args, **bound.kwargs)
-
-    def __regret_parameter__(new):
-        nonlocal signature
-        signature = signature.with_optional_parameter(
-            name=new,
+    def with_optional_parameter(self, emit, name, default):
+        self.signature = self.signature.with_optional_parameter(
+            name=name,
             default=default,
         )
-        return partially_deprecated
-    partially_deprecated.__regret_parameter__ = __regret_parameter__
+        return self.wrapper(emit=emit)
 
-    return __regret_parameter__(name)
+    def wrapper(self, emit):
+        @wraps(self.callable)
+        def wrapper(*args, **kwargs):
+            bound = self.signature.bind(*args, **kwargs)
+            for each, optional in self.signature.misused(
+                bound_arguments=bound,
+                callable=wrapper,
+            ):
+                if optional:
+                    default = self.signature.set_default(bound, parameter=each)
+                    kind = emitted.OptionalParameter(
+                        callable=wrapper,
+                        parameter=each,
+                        default=default,
+                    )
+                else:
+                    kind = emitted.Parameter(callable=wrapper, parameter=each)
+                emit(kind=kind)
+            return self.callable(*bound.args, **bound.kwargs)
+        wrapper.__regretted__ = self
+        return wrapper
+
+
+def regretted(callable):
+    regretted = getattr(callable, "__regretted__", None)
+    if regretted is not None:
+        return regretted
+    return Regretted.for_callable(callable)
 
 
 _DEPRECATOR = Deprecator()

@@ -81,35 +81,31 @@ class SignatureWithRegret:
             }
         )
 
-    def deprecated_parameters_used(self, bound_arguments):
+    def misused(self, bound_arguments, callable):
         arguments = bound_arguments.arguments
-        for name in self._deprecated:
-            if name in arguments:
-                yield self._signature.parameters[name]
-            elif (
-                self.kwargs_parameter_name is not None
-                and name in arguments.get(self.kwargs_parameter_name, {})
-            ):
-                yield inspect.Parameter(
-                    name=name,
-                    kind=inspect.Parameter.KEYWORD_ONLY,
-                )
-
-    def missing_optional(self, bound_arguments):
         kwargs = bound_arguments.arguments.get(self.kwargs_parameter_name, ())
 
         for name in self._deprecated:
-            if name not in bound_arguments.arguments and name not in kwargs:
+            is_optional = name in self._defaults_for_optional_parameters
+            if is_optional:
+                if name in arguments or name in kwargs:
+                    continue
+
                 parameter = self._signature.parameters.get(name)
-                if (
-                    parameter is None
-                    and self.kwargs_parameter_name is not None
-                ):
+                if parameter is None is not self.kwargs_parameter_name:
                     parameter = inspect.Parameter(
                         name=name,
                         kind=inspect.Parameter.KEYWORD_ONLY,
                     )
-                yield parameter
+                yield parameter, is_optional
+            else:
+                if name in arguments:
+                    yield self._signature.parameters[name], is_optional
+                elif name in kwargs:
+                    yield inspect.Parameter(
+                        name=name,
+                        kind=inspect.Parameter.KEYWORD_ONLY,
+                    ), is_optional
 
     def bind(self, *args, **kwargs):
         return self._signature.bind_partial(*args, **kwargs)
