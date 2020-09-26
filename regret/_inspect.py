@@ -53,9 +53,7 @@ class SignatureWithRegret:
 
     def with_parameter(self, name, **kwargs):
         """
-        Return the deprecated parameter names with one additional one added.
-
-        Inserts the new parameter name in sorted (signature) order.
+        Evolve this signature to add a deprecated parameter.
         """
         if not self.would_accept(name):
             raise NoSuchParameter(name)
@@ -73,6 +71,9 @@ class SignatureWithRegret:
         return attr.evolve(self, deprecated=deprecated, **kwargs)
 
     def with_optional_parameter(self, name, default):
+        """
+        Evolve this signature to add a deprecated optional parameter.
+        """
         return self.with_parameter(
             name,
             defaults_for_optional_parameters={
@@ -82,6 +83,9 @@ class SignatureWithRegret:
         )
 
     def misused(self, bound_arguments, callable):
+        """
+        Collect the arguments (optional or required) that are misused.
+        """
         arguments = bound_arguments.arguments
         kwargs = bound_arguments.arguments.get(self.kwargs_parameter_name, ())
 
