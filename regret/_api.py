@@ -139,7 +139,7 @@ class Deprecator:
                 the parameter as retrieved from the keyword arguments.
         """
         def deprecate(thing):
-            return regretted(thing).with_parameter(
+            return Regretted.for_callable(thing).with_parameter(
                 name=name,
                 emit=self._emit_deprecation,
             )
@@ -178,7 +178,7 @@ class Deprecator:
         """
 
         def deprecate(thing):
-            return regretted(thing).with_optional_parameter(
+            return Regretted.for_callable(thing).with_optional_parameter(
                 name=name,
                 emit=self._emit_deprecation,
                 default=default,
@@ -223,6 +223,9 @@ class Regretted:
 
     @classmethod
     def for_callable(cls, callable, **kwargs):
+        regretted = getattr(callable, "__regretted__", None)
+        if regretted is not None:
+            return regretted
         return cls(
             callable=callable,
             signature=_inspect.SignatureWithRegret.for_callable(callable),
@@ -261,13 +264,6 @@ class Regretted:
             return self.callable(*bound.args, **bound.kwargs)
         wrapper.__regretted__ = self
         return wrapper
-
-
-def regretted(callable):
-    regretted = getattr(callable, "__regretted__", None)
-    if regretted is not None:
-        return regretted
-    return Regretted.for_callable(callable)
 
 
 _DEPRECATOR = Deprecator()
