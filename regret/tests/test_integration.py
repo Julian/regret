@@ -42,6 +42,12 @@ def add4(w, x, y, z):
     return w + x + y + z
 
 
+@regret.parameter(version="1.2.3", name="y")
+@regret.optional_parameter(version="1.2.3", name="z", default=0)
+def add5(v, w, x, y, z):
+    return v + w + x + y + z
+
+
 @regret.callable(version="1.2.3", replacement=Calculator)
 def calculator_fn():
     return 9
@@ -294,6 +300,18 @@ class TestRegret(SynchronousTestCase):
             ),
             fn=add4,
             kwargs=dict(w=0, x=1, y=2),
+        )
+
+    def test_mixed_function_parameters(self):
+        add5(v=0, w=0, x=1, y=2)
+        self.assertEqual(
+            [each["message"] for each in self.flushWarnings()],
+            [
+                "The 'y' parameter is deprecated.", (
+                    "Calling add5 without providing the 'z' parameter "
+                    "is deprecated. Using 0 as a default."
+                ),
+            ],
         )
 
     def test_inheritance(self):
