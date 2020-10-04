@@ -4,7 +4,7 @@ from textwrap import dedent
 from unittest import TestCase, skipIf
 import inspect
 
-from regret._inspect import NoSuchParameter
+from regret._inspect import AlreadyDeprecated, NoSuchParameter
 from regret.emitted import (
     Callable,
     Deprecation,
@@ -1650,6 +1650,50 @@ class TestDeprecator(TestCase):
             ),
         ):
             self.assertEqual(add3(1, 2), 3)
+
+    def test_same_function_parameter_cannot_be_deprecated_twice(self):
+        deprecate = self.regret.parameter(version="1.2.3", name="y")
+
+        @deprecate
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.assertRaises(AlreadyDeprecated):
+            deprecate(add3)
+
+    def test_same_optional_parameter_cannot_be_deprecated_twice(self):
+        deprecate = self.regret.optional_parameter(
+            version="1.2.3",
+            name="y",
+            default=0,
+        )
+
+        @deprecate
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.assertRaises(AlreadyDeprecated):
+            deprecate(add3)
+
+    def test_same_parameter_cannot_be_deprecated_as_optional(self):
+        @self.regret.parameter(version="1.2.3", name="y")
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.assertRaises(AlreadyDeprecated):
+            self.regret.optional_parameter(
+                version="2.3.4",
+                name="y",
+                default=0,
+            )(add3)
+
+    def test_same_optional_parameter_cannot_be_deprecated_as_required(self):
+        @self.regret.optional_parameter(version="1.2.3", name="y", default=0)
+        def add3(x, y, z):
+            return x + y + z
+
+        with self.assertRaises(AlreadyDeprecated):
+            self.regret.parameter(version="2.3.4", name="y")(add3)
 
     def test_inheritance_has_init_subclass(self):
         class Inheritable:

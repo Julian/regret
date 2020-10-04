@@ -7,8 +7,16 @@ import inspect
 import attr
 
 
+class AlreadyDeprecated(Exception):
+    """
+    An attempt was made to deprecate an already-deprecated parameter.
+    """
+
+
 class NoSuchParameter(Exception):
-    pass
+    """
+    An attempt was made to deprecate a parameter that does not exist.
+    """
 
 
 @attr.s
@@ -57,6 +65,8 @@ class SignatureWithRegret:
         """
         if not self.would_accept(name):
             raise NoSuchParameter(name)
+        elif name in self._deprecated:
+            raise AlreadyDeprecated(name)
 
         deprecated = sorted(
             self._deprecated + [name],
