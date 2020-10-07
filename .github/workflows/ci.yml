@@ -50,7 +50,6 @@ jobs:
           - name: 3.9
             toxenv: py39-tests
           - name: 3.9
-          - name: 3.9
             toxenv: readme
           - name: 3.9
             toxenv: secrets
