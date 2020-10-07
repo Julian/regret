@@ -18,34 +18,53 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         python-version:
           - name: pypy3
-            toxenv: pypy3
+            toxenv: pypy3-build
+          - name: pypy3
+            toxenv: pypy3-safety
+          - name: pypy3
+            toxenv: pypy3-tests
           - name: pypy3
             toxenv: pypypytest3
-          - name: pypy3
-            toxenv: build
-          - name: pypy3
-            toxenv: readme
-          - name: pypy3
-            toxenv: secrets
-          - name: pypy3
-            toxenv: safety
-          - name: pypy3
-            toxenv: style
           - name: 3.6
-            toxenv: py36
+            toxenv: py36-build
+          - name: 3.6
+            toxenv: py36-safety
+          - name: 3.6
+            toxenv: py36-tests
           - name: 3.7
-            toxenv: py37
+            toxenv: py37-build
+          - name: 3.7
+            toxenv: py37-safety
+          - name: 3.7
+            toxenv: py37-tests
           - name: 3.8
-            toxenv: py38
+            toxenv: py38-build
           - name: 3.8
+            toxenv: py38-safety
+          - name: 3.8
+            toxenv: py38-tests
+          - name: 3.9
+            toxenv: py39-build
+          - name: 3.9
+            toxenv: py39-safety
+          - name: 3.9
+            toxenv: py39-tests
+          - name: 3.9
+          - name: 3.9
+            toxenv: readme
+          - name: 3.9
+            toxenv: secrets
+          - name: 3.9
+            toxenv: style
+          - name: 3.9
             toxenv: docs-dirhtml
-          - name: 3.8
+          - name: 3.9
             toxenv: docs-doctest
-          - name: 3.8
+          - name: 3.9
             toxenv: docs-linkcheck
-          - name: 3.8
+          - name: 3.9
             toxenv: docs-spelling
-          - name: 3.8
+          - name: 3.9
             toxenv: docs-style
 
     steps:
@@ -57,8 +76,11 @@ jobs:
     - name: Ensure we have new enough versions to respect python_version
       run: python -m pip install -U pip setuptools
     - name: Install dependencies
+      run: sudo apt-get install -y libenchant-dev
+      if: runner.os == 'Linux' && startsWith(matrix.python-version.toxenv, 'docs-')
+    - name: Install dependencies
       run: brew install enchant
-      if: runner.os == 'macOS'
+      if: runner.os == 'macOS' && startsWith(matrix.python-version.toxenv, 'docs-')
     - name: Install tox
       run: python -m pip install tox
     - name: Run tox
