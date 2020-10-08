@@ -1,3 +1,4 @@
+CPython
 Deprecators
 analytics
 callables
@@ -15,6 +16,7 @@ subclassed
 subclasses
 subclassing
 submodules
+superclass
 superclasses
 todo
 versioning
