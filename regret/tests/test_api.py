@@ -579,6 +579,26 @@ class TestDeprecator(TestCase):
         with self.assertRaises(TypeError):
             add3(1, 2)
 
+    def test_function_parameter_warns_despite_error(self):
+        """
+        A misused parameter generates a warning even if the function errors.
+        """
+        @self.regret.parameter(version="1.2.3", name="x")
+        def divide_by_zero(x):
+            raise ZeroDivisionError()
+
+        with self.recorder.expect(
+            kind=Parameter(
+                callable=divide_by_zero,
+                parameter=inspect.Parameter(
+                    name="x",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                ),
+            ),
+        ):
+            with self.assertRaises(ZeroDivisionError):
+                divide_by_zero(3)
+
     def test_function_with_deprecated_parameter_is_wrapped(self):
         deprecated = self.regret.parameter(version="1.2.3", name="y")(add)
         self.assertEqual(add.__name__, deprecated.__name__)
@@ -1607,6 +1627,27 @@ class TestDeprecator(TestCase):
             ),
         ):
             self.assertEqual(add3(y=2, z=3), 5)
+
+    def test_optional_function_parameter_warns_despite_error(self):
+        """
+        A misused parameter generates a warning even if the function errors.
+        """
+        @self.regret.optional_parameter(version="1.2.3", name="x", default=0)
+        def divide_by_zero(x):
+            raise ZeroDivisionError()
+
+        with self.recorder.expect(
+            kind=OptionalParameter(
+                callable=divide_by_zero,
+                default=0,
+                parameter=inspect.Parameter(
+                    name="x",
+                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                ),
+            ),
+        ):
+            with self.assertRaises(ZeroDivisionError):
+                divide_by_zero()
 
     def test_inheritance(self):
         class Inheritable:
