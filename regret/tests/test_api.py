@@ -3,6 +3,9 @@ from functools import wraps
 from textwrap import dedent
 from unittest import TestCase, skipIf
 import inspect
+import os
+import sys
+import tempfile
 
 from regret._inspect import AlreadyDeprecated, NoSuchParameter
 from regret.emitted import (
@@ -12,7 +15,7 @@ from regret.emitted import (
     OptionalParameter,
     Parameter,
 )
-from regret.testing import Recorder
+from regret.testing import Recorder, collect_warnings
 import regret
 
 try:  # pragma: no cover
@@ -48,16 +51,34 @@ def add(x, y):
     return x + y
 
 
-class Calculator:
-    def better(self):  # pragma: no cover
+class ReplacementInternalTarget:  # pragma: no cover
+    """
+    A class in which one method is deprecated and replaced by another one.
+
+    The method are never called, it is just used to check the docstring
+    generation in:
+    test_method_with_replacement_deprecation_notice_in_docstrins
+
+    We use a top-level class so that it gets a nice name.
+    """
+    def better(self):
         return 13
 
     @regret.callable(version="4.5.6", replacement=better)
-    def calculate(self):  # pragma: no cover
+    def calculate(self):
         """
         12. Just 12.
         """
         return 12
+
+
+class ReplacementTarget:
+    """
+    A class that is replacing a deprecated class.
+
+    This is used as a top-level class so that it will have a nice
+    name qualname.
+    """
 
 
 class TestDeprecator(TestCase):
@@ -271,14 +292,16 @@ class TestDeprecator(TestCase):
 
         .. deprecated:: 4.5.6
 
-            Please use `Calculator.better` instead.
+            Please use `ReplacementInternalTarget.better` instead.
         """
-        self.assertEqual(Calculator.calculate.__doc__, dedent(expected))
+        self.assertEqual(
+            ReplacementInternalTarget.calculate.__doc__, dedent(expected))
 
     def test_class_via_callable_with_replacement_deprecation_docstring(self):
+
         Deprecated = self.regret.callable(
             version="v2.3.4",
-            replacement=Calculator,
+            replacement=ReplacementTarget,
         )(Adder)
         self.assertEqual(
             Deprecated.__doc__, dedent(
@@ -287,7 +310,7 @@ class TestDeprecator(TestCase):
 
                 .. deprecated:: v2.3.4
 
-                    Please use `Calculator` instead.
+                    Please use `ReplacementTarget` instead.
                 """,
             )
         )
@@ -1929,3 +1952,114 @@ class TestUnwrap(TestCase):
             pass
 
         self.assertUnwraps(regret.inheritance(version="1.2.3"), Adder)
+
+
+class TestModuleDeprecation(TestCase):
+    """
+    Tests for module deprecation helper.
+
+    For these test a package is created in the temporary directory and
+    module files are written there for each tests.
+    """
+
+    def createTempPackage(self, content):
+        """
+        Create a temporary director that is setup as a package and has
+        `module_name` with content.
+        """
+        test_name = self._testMethodName
+
+        temp_dir = tempfile.TemporaryDirectory(prefix='regret_tests_')
+        orig_sys_path = sys.path[:]
+        sys.path.append(temp_dir.name)
+
+        def restore_sys_path():
+            """
+            Called at cleanup to restore the system path to the one before
+            the tests.
+            """
+            sys.path = orig_sys_path
+
+        self.addCleanup(restore_sys_path)
+        self.addCleanup(temp_dir.cleanup)
+
+        with open(os.path.join(temp_dir.name, '__init__.py'), 'wb') as stream:
+            stream.write(f'"A test package for {test_name}'.encode())
+
+        for module_name, module_content in content.items():
+            module_path = os.path.join(temp_dir.name, f'{module_name}.py')
+            with open(module_path, 'wb') as stream:
+                stream.write(module_content.encode())
+
+    def test_only_version(self):
+        """
+        A module can be deprecated by providing only the version at which
+        was deprecated.
+
+        The deprecation docstring is injected even if the module has no
+        docstring.
+        """
+        content = """
+import regret
+regret.module(version='1.2.0')
+""".strip()
+
+        self.createTempPackage({'deprecate_module_only_version': content})
+
+        with collect_warnings() as collector:
+
+            # Here we trigger the warning.
+            import deprecate_module_only_version
+
+            collector.expect(
+                message='deprecate_module_only_version is deprecated.',
+                source='deprecate_module_only_version',
+                lineno=2,
+                )
+
+        self.assertEqual(
+            '\n.. deprecated:: 1.2.0\n',
+            deprecate_module_only_version.__doc__,
+            )
+        deprecate_module_only_version  # Workaround for flake8.
+
+    def test_deprecated_module_reference(self):
+        """
+        When importing a module that is using the deprecated module, the
+        deprecation warning is raised for the deprecated module and not for
+        the usage module.
+        """
+        deprecated = """
+"Original docstring."
+import regret
+regret.module(version='1.2.0')
+""".strip()
+
+        usage = """
+import deprecated_module
+""".strip()
+
+        self.createTempPackage({
+            'deprecated_module': deprecated,
+            'usage_module': usage,
+            })
+
+        with collect_warnings() as collector:
+
+            # This will trigger the warning.
+            import usage_module
+
+            collector.expect(
+                message='deprecated_module is deprecated.',
+                source='deprecated_module',
+                lineno=3,
+                )
+            # Importing again will not emit the deprecation again.
+            import deprecated_module
+            collector.expect_clean()
+
+        self.assertEqual(
+            'Original docstring.\n.. deprecated:: 1.2.0\n',
+            deprecated_module.__doc__,
+            )
+        usage_module  # Workaround for flake8.

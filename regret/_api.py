@@ -5,6 +5,32 @@ import attr
 
 from regret import _inspect, _sphinx, _warnings, emitted
 
+_DEFAUL_ARGUMENTS_DOCSTRING = """
+
+        Arguments:
+
+            version:
+
+                the first version in which the deprecated object was
+                considered deprecated
+
+            replacement:
+
+                optionally, an object that is the (direct or indirect)
+                replacement for the functionality previously performed
+                by the deprecated callable
+
+            removal_date (datetime.date):
+
+                optionally, a date when the object is expected to be
+                removed entirely
+
+            addendum (str):
+
+                an optional additional message to include at the end of
+                warnings emitted for this deprecation
+"""
+
 
 @attr.s(eq=True, frozen=True)
 class Deprecator:
@@ -108,7 +134,7 @@ class Deprecator:
             __doc__ = thing.__doc__
             if __doc__ is not None:
                 call_deprecated.__doc__ = self._new_docstring(
-                    object=thing.__doc__,
+                    original=thing.__doc__,
                     name_of=self._name_of,
                     replacement=replacement,
                     removal_date=removal_date,
@@ -221,29 +247,6 @@ class Deprecator:
     ):
         """
         Deprecate a module at import time.
-
-        Arguments:
-
-            version:
-
-                the first version in which the deprecated object was
-                considered deprecated
-
-            replacement:
-
-                optionally, an object that is the (direct or indirect)
-                replacement for the functionality previously performed
-                by the deprecated callable
-
-            removal_date (datetime.date):
-
-                optionally, a date when the object is expected to be
-                removed entirely
-
-            addendum (str):
-
-                an optional additional message to include at the end of
-                warnings emitted for this deprecation
         """
         previous_module_globals = inspect.currentframe().f_back.f_globals
         previous_module_globals['__doc__'] = self._new_docstring(
@@ -259,6 +262,7 @@ class Deprecator:
             removal_date=removal_date,
             addendum=addendum,
         )
+    module.__doc__ += _DEFAUL_ARGUMENTS_DOCSTRING
 
 
 @attr.s

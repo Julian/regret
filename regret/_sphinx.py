@@ -13,6 +13,9 @@ def doc_with_deprecated_directive(
 
     Suitable for use with `regret.Deprecator`.
     """
+    if original is None:
+        # Most probably target has  missing docstring.
+        original = ''
 
     parts = [
         dedent(original),
