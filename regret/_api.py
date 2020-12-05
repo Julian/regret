@@ -1,4 +1,5 @@
 from functools import wraps
+import inspect
 
 import attr
 
@@ -107,7 +108,7 @@ class Deprecator:
             __doc__ = thing.__doc__
             if __doc__ is not None:
                 call_deprecated.__doc__ = self._new_docstring(
-                    object=thing,
+                    object=thing.__doc__,
                     name_of=self._name_of,
                     replacement=replacement,
                     removal_date=removal_date,
@@ -210,6 +211,54 @@ class Deprecator:
             return DeprecatedForSubclassing
 
         return deprecate
+
+    def module(
+        self,
+        version,
+        replacement=None,
+        removal_date=None,
+        addendum=None,
+    ):
+        """
+        Deprecate a module at import time.
+
+        Arguments:
+
+            version:
+
+                the first version in which the deprecated object was
+                considered deprecated
+
+            replacement:
+
+                optionally, an object that is the (direct or indirect)
+                replacement for the functionality previously performed
+                by the deprecated callable
+
+            removal_date (datetime.date):
+
+                optionally, a date when the object is expected to be
+                removed entirely
+
+            addendum (str):
+
+                an optional additional message to include at the end of
+                warnings emitted for this deprecation
+        """
+        previous_module_globals = inspect.currentframe().f_back.f_globals
+        previous_module_globals['__doc__'] = self._new_docstring(
+            original=previous_module_globals['__doc__'],
+            name_of=self._name_of,
+            replacement=replacement,
+            removal_date=removal_date,
+            version=version,
+        )
+        self._emit_deprecation(
+            kind=emitted.Module(name=previous_module_globals['__name__']),
+            replacement=replacement,
+            removal_date=removal_date,
+            addendum=addendum,
+        )
 
 
 @attr.s

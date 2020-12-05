@@ -1,6 +1,8 @@
 """
 Objects emitted whilst a deprecated object is being used.
 """
+import inspect
+
 import attr
 
 
@@ -8,6 +10,12 @@ def _qualname(obj):
     """
     Return the (non-fully-)qualified name of the given object.
     """
+    if isinstance(obj, str):
+        return obj
+
+    if inspect.ismodule(obj):
+        return obj.__name__
+
     return obj.__qualname__
 
 
@@ -39,6 +47,18 @@ class Deprecation:
 
 
 # --* Representations of deprecated things *--
+
+@attr.s(eq=True, frozen=True, hash=True)
+class Module:
+    """
+    A parameter for a particular module.
+    """
+
+    _name = attr.ib()
+
+    def message(self, name_of):
+        return f"{self._name} is deprecated."
+
 
 @attr.s(eq=True, frozen=True, hash=True)
 class Callable:
