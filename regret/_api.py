@@ -248,6 +248,9 @@ class Deprecator:
         """
         Deprecate a module at import time.
         """
+        if replacement and inspect.ismodule(replacement):
+            replacement = replacement.__name__
+
         previous_module_globals = inspect.currentframe().f_back.f_globals
         previous_module_globals['__doc__'] = self._new_docstring(
             original=previous_module_globals['__doc__'],

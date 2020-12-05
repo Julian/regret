@@ -1,8 +1,6 @@
 """
 Objects emitted whilst a deprecated object is being used.
 """
-import inspect
-
 import attr
 
 
@@ -12,9 +10,6 @@ def _qualname(obj):
     """
     if isinstance(obj, str):
         return obj
-
-    if inspect.ismodule(obj):
-        return obj.__name__
 
     return obj.__qualname__
 
