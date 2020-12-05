@@ -46,7 +46,7 @@ Deprecations
         - [ ] of instances
     - [ ] descriptors
         - [ ] classmethod
-    - [ ] modules
+    - [x] modules / packages
     - [ ] parameters to callables
         - [x] previously required parameters that will be removed
         - [x] optional parameters that are now required
@@ -80,6 +80,9 @@ It is intended to:
 
     * be itself fully tested, because deprecations must not break the
       code they deprecate
+
+    * make it easy to test the deprecated warnings by providing testing
+      helpers
 
     * support removal date indication, and likely "policies" which
       automate choosing default removal dates, because deprecations

@@ -77,6 +77,32 @@ deprecation warning:
         Link to ``regret.Deprecator.Class`` once it exists.
 
 
+Modules & Packages
+------------------
+
+Modules (and packages, as they are just modules) will raise a deprecation
+at first import time.
+
+Call `regret.module` and the warning is emitted as a side-effect on import.
+
+.. testcode::
+
+    # Content of `example/module/old_name.py`
+    import regret
+    from example import new_cool_stuff
+
+    regret(version='1.2.0', replacement=new_cool_stuff)
+
+.. testcode::
+
+    # Content of some other module in which the deprecated module is used.
+    from example.module import old_name
+
+.. testoutput::
+
+    ...: DeprecationWarning: example.module.old_name is deprecated. Please use example.new_cool_stuff instead.
+
+
 Replacements
 ============
 
@@ -106,6 +132,10 @@ which will then show the replacement object in warnings emitted:
     ...: DeprecationWarning: greeting is deprecated. Please use better_greeting instead.
       print(greeting("Joe", "Smith"))
     Hello Joe Smith!
+
+
+Replacement can be a reference to the actual replacement object
+(callable, module, property) or a plain text.
 
 
 Parameters

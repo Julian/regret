@@ -158,14 +158,14 @@ class TestRegret(SynchronousTestCase):
 
     def test_custom_docstring_modifier(self):
         def new_docstring(
-            object,
+            original,
             replacement,
             removal_date,
             name_of,
             version,
         ):
             return (
-                object.__doc__
+                original
                 + name_of(object)
                 + " deprecated in "
                 + version + " replaced by "
