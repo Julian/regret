@@ -9,8 +9,8 @@ up a development environment and submitting a pull request.
 Development Environment
 -----------------------
 
-*You likely will want to create a ``virtualenv`` for any installations below
-(via e.g. ``python3 -m venv venv``).*
+*You likely will want to create a virtual environment for any
+installations below.*
 
 ``regret`` uses `pre-commit <https://pre-commit.com/>`_ for some
 of its linters, ensuring that they run before a commit is even
