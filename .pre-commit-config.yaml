@@ -1,6 +1,6 @@
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.2.0
+    rev: v3.4.0
     hooks:
     -   id: check-ast
     -   id: check-docstring-first
@@ -15,10 +15,10 @@ repos:
     hooks:
     -   id: python-safety-dependencies-check
 -   repo: https://github.com/timothycrosley/isort
-    rev: 5.4.2
+    rev: 5.7.0
     hooks:
     -   id: isort
 -   repo: https://gitlab.com/pycqa/flake8
-    rev: '3.8.3'
+    rev: '3.8.4'
     hooks:
     -   id: flake8
