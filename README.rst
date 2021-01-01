@@ -47,6 +47,8 @@ Deprecations
     - [ ] descriptors
         - [ ] classmethod
     - [ ] modules
+        - [ ] current module
+        - [ ] other module
     - [ ] parameters to callables
         - [x] previously required parameters that will be removed
         - [x] optional parameters that are now required
