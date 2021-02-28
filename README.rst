@@ -77,8 +77,8 @@ It is intended to:
     * be documentation system aware (i.e. `Sphinx
       <https://www.sphinx-doc.org>`_, `epydoc
       <https://en.wikipedia.org/wiki/Epydoc>`_, `Plaintext
-      <https://lmgtfy.com/?q=use+sphinx>`_, etc.), because deprecations
-      need communication.
+      <https://www.google.com/search?q=use+sphinx>`_, etc.), because
+      deprecations need communication.
 
     * be itself fully tested, because deprecations must not break the
       code they deprecate
