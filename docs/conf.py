@@ -11,9 +11,9 @@ import re
 
 # -- Project information -----------------------------------------------------
 
-project = u"regret"
-author = u"Julian Berman"
-copyright = u"2019, " + author
+project = "regret"
+author = "Julian Berman"
+copyright = "2019, " + author
 
 # version: The short X.Y version
 # release: The full version, including alpha/beta/rc tags.
