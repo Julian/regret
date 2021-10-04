@@ -19,7 +19,7 @@ class Recorder:
 
     def emit(self, deprecation, extra_stacklevel):
         """
-        An emitter suitable for passing to `Deprecator` instances.
+        An emitter suitable for passing to `regret.Deprecator` instances.
         """
         self._saw.append(deprecation)
 
