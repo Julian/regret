@@ -36,16 +36,10 @@ jobs:
             toxenv: pypy3-tests
           - name: pypy-3.7-nightly
             toxenv: pypypytest3
-          - name: pypy-3.6
+          - name: pypy-3.8
             toxenv: pypy3-tests
-          - name: pypy-3.6
+          - name: pypy-3.8
             toxenv: pypypytest3
-          - name: 3.6
-            toxenv: py36-build
-          - name: 3.6
-            toxenv: py36-safety
-          - name: 3.6
-            toxenv: py36-tests
           - name: 3.7
             toxenv: py37-build
           - name: 3.7
@@ -64,22 +58,28 @@ jobs:
             toxenv: py39-safety
           - name: 3.9
             toxenv: py39-tests
-          - name: 3.9
-            toxenv: readme
-          - name: 3.9
-            toxenv: secrets
-          - name: 3.9
-            toxenv: style
-          - name: 3.9
+          - name: "3.10"
+            toxenv: py310-build
+          - name: "3.10"
+            toxenv: py310-safety
+          - name: "3.10"
+            toxenv: py310-tests
+          - name: "3.10"
             toxenv: docs-dirhtml
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-doctest
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-linkcheck
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-spelling
-          - name: 3.9
+          - name: "3.10"
             toxenv: docs-style
+          - name: "3.10"
+            toxenv: readme
+          - name: "3.10"
+            toxenv: secrets
+          - name: "3.10"
+            toxenv: style
 
     steps:
     - uses: actions/checkout@v2
