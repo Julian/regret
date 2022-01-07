@@ -46,6 +46,12 @@ of:
       compatibility in the context of your package? Is it important? Is it
       unimportant (sometimes it won't be!)
 
+    * in the event a backwards incompatible change is made
+      *unintentionally*, perhaps due to the introduction of a bug, is
+      fixing the backwards incompatibility itself allowed as a backwards
+      incompatibility in a successive release? Does the answer change if
+      the bug is unnoticed for a long while?
+
     * how will changes to the deprecation policy itself be done?
 
 Your policy will likely fail to predict all of the intricate
@@ -143,6 +149,16 @@ need or want to clarify:
       <sphinx:index>`, will the `refs <ref>` defined for headings be kept
       over time? Will the overall document structure change?  How about
       links to specific concrete pages as URLs?
+
+    * is being able to *raise* exceptions defined by your library part
+      of its public API? Or is only catching them considered public.
+
+    * a class in your library is defined using `attrs
+      <https://www.attrs.org>`_. Is calling `attr.evolve` directly on
+      instances of your class considered public API, and your class is
+      thereby permanently coupled to `attrs.evolve`'s public API? Or is
+      your use of `attrs` as a library maintainer simply an implementation
+      detail?
 
     * ...
 
