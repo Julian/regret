@@ -154,7 +154,7 @@ need or want to clarify:
       of its public API? Or is only catching them considered public.
 
     * a class in your library is defined using `attrs
-      <https://www.attrs.org>`_. Is calling `attr.evolve` directly on
+      <https://www.attrs.org>`_. Is calling `attrs.evolve` directly on
       instances of your class considered public API, and your class is
       thereby permanently coupled to `attrs.evolve`'s public API? Or is
       your use of `attrs` as a library maintainer simply an implementation
