@@ -24,18 +24,6 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
         python-version:
-          - name: pypy-3.7
-            toxenv: pypy3-build
-          - name: pypy-3.7
-            toxenv: pypy3-safety
-          - name: pypy-3.7
-            toxenv: pypy3-tests
-          - name: pypy-3.7
-            toxenv: pypypytest3
-          - name: pypy-3.7-nightly
-            toxenv: pypy3-tests
-          - name: pypy-3.7-nightly
-            toxenv: pypypytest3
           - name: pypy-3.8
             toxenv: pypy3-tests
           - name: pypy-3.8
