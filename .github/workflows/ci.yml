@@ -87,6 +87,7 @@ jobs:
       run: python -m tox -e "${{ matrix.python-version.toxenv }}"
 
   packaging:
+    needs: ci
     runs-on: ubuntu-latest
 
     steps:
