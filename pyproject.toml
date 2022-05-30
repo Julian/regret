@@ -39,11 +39,11 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "github.com/Julian/regret"
-documentation = "regret.readthedocs.io/"
-issues = "github.com/Julian/regret/issues/"
-funding = "github.com/sponsors/Julian"
-source = "github.com/Julian/regret"
+homepage = "https://github.com/Julian/regret"
+documentation = "https://regret.readthedocs.io/"
+issues = "https://github.com/Julian/regret/issues/"
+funding = "https://github.com/sponsors/Julian"
+source = "https://github.com/Julian/regret"
 
 [tool.isort]
 from_first = true
