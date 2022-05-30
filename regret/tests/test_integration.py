@@ -65,7 +65,7 @@ class TestRegret(SynchronousTestCase):
         *,
         filename=None,
         args=(),
-        kwargs={},
+        kwargs={},  # noqa: B006
     ):
         if filename is None:
             # sigh, see https://twistedmatrix.com/trac/ticket/9363
@@ -79,7 +79,7 @@ class TestRegret(SynchronousTestCase):
             filename,
             fn,
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def test_function(self):

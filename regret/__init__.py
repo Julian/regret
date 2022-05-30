@@ -1,4 +1,4 @@
-from regret._api import _DEPRECATOR, Deprecator
+from regret._api import _DEPRECATOR, Deprecator  # noqa: F401
 
 callable = _DEPRECATOR.callable
 inheritance = _DEPRECATOR.inheritance

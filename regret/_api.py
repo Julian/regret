@@ -229,7 +229,7 @@ class Regretted:
         return cls(
             callable=callable,
             signature=_inspect.SignatureWithRegret.for_callable(callable),
-            **kwargs
+            **kwargs,
         )
 
     def with_parameter(self, emit, name):

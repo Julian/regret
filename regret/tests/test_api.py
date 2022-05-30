@@ -103,7 +103,7 @@ class TestDeprecator(TestCase):
 
                 .. deprecated:: v2.3.4
                 """,
-            )
+            ),
         )
 
     def test_method_gets_deprecation_notice_in_docstring(self):
@@ -142,7 +142,7 @@ class TestDeprecator(TestCase):
 
                 .. deprecated:: v2.3.4
                 """,
-            )
+            ),
         )
 
     def test_function_with_no_docstring_does_not_get_deprecation_notice(self):
@@ -289,7 +289,7 @@ class TestDeprecator(TestCase):
 
                     Please use `Calculator` instead.
                 """,
-            )
+            ),
         )
 
     def test_function_with_removal_date_and_replacement_docstring(self):
@@ -859,7 +859,7 @@ class TestDeprecator(TestCase):
             self.regret.parameter(
                 version="1.2.3",
                 name="y",
-            )(add)
+            )(add),
         )
         self.assertEqual(add.__name__, deprecated.__name__)
 
@@ -880,7 +880,7 @@ class TestDeprecator(TestCase):
                 self.regret.parameter(
                     version="1.2.3",
                     name="x",
-                )(add)
+                )(add),
             )
         self.assertIn("there-is-no-such-parameter", str(e.exception))
 
@@ -1520,13 +1520,13 @@ class TestDeprecator(TestCase):
         deprecated = self.regret.optional_parameter(
             version="1.2.3",
             name="x",
-            default=0
+            default=0,
         )(
             self.regret.optional_parameter(
                 version="1.2.3",
                 name="y",
                 default=0,
-            )(add)
+            )(add),
         )
         self.assertEqual(add.__name__, deprecated.__name__)
 
@@ -1550,7 +1550,7 @@ class TestDeprecator(TestCase):
                     version="1.2.3",
                     default=0,
                     name="x",
-                )(add)
+                )(add),
             )
         self.assertIn("there-is-no-such-parameter", str(e.exception))
 
@@ -1858,7 +1858,7 @@ class TestUnwrap(TestCase):
     def test_multiple_parameters(self):
         self.assertUnwraps(
             lambda fn: regret.parameter(version="1.2.3", name="x")(
-                regret.parameter(version="1.2.3", name="y")(fn)
+                regret.parameter(version="1.2.3", name="y")(fn),
             ),
             add,
         )
@@ -1880,7 +1880,7 @@ class TestUnwrap(TestCase):
                     version="1.2.3",
                     name="y",
                     default=0,
-                )(fn)
+                )(fn),
             ),
             add,
         )

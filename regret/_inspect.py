@@ -47,7 +47,7 @@ class SignatureWithRegret:
     def for_callable(cls, callable, **kwargs):
         return cls(
             signature=inspect.signature(callable, follow_wrapped=False),
-            **kwargs
+            **kwargs,
         )
 
     def would_accept(self, name):
@@ -89,7 +89,7 @@ class SignatureWithRegret:
             defaults_for_optional_parameters={
                 name: default,
                 **self._defaults_for_optional_parameters,
-            }
+            },
         )
 
     def misused(self, bound_arguments, callable):

@@ -32,7 +32,7 @@ class Deprecation:
         if self._replacement is not None:
             parts.append(
                 f"Please use {self._name_of(self._replacement)} instead.",
-            ),
+            )
         if self._addendum is not None:
             parts.append(self._addendum)
         return " ".join(parts)
