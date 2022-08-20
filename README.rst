@@ -99,4 +99,4 @@ In particular, as a lofty first milestone, it is intended to cover all
 of the specific deprecations required for these `jsonschema issues
 <https://github.com/Julian/jsonschema/issues?utf8=%E2%9C%93&q=label%3A%22Pending+Deprecation%22>`_,
 and with luck, to subsume all the functionality present in
-`twisted.python.deprecate <https://twistedmatrix.com/documents/current/api/twisted.python.deprecate.html>`_.
+`twisted.python.deprecate <https://docs.twistedmatrix.com/en/stable/api/twisted.python.deprecate.html>`_.
