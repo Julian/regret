@@ -17,11 +17,11 @@ authors = [
   {name = "Julian Berman"},
 ]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
@@ -38,13 +38,26 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/Julian/regret"
-documentation = "https://regret.readthedocs.io/"
-issues = "https://github.com/Julian/regret/issues/"
-funding = "https://github.com/sponsors/Julian"
-source = "https://github.com/Julian/regret"
+Homepage = "https://github.com/Julian/regret"
+Documentation = "https://regret.readthedocs.io/"
+Issues = "https://github.com/Julian/regret/issues/"
+Funding = "https://github.com/sponsors/Julian"
+Source = "https://github.com/Julian/regret"
 
 [tool.isort]
 from_first = true
 include_trailing_comma = true
 multi_line_output = 3
+
+[tool.pydocstyle]
+match = "(?!(test_|_|compat|cli)).*\\.py"  # see PyCQA/pydocstyle#323
+add-select = [
+  "D410", # Trailing whitespace plz
+]
+add-ignore = [
+  "D107",  # Hah, no
+  "D200",  # 1-line docstrings don't need to be on one line
+  "D202",  # One line is fine.
+  "D412",  # Trailing whitespace plz
+  "D413",  # No trailing whitespace plz
+]
