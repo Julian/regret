@@ -1,5 +1,7 @@
 file:.#egg=regret
 furo
 pygments-github-lexers
-sphinx>3
+sphinx-copybutton
+sphinx>5
 sphinxcontrib-spelling>5
+sphinxext-opengraph
