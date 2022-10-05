@@ -97,7 +97,8 @@ class TestDeprecator(TestCase):
     def test_function_gets_deprecation_notice_in_docstring(self):
         deprecated = self.regret.callable(version="v2.3.4")(calculate)
         self.assertEqual(
-            deprecated.__doc__, dedent(
+            deprecated.__doc__,
+            dedent(
                 """
                 Perform a super important calculation.
 
@@ -136,7 +137,8 @@ class TestDeprecator(TestCase):
     def test_class_via_callable_gets_deprecation_notice_in_docstring(self):
         Deprecated = self.regret.callable(version="v2.3.4")(Adder)
         self.assertEqual(
-            Deprecated.__doc__, dedent(
+            Deprecated.__doc__,
+            dedent(
                 """
                 Add things.
 
@@ -149,8 +151,10 @@ class TestDeprecator(TestCase):
         """
         If you're too lazy to add docstrings I ain't helping you.
         """
+
         def calculate():  # pragma: no cover
             return 12
+
         deprecated = self.regret.callable(version="v2.3.4")(calculate)
         self.assertIsNone(deprecated.__doc__)
 
@@ -158,19 +162,23 @@ class TestDeprecator(TestCase):
         """
         If you're too lazy to add docstrings I ain't helping you.
         """
+
         class Lazy:
             @self.regret.callable(version="v2.3.4")
             def method():  # pragma: no cover
                 pass
+
         self.assertIsNone(Lazy.method.__doc__)
 
     def test_class_via_callable_with_no_docstring_does_not_get_notice(self):
         """
         If you're too lazy to add docstrings I ain't helping you.
         """
+
         @self.regret.callable(version="v2.3.4")
         class Lazy:
             pass
+
         self.assertIsNone(Lazy.__doc__)
 
     def test_function_with_removal_date(self):
@@ -210,7 +218,8 @@ class TestDeprecator(TestCase):
             removal_date=removal_date,
         )(calculate)
         self.assertEqual(
-            deprecated.__doc__, dedent(
+            deprecated.__doc__,
+            dedent(
                 """
                 Perform a super important calculation.
 
@@ -254,7 +263,8 @@ class TestDeprecator(TestCase):
             replacement=add,
         )(calculate)
         self.assertEqual(
-            deprecated.__doc__, dedent(
+            deprecated.__doc__,
+            dedent(
                 """
                 Perform a super important calculation.
 
@@ -281,7 +291,8 @@ class TestDeprecator(TestCase):
             replacement=Calculator,
         )(Adder)
         self.assertEqual(
-            Deprecated.__doc__, dedent(
+            Deprecated.__doc__,
+            dedent(
                 """
                 Add things.
 
@@ -300,7 +311,8 @@ class TestDeprecator(TestCase):
             removal_date=removal_date,
         )(calculate)
         self.assertEqual(
-            deprecated.__doc__, dedent(
+            deprecated.__doc__,
+            dedent(
                 """
                 Perform a super important calculation.
 
@@ -358,7 +370,8 @@ class TestDeprecator(TestCase):
                 original.__name__,
                 original.__doc__,
                 vars(original),
-            ), (
+            ),
+            (
                 "original",
                 "Original function docstring.",
                 {"something": 12},
@@ -372,7 +385,8 @@ class TestDeprecator(TestCase):
                 original.__name__,
                 original.__doc__,
                 vars(original),
-            ), (
+            ),
+            (
                 "original",
                 "Original function docstring.",
                 {"something": 12},
@@ -399,7 +413,8 @@ class TestDeprecator(TestCase):
                 Class.method.__name__,
                 Class.method.__doc__,
                 vars(Class.method),
-            ), (
+            ),
+            (
                 "method",
                 "Original method docstring.",
                 {"something": 12},
@@ -422,7 +437,8 @@ class TestDeprecator(TestCase):
                 Original.__name__,
                 Original.__doc__,
                 getattr(Original, "something", None),
-            ), (
+            ),
+            (
                 "Original",
                 "Original class docstring.",
                 12,
@@ -436,7 +452,8 @@ class TestDeprecator(TestCase):
                 Original.__name__,
                 Original.__doc__,
                 getattr(Original, "something", None),
-            ), (
+            ),
+            (
                 "Original",
                 "Original class docstring.",
                 12,
@@ -583,6 +600,7 @@ class TestDeprecator(TestCase):
         """
         A misused parameter generates a warning even if the function errors.
         """
+
         @self.regret.parameter(version="1.2.3", name="x")
         def divide_by_zero(x):
             raise ZeroDivisionError()
@@ -617,7 +635,8 @@ class TestDeprecator(TestCase):
                 original.__name__,
                 original.__doc__,
                 getattr(original, "__dict__", {}),
-            ), (
+            ),
+            (
                 "original",
                 "Original function docstring.",
                 {"something": 12},
@@ -631,7 +650,8 @@ class TestDeprecator(TestCase):
                 original.__name__,
                 original.__doc__,
                 getattr(original, "__dict__", {}),
-            ), (
+            ),
+            (
                 "original",
                 "Original function docstring.",
                 {"something": 12},
@@ -777,7 +797,8 @@ class TestDeprecator(TestCase):
                             kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
                         ),
                     ),
-                ) for each in "vxyz"
+                )
+                for each in "vxyz"
             ],
         ):
             self.assertEqual(add5(1, 2, 3, 4, 5), 15)
@@ -846,16 +867,14 @@ class TestDeprecator(TestCase):
                             kind=inspect.Parameter.KEYWORD_ONLY,
                         ),
                     ),
-                ) for each in "vxyz"
+                )
+                for each in "vxyz"
             ],
         ):
             self.assertEqual(add5(1, z=2, y=3, x=4, v=5), 15)
 
     def test_function_with_multiple_deprecated_parameters_is_wrapped(self):
-        deprecated = self.regret.parameter(
-            version="1.2.3",
-            name="x",
-        )(
+        deprecated = self.regret.parameter(version="1.2.3", name="x",)(
             self.regret.parameter(
                 version="1.2.3",
                 name="y",
@@ -1134,7 +1153,8 @@ class TestDeprecator(TestCase):
                 original.__name__,
                 original.__doc__,
                 getattr(original, "__dict__", {}),
-            ), (
+            ),
+            (
                 "original",
                 "Original function docstring.",
                 {"something": 12},
@@ -1150,7 +1170,8 @@ class TestDeprecator(TestCase):
                 original.__name__,
                 original.__doc__,
                 getattr(original, "__dict__", {}),
-            ), (
+            ),
+            (
                 "original",
                 "Original function docstring.",
                 {"something": 12},
@@ -1223,6 +1244,7 @@ class TestDeprecator(TestCase):
 
         The deprecated optional parameter will always be present.
         """
+
         @self.regret.optional_parameter(version="1.2.3", name="z", default=0)
         def add3(x, y, **kwargs):
             return x + y + kwargs["z"]
@@ -1448,7 +1470,8 @@ class TestDeprecator(TestCase):
                             kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
                         ),
                     ),
-                ) for each in "vxyz"
+                )
+                for each in "vxyz"
             ],
         ):
             self.assertEqual(add5(w=15), 15)
@@ -1511,7 +1534,8 @@ class TestDeprecator(TestCase):
                             kind=inspect.Parameter.KEYWORD_ONLY,
                         ),
                     ),
-                ) for each in "vxyz"
+                )
+                for each in "vxyz"
             ],
         ):
             self.assertEqual(add5(w=15), 15)
@@ -1632,6 +1656,7 @@ class TestDeprecator(TestCase):
         """
         A misused parameter generates a warning even if the function errors.
         """
+
         @self.regret.optional_parameter(version="1.2.3", name="x", default=0)
         def divide_by_zero(x):
             raise ZeroDivisionError()
@@ -1654,12 +1679,14 @@ class TestDeprecator(TestCase):
             pass
 
         with self.recorder.expect_clean():
+
             class SubclassOfInheritable(Inheritable):
                 pass
 
         Uninheritable = self.regret.inheritance(version="2.3.4")(Inheritable)
 
         with self.recorder.expect(kind=Inheritance(type=Uninheritable)):
+
             class SubclassOfUninheritable(Uninheritable):
                 pass
 
@@ -1749,6 +1776,7 @@ class TestDeprecator(TestCase):
         Uninheritable = self.regret.inheritance(version="2.3.4")(Inheritable)
 
         with self.recorder.expect(kind=Inheritance(type=Uninheritable)):
+
             class SubclassOfUninheritable(Uninheritable, baz="quux"):
                 pass
 
@@ -1759,6 +1787,7 @@ class TestDeprecator(TestCase):
             pass
 
         with self.assertRaises(Exception) as e:
+
             class Subclass(not_a_class):
                 pass
 
@@ -1772,7 +1801,8 @@ class TestDeprecator(TestCase):
                 Uninheritable.__name__,
                 Uninheritable.__doc__,
                 public_members(Uninheritable),
-            ), (
+            ),
+            (
                 Adder.__name__,
                 Adder.__doc__,
                 public_members(Adder),
@@ -1795,7 +1825,8 @@ class TestDeprecator(TestCase):
                 Original.__name__,
                 Original.__doc__,
                 getattr(Original, "something", None),
-            ), (
+            ),
+            (
                 "Original",
                 "Original class docstring.",
                 12,
@@ -1809,7 +1840,8 @@ class TestDeprecator(TestCase):
                 Original.__name__,
                 Original.__doc__,
                 getattr(Original, "something", None),
-            ), (
+            ),
+            (
                 "Original",
                 "Original class docstring.",
                 12,
@@ -1819,7 +1851,8 @@ class TestDeprecator(TestCase):
 
 def public_members(thing):
     return {
-        name for name, _ in inspect.getmembers(thing)
+        name
+        for name, _ in inspect.getmembers(thing)
         if not name.startswith("_")
     }
 
@@ -1905,14 +1938,8 @@ class TestUnwrap(TestCase):
                 name="x",
                 default=0,
             )(
-                regret.parameter(
-                    version="1.2.3",
-                    name="y",
-                )(
-                    regret.parameter(
-                        version="1.2.3",
-                        name="z",
-                    )(
+                regret.parameter(version="1.2.3", name="y",)(
+                    regret.parameter(version="1.2.3", name="z",)(
                         regret.optional_parameter(
                             version="1.2.3",
                             name="v",

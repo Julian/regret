@@ -65,7 +65,7 @@ class TestRegret(SynchronousTestCase):
         *,
         filename=None,
         args=(),
-        kwargs={},  # noqa: B006
+        kwargs={},
     ):
         if filename is None:
             # sigh, see https://twistedmatrix.com/trac/ticket/9363
@@ -117,10 +117,7 @@ class TestRegret(SynchronousTestCase):
             replacement=str,
         )(collections.UserString)
         result = self.assertDeprecated(
-            message=(
-                "UserString is deprecated. "
-                "Please use str instead."
-            ),
+            message=("UserString is deprecated. " "Please use str instead."),
             fn=deprecated,
             args=("foo",),
         )
@@ -168,7 +165,8 @@ class TestRegret(SynchronousTestCase):
                 object.__doc__
                 + name_of(object)
                 + " deprecated in "
-                + version + " replaced by "
+                + version
+                + " replaced by "
                 + replacement.__doc__
             )
 
@@ -185,7 +183,8 @@ class TestRegret(SynchronousTestCase):
             """Very important docstring for..."""
 
         self.assertEqual(
-            calculate.__doc__, (
+            calculate.__doc__,
+            (
                 "Very important docstring for..."
                 "OBJECTNAME deprecated in v1.2.3 "
                 "replaced by New hotness."
@@ -307,7 +306,8 @@ class TestRegret(SynchronousTestCase):
         self.assertEqual(
             [each["message"] for each in self.flushWarnings()],
             [
-                "The 'y' parameter is deprecated.", (
+                "The 'y' parameter is deprecated.",
+                (
                     "Calling add5 without providing the 'z' parameter "
                     "is deprecated. Using 0 as a default."
                 ),
@@ -333,6 +333,7 @@ class TestRegret(SynchronousTestCase):
         This probably should never happen, but ensure it doesn't blow up,
         essentially.
         """
+
         @regret.callable(version="1.2.3")
         def nested_thing():
             return 12

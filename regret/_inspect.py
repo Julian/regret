@@ -32,10 +32,13 @@ class SignatureWithRegret:
     def __attrs_post_init__(self):
         self.kwargs_parameter_name = next(
             (
-                name for name, parameter in
-                reversed(self._signature.parameters.items())
+                name
+                for name, parameter in reversed(
+                    self._signature.parameters.items()
+                )
                 if parameter.kind == inspect.Parameter.VAR_KEYWORD
-            ), None,
+            ),
+            None,
         )
 
         self._order = {

@@ -40,6 +40,7 @@ class Deprecation:
 
 # --* Representations of deprecated things *--
 
+
 @attr.s(eq=True, frozen=True, hash=True)
 class Callable:
     """

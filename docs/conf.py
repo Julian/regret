@@ -50,7 +50,8 @@ intersphinx_mapping = {
     "attrs": ("https://attrs.org/en/stable/", None),
     "cpython-devguide": ("https://devguide.python.org/", None),
     "jsonschema": (
-        "https://python-jsonschema.readthedocs.io/en/latest/", None,
+        "https://python-jsonschema.readthedocs.io/en/latest/",
+        None,
     ),
     "packaging": ("https://packaging.python.org/", None),
     "python": ("https://docs.python.org/", None),

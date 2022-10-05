@@ -115,6 +115,7 @@ class Deprecator:
                 )
 
             return call_deprecated
+
         return deprecate
 
     def parameter(self, version, name):
@@ -138,11 +139,13 @@ class Deprecator:
                 also supported and should be specified using the name of
                 the parameter as retrieved from the keyword arguments.
         """
+
         def deprecate(thing):
             return Regretted.for_callable(thing).with_parameter(
                 name=name,
                 emit=self._emit_deprecation,
             )
+
         return deprecate
 
     def optional_parameter(self, version, name, default):
@@ -183,6 +186,7 @@ class Deprecator:
                 emit=self._emit_deprecation,
                 default=default,
             )
+
         return deprecate
 
     def inheritance(self, version):
@@ -207,6 +211,7 @@ class Deprecator:
                         ),
                     )
                     super().__init_subclass__(**kwargs)
+
             return DeprecatedForSubclassing
 
         return deprecate
@@ -262,6 +267,7 @@ class Regretted:
                     kind = emitted.Parameter(callable=wrapper, parameter=each)
                 emit(kind=kind)
             return self.callable(*bound.args, **bound.kwargs)
+
         wrapper.__regretted__ = self
         return wrapper
 
