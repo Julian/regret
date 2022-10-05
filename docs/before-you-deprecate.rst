@@ -72,7 +72,7 @@ guidelines which can be built upon later.
 
         :ref:`regret`'s own deprecation policy
 
-    `Twisted Compatibility Policy <https://docs.twistedmatrix.com/en/stable/core/development/policy/compatibility-policy.html>`_
+    `Twisted Compatibility Policy <https://docs.twisted.org/en/stable/development/compatibility-policy.html>`_
 
         The Twisted project's deprecation (compatibility) policy
 
