@@ -34,7 +34,7 @@ class SignatureWithRegret:
             (
                 name
                 for name, parameter in reversed(
-                    self._signature.parameters.items()
+                    self._signature.parameters.items(),
                 )
                 if parameter.kind == inspect.Parameter.VAR_KEYWORD
             ),

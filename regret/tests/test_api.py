@@ -874,7 +874,7 @@ class TestDeprecator(TestCase):
             self.assertEqual(add5(1, z=2, y=3, x=4, v=5), 15)
 
     def test_function_with_multiple_deprecated_parameters_is_wrapped(self):
-        deprecated = self.regret.parameter(version="1.2.3", name="x",)(
+        deprecated = self.regret.parameter(version="1.2.3", name="x")(
             self.regret.parameter(
                 version="1.2.3",
                 name="y",
@@ -1938,8 +1938,8 @@ class TestUnwrap(TestCase):
                 name="x",
                 default=0,
             )(
-                regret.parameter(version="1.2.3", name="y",)(
-                    regret.parameter(version="1.2.3", name="z",)(
+                regret.parameter(version="1.2.3", name="y")(
+                    regret.parameter(version="1.2.3", name="z")(
                         regret.optional_parameter(
                             version="1.2.3",
                             name="v",
