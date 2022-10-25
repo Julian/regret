@@ -153,12 +153,20 @@ need or want to clarify:
     * is being able to *raise* exceptions defined by your library part
       of its public API? Or is only catching them considered public.
 
-    * a class in your library is defined using `attrs
-      <https://www.attrs.org>`_. Is calling `attrs.evolve` directly on
-      instances of your class considered public API, and your class is
-      thereby permanently coupled to `attrs.evolve`'s public API? Or is
-      your use of `attrs` as a library maintainer simply an implementation
-      detail?
+    * a class in your library is defined using `attrs`. Is calling
+      `attrs.evolve` directly on instances of your class considered
+      public API, and your class is thereby permanently coupled to
+      `attrs.evolve`'s public API? Or is your use of `attrs` as a
+      library maintainer simply an implementation detail?
+
+    * a function in your library calls `requests.get`, a function which
+      has mutable global state -- it allows someone to import the library
+      and e.g. define `Transport Adapters <requests:transport-adapters>`
+      which, even if done outside your library, affect how it will retrieve
+      the HTTP response. Is your library free to change its HTTP client to
+      another HTTP client even though this will potentially disrupt users
+      who expect their external change to have an affect on your library's
+      behavior?
 
     * ...
 

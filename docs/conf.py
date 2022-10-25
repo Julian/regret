@@ -53,8 +53,9 @@ intersphinx_mapping = {
         "https://python-jsonschema.readthedocs.io/en/latest/",
         None,
     ),
-    "packaging": ("https://packaging.python.org/", None),
-    "python": ("https://docs.python.org/", None),
+    "packaging": ("https://packaging.python.org/en/latest/", None),
+    "python": ("https://docs.python.org/3/", None),
+    "requests": ("https://requests.readthedocs.io/en/latest/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
 
