@@ -114,6 +114,8 @@ Here is a (non-exhaustive) list of potential API surface that you may need or wa
     * a function in your library calls `requests.get`, a function which has mutable global state -- it allows someone to import the library and e.g. define `Transport Adapters <requests:transport-adapters>` which, even if done outside your library, affect how it will retrieve the HTTP response.
       Is your library free to change its HTTP client to another HTTP client even though this will potentially disrupt users who expect their external change to have an effect on your library's behavior?
 
+    * your package depends on ``foo>1.2.3``. Are these pins part of your public API, and bumping the lower-pinned version of ``foo`` a breaking change? Doing so may of course affect users who are using ``foo==1.2.3`` alongside another of their own dependencies.
+
     * ...
 
 There are many many more.
