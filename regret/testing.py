@@ -14,7 +14,6 @@ class ExpectedDifferentDeprecations(AssertionError):
 
 @attr.s(eq=True)
 class Recorder:
-
     _saw = attr.ib(factory=list)
 
     def emit(self, deprecation, extra_stacklevel):

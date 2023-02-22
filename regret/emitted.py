@@ -66,7 +66,7 @@ class Inheritance:
 
 
 @attr.s(eq=True, frozen=True, hash=True)
-class Parameter(object):
+class Parameter:
     """
     A parameter for a particular callable which should no longer be used.
     """
@@ -79,7 +79,7 @@ class Parameter(object):
 
 
 @attr.s(eq=True, frozen=True, hash=True)
-class OptionalParameter(object):
+class OptionalParameter:
     """
     A parameter for a particular callable which will become mandatory.
     """
