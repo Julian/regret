@@ -107,6 +107,9 @@ Here is a (non-exhaustive) list of potential API surface that you may need or wa
     * is being able to *raise* exceptions defined by your library part of its public API?
       Or is only catching them considered public?
 
+    * is the number of stack frames your library uses internally to implement a public API itself public API?
+      After all, a downstream library calling into it may be using `warnings.warn` and be providing a ``stacklevel`` parameter relying on it!
+
     * a class in your library is defined using `attrs <attrs:index>`.
       Is calling `attrs.evolve` directly on instances of your class considered public API, and your class is thereby permanently coupled to `attrs.evolve`'s public API?
       Or is your use of ``attrs`` as a library maintainer simply an implementation detail?
