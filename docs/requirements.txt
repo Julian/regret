@@ -12,7 +12,7 @@ babel==2.12.1
     # via sphinx
 beautifulsoup4==4.12.2
     # via furo
-certifi==2022.12.7
+certifi==2023.5.7
     # via requests
 charset-normalizer==3.1.0
     # via requests
@@ -22,7 +22,7 @@ cycler==0.11.0
     # via matplotlib
 docutils==0.19
     # via sphinx
-fonttools==4.39.3
+fonttools==4.39.4
     # via matplotlib
 furo==2023.3.27
     # via -r docs/requirements.in
