@@ -1,10 +1,12 @@
 """
 Signature helpers for deprecated (or partially-deprecated) callables.
 """
+from __future__ import annotations
 
+from typing import Any, Callable, Iterable
 import inspect
 
-import attr
+from attrs import evolve, field, frozen
 
 
 class AlreadyDeprecated(Exception):
@@ -19,50 +21,67 @@ class NoSuchParameter(Exception):
     """
 
 
-@attr.s
+@frozen
 class SignatureWithRegret:
     """
     An `inspect.Signature`, along with its regretted subparts.
     """
 
-    _signature = attr.ib()
-    _deprecated = attr.ib(factory=list)
-    _defaults_for_optional_parameters = attr.ib(factory=dict)
+    _signature: inspect.Signature = field(alias="signature")
+    _deprecated: list[str] = field(factory=list, alias="deprecated")
+    _defaults_for_optional_parameters: dict[str, Any] = field(
+        factory=dict,
+        alias="defaults_for_optional_parameters",
+    )
+    kwargs_parameter_name: str | None = field(init=False)
+    _order: dict[str | None, int] = field(init=False)
 
-    def __attrs_post_init__(self):
-        self.kwargs_parameter_name = next(
-            (
-                name
-                for name, parameter in reversed(
-                    self._signature.parameters.items(),
-                )
-                if parameter.kind == inspect.Parameter.VAR_KEYWORD
+    def __attrs_post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "kwargs_parameter_name",
+            next(
+                (
+                    name
+                    for name, parameter in reversed(
+                        self._signature.parameters.items(),
+                    )
+                    if parameter.kind == inspect.Parameter.VAR_KEYWORD
+                ),
+                None,
             ),
-            None,
         )
 
-        self._order = {
-            parameter: index
-            for index, parameter in enumerate(self._signature.parameters)
-        }
+        object.__setattr__(
+            self,
+            "_order",
+            {
+                parameter: index
+                for index, parameter in enumerate(self._signature.parameters)
+            },
+        )
 
     @classmethod
-    def for_callable(cls, callable, **kwargs):
+    def for_callable(
+        cls,
+        callable: Callable[..., Any],
+        **kwargs: Any,
+    ) -> SignatureWithRegret:
         return cls(
             signature=inspect.signature(callable, follow_wrapped=False),
             **kwargs,
         )
 
-    def would_accept(self, name):
+    def would_accept(self, name: str):
         """
         Does this signature know about a parameter with the given name?
-        """
+        """  # noqa: D401
         return (
             name in self._signature.parameters
             or self.kwargs_parameter_name is not None
         )
 
-    def with_parameter(self, name, **kwargs):
+    def with_parameter(self, name: str, **kwargs: Any) -> SignatureWithRegret:
         """
         Evolve this signature to add a deprecated parameter.
         """
@@ -81,9 +100,9 @@ class SignatureWithRegret:
                 each,
             ),
         )
-        return attr.evolve(self, deprecated=deprecated, **kwargs)
+        return evolve(self, deprecated=deprecated, **kwargs)
 
-    def with_optional_parameter(self, name, default):
+    def with_optional_parameter(self, name: str, default: Any):
         """
         Evolve this signature to add a deprecated optional parameter.
         """
@@ -95,12 +114,16 @@ class SignatureWithRegret:
             },
         )
 
-    def misused(self, bound_arguments, callable):
+    def misused(
+        self,
+        bound_arguments: inspect.BoundArguments,
+        callable: Callable[..., Any],
+    ) -> Iterable[tuple[inspect.Parameter, bool]]:
         """
         Collect the arguments (optional or required) that are misused.
         """
         arguments = bound_arguments.arguments
-        kwargs = bound_arguments.arguments.get(self.kwargs_parameter_name, ())
+        kwargs = bound_arguments.arguments.get(self.kwargs_parameter_name, ())  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
 
         for name in self._deprecated:
             is_optional = name in self._defaults_for_optional_parameters
@@ -109,11 +132,14 @@ class SignatureWithRegret:
                     continue
 
                 parameter = self._signature.parameters.get(name)
-                if parameter is None is not self.kwargs_parameter_name:
-                    parameter = inspect.Parameter(
-                        name=name,
-                        kind=inspect.Parameter.KEYWORD_ONLY,
-                    )
+                if parameter is None:
+                    if self.kwargs_parameter_name is None:
+                        continue
+                    else:
+                        parameter = inspect.Parameter(
+                            name=name,
+                            kind=inspect.Parameter.KEYWORD_ONLY,
+                        )
                 yield parameter, is_optional
             else:
                 if name in arguments:
@@ -124,20 +150,27 @@ class SignatureWithRegret:
                         kind=inspect.Parameter.KEYWORD_ONLY,
                     ), is_optional
 
-    def bind(self, *args, **kwargs):
+    def bind(self, *args: Any, **kwargs: Any) -> inspect.BoundArguments:
         return self._signature.bind_partial(*args, **kwargs)
 
-    def set_default(self, bound_arguments, parameter):
+    def set_default(
+        self,
+        bound_arguments: inspect.BoundArguments,
+        parameter: inspect.Parameter,
+    ) -> Any:
         """
         Set the default for the given parameter within some bound arguments.
         """
-
         name = parameter.name
         default = self._defaults_for_optional_parameters[name]
         if name in self._signature.parameters:
             bound_arguments.arguments[name] = default
+        elif self.kwargs_parameter_name is None:
+            raise TypeError(
+                f"No parameter {name} and no kwargs accepted.",
+            )
         else:
-            kwargs = bound_arguments.arguments.setdefault(
+            kwargs: dict[str, Any] = bound_arguments.arguments.setdefault(
                 self.kwargs_parameter_name,
                 {},
             )

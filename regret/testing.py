@@ -1,35 +1,53 @@
 """
 Helpers for testing your regret.
 """
-from contextlib import contextmanager
+from __future__ import annotations
 
-import attr
+from contextlib import AbstractContextManager, contextmanager
+from typing import Any, Iterator
+
+from attrs import field, frozen
 
 from regret.emitted import Deprecation
+from regret.typing import Deprecatable
 
 
 class ExpectedDifferentDeprecations(AssertionError):
-    pass
+    """
+    Different deprecation(s) were seen than the ones which were expected.
+    """
 
 
-@attr.s(eq=True)
+@frozen
 class Recorder:
-    _saw = attr.ib(factory=list)
+    """
+    Recorders keep track of deprecations as they are emitted.
 
-    def emit(self, deprecation, extra_stacklevel):
+    They provide helper methods for asserting about the deprecations
+    afterwards.
+    """
+
+    _saw: list[Deprecatable] = field(factory=list, alias="saw")
+
+    def emit(self, deprecation: Deprecatable, extra_stacklevel: int) -> None:
         """
+        "Emit" a deprecation by simply storing it.
+
         An emitter suitable for passing to `regret.Deprecator` instances.
         """
         self._saw.append(deprecation)
 
-    def expect(self, **kwargs):
+    def expect(self, **kwargs: Any) -> AbstractContextManager[None]:
         """
         Expect a given set of deprecations to be emitted.
         """
         return self.expect_deprecations(Deprecation(**kwargs))
 
     @contextmanager
-    def expect_deprecations(self, *deprecations):
+    def expect_deprecations(
+        self,
+        *deprecations: Deprecation,
+    ) -> Iterator[None]:
         """
         Expect a given set of deprecations to be emitted.
         """
@@ -38,7 +56,7 @@ class Recorder:
         if self._saw != expected:
             raise ExpectedDifferentDeprecations((self._saw, expected))
 
-    def expect_clean(self):
+    def expect_clean(self) -> AbstractContextManager[None]:
         """
         Expect no deprecations to be emitted.
         """

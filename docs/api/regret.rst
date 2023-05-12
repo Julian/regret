@@ -23,6 +23,15 @@ Submodules
    :show-inheritance:
 
 
+`regret.typing`
+================
+
+.. automodule:: regret.typing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 Contents
 --------
 

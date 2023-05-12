@@ -5,8 +5,6 @@ project = "regret"
 author = "Julian Berman"
 copyright = "2019, " + author
 
-# version: The short X.Y version
-# release: The full version, including alpha/beta/rc tags.
 release = importlib.metadata.version("regret")
 version = release.partition("-")[0]
 
@@ -31,20 +29,28 @@ pygments_dark_style = "one-dark"
 
 html_theme = "furo"
 
-# -- Extension configuration -------------------------------------------------
 
-# -- Options for autodoc extension -------------------------------------------
+def entire_domain(host):
+    return r"http.?://" + re.escape(host) + r"($|/.*)"
+
+
+linkcheck_ignore = [
+    entire_domain("img.shields.io"),
+    "https://github.com/Julian/regret/actions",
+    "https://github.com/Julian/regret/workflows/CI/badge.svg",
+]
+
 
 autodoc_default_options = {
     "members": True,
     "member-order": "bysource",
 }
 
-# -- Options for autosectionlabel extension ----------------------------------
+# -- autosectionlabel ----------------------------------
 
 autosectionlabel_prefix_document = True
 
-# -- Options for intersphinx extension ---------------------------------------
+# -- intersphinx ---------------------------------------
 
 intersphinx_mapping = {
     "attrs": ("https://attrs.org/en/stable/", None),
@@ -58,17 +64,3 @@ intersphinx_mapping = {
     "requests": ("https://requests.readthedocs.io/en/latest/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
-
-# -- Options for the linkcheck builder ------------------------------------
-
-
-def entire_domain(host):
-    return r"http.?://" + re.escape(host) + r"($|/.*)"
-
-
-linkcheck_ignore = [
-    entire_domain("codecov.io"),
-    entire_domain("img.shields.io"),
-    "https://github.com/Julian/regret/actions",
-    "https://github.com/Julian/regret/workflows/CI/badge.svg",
-]

@@ -1,11 +1,16 @@
-from functools import wraps
+from __future__ import annotations
 
-import attr
+from datetime import date
+from functools import wraps
+from typing import Any, Callable
+
+from attrs import field, frozen, mutable
 
 from regret import _inspect, _sphinx, _warnings, emitted
+from regret.typing import Emitter, name_of, new_docstring
 
 
-@attr.s(eq=True, frozen=True)
+@frozen
 class Deprecator:
     """
     Deprecators help manifest regret.
@@ -47,11 +52,14 @@ class Deprecator:
             directive.
     """
 
-    _emit = attr.ib(default=_warnings.emit)
-    _name_of = attr.ib(default=emitted._qualname)
-    _new_docstring = attr.ib(default=_sphinx.doc_with_deprecated_directive)
+    _emit: Emitter = field(default=_warnings.emit, alias="emit")
+    _name_of: name_of = field(default=emitted._qualname, alias="name_of")  # type: ignore[reportPrivateUsage]  # noqa: E501
+    _new_docstring: new_docstring = field(
+        default=_sphinx.doc_with_deprecated_directive,
+        alias="new_docstring",
+    )
 
-    def _emit_deprecation(self, extra_stacklevel=0, **kwargs):
+    def _emit_deprecation(self, extra_stacklevel: int = 0, **kwargs: Any):
         self._emit(
             deprecation=emitted.Deprecation(name_of=self._name_of, **kwargs),
             extra_stacklevel=extra_stacklevel,
@@ -61,10 +69,10 @@ class Deprecator:
 
     def callable(
         self,
-        version,
-        replacement=None,
-        removal_date=None,
-        addendum=None,
+        version: str,
+        replacement: Any = None,
+        removal_date: date | None = None,
+        addendum: str | None = None,
     ):
         """
         Deprecate a callable as of the given version.
@@ -93,9 +101,9 @@ class Deprecator:
                 warnings emitted for this deprecation
         """
 
-        def deprecate(thing):
+        def deprecate(thing: Callable[..., Any]):
             @wraps(thing)
-            def call_deprecated(*args, **kwargs):
+            def call_deprecated(*args: Any, **kwargs: Any):
                 self._emit_deprecation(
                     kind=emitted.Callable(object=call_deprecated),
                     replacement=replacement,
@@ -118,7 +126,7 @@ class Deprecator:
 
         return deprecate
 
-    def parameter(self, version, name):
+    def parameter(self, version: str, name: str):
         """
         Deprecate a parameter that was previously required and will be removed.
 
@@ -140,7 +148,7 @@ class Deprecator:
                 the parameter as retrieved from the keyword arguments.
         """
 
-        def deprecate(thing):
+        def deprecate(thing: Callable[..., Any]):
             return Regretted.for_callable(thing).with_parameter(
                 name=name,
                 emit=self._emit_deprecation,
@@ -148,7 +156,7 @@ class Deprecator:
 
         return deprecate
 
-    def optional_parameter(self, version, name, default):
+    def optional_parameter(self, version: str, name: str, default: Any):
         """
         Deprecate a parameter that was optional and will become required.
 
@@ -180,7 +188,7 @@ class Deprecator:
                 present.
         """
 
-        def deprecate(thing):
+        def deprecate(thing: Callable[..., Any]):
             return Regretted.for_callable(thing).with_optional_parameter(
                 name=name,
                 emit=self._emit_deprecation,
@@ -189,7 +197,7 @@ class Deprecator:
 
         return deprecate
 
-    def inheritance(self, version):
+    def inheritance(self, version: str):
         """
         Deprecate allowing a class to be subclassed.
 
@@ -201,33 +209,37 @@ class Deprecator:
                 considered deprecated
         """
 
-        def deprecate(cls):
+        def deprecate(cls: type) -> type:
             @wraps(cls, updated=())
-            class DeprecatedForSubclassing(cls):
-                def __init_subclass__(Subclass, **kwargs):
+            class DeprecatedForSubclassing(cls):  # type: ignore[reportUntypedBaseClass]  # noqa: E501
+                def __init_subclass__(Subclass, **kwargs: Any) -> None:  # type: ignore[reportSelfClsParameterName]  # noqa: E501
                     self._emit_deprecation(
                         kind=emitted.Inheritance(
-                            type=DeprecatedForSubclassing,
+                            type=DeprecatedForSubclassing,  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
                         ),
                     )
-                    super().__init_subclass__(**kwargs)
+                    super().__init_subclass__(**kwargs)  # type: ignore[reportUnknownMemberType]  # noqa: E501
 
-            return DeprecatedForSubclassing
+            return DeprecatedForSubclassing  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
 
         return deprecate
 
 
-@attr.s
+@mutable
 class Regretted:
     """
     A partially regretted callable.
     """
 
-    callable = attr.ib()
-    signature = attr.ib()
+    callable: Callable[..., Any]
+    signature: _inspect.SignatureWithRegret
 
     @classmethod
-    def for_callable(cls, callable, **kwargs):
+    def for_callable(
+        cls,
+        callable: Callable[..., Any],
+        **kwargs: Any,
+    ) -> Regretted:
         regretted = getattr(callable, "__regretted__", None)
         if regretted is not None:
             return regretted
@@ -237,20 +249,20 @@ class Regretted:
             **kwargs,
         )
 
-    def with_parameter(self, emit, name):
+    def with_parameter(self, emit: Emitter, name: str):
         self.signature = self.signature.with_parameter(name)
         return self.wrapper(emit=emit)
 
-    def with_optional_parameter(self, emit, name, default):
+    def with_optional_parameter(self, emit: Emitter, name: str, default: Any):
         self.signature = self.signature.with_optional_parameter(
             name=name,
             default=default,
         )
         return self.wrapper(emit=emit)
 
-    def wrapper(self, emit):
+    def wrapper(self, emit: Emitter):
         @wraps(self.callable)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Any, **kwargs: Any):
             bound = self.signature.bind(*args, **kwargs)
             for each, optional in self.signature.misused(
                 bound_arguments=bound,
@@ -268,7 +280,7 @@ class Regretted:
                 emit(kind=kind)
             return self.callable(*bound.args, **bound.kwargs)
 
-        wrapper.__regretted__ = self
+        wrapper.__regretted__ = self  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
         return wrapper
 
 

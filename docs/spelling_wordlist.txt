@@ -3,6 +3,7 @@ Deprecators
 analytics
 callables
 codebase
+deprecatable
 deprecations
 docstring
 docstrings
