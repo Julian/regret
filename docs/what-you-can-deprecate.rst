@@ -18,8 +18,13 @@ The `API Reference <api/modules>` also contains a full list for completeness.
     import regret
 
     def _redirected(message, category, filename, lineno, file=None, line=None):
+        """
+        Show warnings on stdout so doctest sees them.
+        """
         showwarning(message, category, filename, lineno, sys.stdout, line)
     showwarning, warnings.showwarning = warnings.showwarning, _redirected
+
+    warnings.simplefilter("default")
 
 .. testcleanup::
 
