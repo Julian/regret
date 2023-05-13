@@ -129,7 +129,7 @@ To be clear, some of the above *do* have commonly understood answers in the ecos
 
 .. [#] Python does not have a particularly formal enforced definition of "public" and "private", but we use the terms here in their commonly understood meaning within the Python ecosystem: a public object or API is one which is expected to be relied upon by end-users of the package and whose compatibility is "guaranteed", and a private object is one whose use is conversely *not* encouraged and not guaranteed for end users, regardless of its accessibility at runtime.
 
-.. [#] though hopefully not in practice
+.. [#] though hopefully not in practice, even if `Hyrum's Law <https://www.hyrumslaw.com/>`_ might apply.
 
 
 .. seealso::
