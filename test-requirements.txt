@@ -22,7 +22,7 @@ six==1.16.0
     # via automat
 twisted==22.10.0
     # via -r test-requirements.in
-typing-extensions==4.5.0
+typing-extensions==4.7.1
     # via twisted
 zope-interface==6.0
     # via twisted
