@@ -119,6 +119,8 @@ Here is a (non-exhaustive) list of potential API surface that you may need or wa
 
     * your package depends on ``foo>1.2.3``. Are these pins part of your public API, and bumping the lower-pinned version of ``foo`` a breaking change? Doing so may of course affect users who are using ``foo==1.2.3`` alongside another of their own dependencies.
 
+    * today, your package has no binary (non-Python) dependencies. Is that a permanent promise of its installation "API"?
+
     * ...
 
 There are many many more.
