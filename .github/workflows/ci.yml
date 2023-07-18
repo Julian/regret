@@ -48,13 +48,15 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
         noxenv: ${{ fromJson(needs.list.outputs.noxenvs) }}
+        posargs: [""]
+        include:
+          - noxenv: tests-3.11
+            posargs: coverage github
 
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
-        run: >
-          sudo apt-get update &&
-          sudo apt-get install -y libenchant-2-dev
+        run: sudo apt-get update && sudo apt-get install -y libenchant-2-dev
         if: runner.os == 'Linux' && startsWith(matrix.noxenv, 'docs')
       - name: Install dependencies
         run: brew install enchant
@@ -66,7 +68,7 @@ jobs:
       - name: Set up nox
         uses: wntrblm/nox@2023.04.22
       - name: Run nox
-        run: nox -s "${{ matrix.noxenv }}"
+        run: nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }}
 
   packaging:
     needs: ci
