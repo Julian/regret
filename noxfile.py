@@ -1,4 +1,6 @@
 from pathlib import Path
+from tempfile import TemporaryDirectory
+import os
 
 import nox
 
@@ -6,6 +8,7 @@ ROOT = Path(__file__).parent
 PYPROJECT = ROOT / "pyproject.toml"
 DOCS = ROOT / "docs"
 PACKAGE = ROOT / "regret"
+CONTRIBUTING = ROOT / "CONTRIBUTING.rst"
 
 
 nox.options.sessions = []
@@ -39,26 +42,24 @@ def pytest_tests(session):
 
 @session()
 def audit(session):
-    session.install("pip_audit", ROOT)
+    session.install("pip-audit", ROOT)
     session.run("python", "-m", "pip_audit")
 
 
 @session(tags=["build"])
 def build(session):
-    session.install("build")
-    tmpdir = session.create_tmp()
-    session.run("python", "-m", "build", ROOT, "--outdir", tmpdir)
-
-
-@session(tags=["style"])
-def readme(session):
     session.install("build", "docutils", "twine")
-    tmpdir = session.create_tmp()
-    session.run("python", "-m", "build", ROOT, "--outdir", tmpdir)
-    session.run("python", "-m", "twine", "check", tmpdir + "/*")
-
-    CONTRIBUTING = ROOT / "CONTRIBUTING.rst"
-    session.run("rst2html5.py", "--halt=warning", CONTRIBUTING, "/dev/null")
+    with TemporaryDirectory() as tmpdir:
+        session.run("python", "-m", "build", ROOT, "--outdir", tmpdir)
+        session.run("twine", "check", "--strict", tmpdir + "/*")
+        session.run(
+            "python",
+            "-m",
+            "docutils",
+            "--strict",
+            CONTRIBUTING,
+            os.devnull,
+        )
 
 
 @session(tags=["style"])
@@ -89,20 +90,21 @@ def typing(session):
 )
 def docs(session, builder):
     session.install("-r", DOCS / "requirements.txt")
-    tmpdir = Path(session.create_tmp())
-    argv = ["-n", "-T", "-W"]
-    if builder != "spelling":
-        argv += ["-q"]
-    session.run(
-        "python",
-        "-m",
-        "sphinx",
-        "-b",
-        builder,
-        DOCS,
-        tmpdir / builder,
-        *argv,
-    )
+    with TemporaryDirectory() as tmpdir_str:
+        tmpdir = Path(tmpdir_str)
+        argv = ["-n", "-T", "-W"]
+        if builder != "spelling":
+            argv += ["-q"]
+        session.run(
+            "python",
+            "-m",
+            "sphinx",
+            "-b",
+            builder,
+            DOCS,
+            tmpdir / builder,
+            *argv,
+        )
 
 
 @session(tags=["docs", "style"], name="docs(style)")
