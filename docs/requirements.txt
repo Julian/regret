@@ -12,7 +12,7 @@ babel==2.12.1
     # via sphinx
 beautifulsoup4==4.12.2
     # via furo
-certifi==2023.5.7
+certifi==2023.7.22
     # via requests
 charset-normalizer==3.2.0
     # via requests
@@ -22,9 +22,9 @@ cycler==0.11.0
     # via matplotlib
 docutils==0.20.1
     # via sphinx
-fonttools==4.41.0
+fonttools==4.41.1
     # via matplotlib
-furo==2023.5.20
+furo==2023.7.26
     # via -r docs/requirements.in
 idna==3.4
     # via requests
@@ -71,7 +71,7 @@ snowballstemmer==2.2.0
     # via sphinx
 soupsieve==2.4.1
     # via beautifulsoup4
-sphinx==7.0.1
+sphinx==7.1.1
     # via
     #   -r docs/requirements.in
     #   furo
@@ -99,5 +99,5 @@ sphinxcontrib-spelling==8.0.0
     # via -r docs/requirements.in
 sphinxext-opengraph==0.8.2
     # via -r docs/requirements.in
-urllib3==2.0.3
+urllib3==2.0.4
     # via requests
