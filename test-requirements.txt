@@ -20,7 +20,7 @@ incremental==22.10.0
     # via twisted
 six==1.16.0
     # via automat
-twisted==23.8.0
+twisted==23.10.0
     # via -r test-requirements.in
 typing-extensions==4.7.1
     # via twisted
