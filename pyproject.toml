@@ -13,8 +13,7 @@ license = {text = "MIT"}
 requires-python = ">=3.8"
 keywords = ["deprecation", "deprecations", "regret", "tooling", "maintenance"]
 authors = [
-  {email = "Julian+regret@GrayVines.com"},
-  {name = "Julian Berman"},
+  { name = "Julian Berman", email = "Julian+regret@GrayVines.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
