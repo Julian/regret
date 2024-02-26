@@ -1,6 +1,7 @@
 """
 Integration tests for the testing helper(s).
 """
+
 from unittest import TestCase
 
 from regret import Deprecator, emitted, testing

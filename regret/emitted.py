@@ -1,15 +1,20 @@
 """
 Objects emitted whilst a deprecated object is being used.
 """
+
 from __future__ import annotations
 
-from datetime import date
-from typing import Any, Callable as _Callable
-import inspect
+from typing import TYPE_CHECKING
 
 from attrs import field, frozen
 
-from regret.typing import Deprecatable, name_of
+if TYPE_CHECKING:
+    from collections.abc import Callable as _Callable
+    from datetime import date
+    from typing import Any
+    import inspect
+
+    from regret.typing import Deprecatable, name_of
 
 
 def _qualname(obj: Any) -> str:
@@ -81,7 +86,7 @@ class Inheritance:
     The subclassing of a given parent type.
     """
 
-    _type: type = field(alias="type")
+    _type: type[Any] = field(alias="type")
 
     def message(self, name_of: name_of) -> str:
         """

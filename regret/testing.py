@@ -1,15 +1,20 @@
 """
 Helpers for testing your regret.
 """
+
 from __future__ import annotations
 
-from contextlib import AbstractContextManager, contextmanager
-from typing import Any, Iterator
+from typing import TYPE_CHECKING
+import contextlib
 
 from attrs import field, frozen
 
 from regret.emitted import Deprecation
-from regret.typing import Deprecatable
+
+if TYPE_CHECKING:
+    from typing import Any, Iterator
+
+    from regret.typing import Deprecatable
 
 
 class ExpectedDifferentDeprecations(AssertionError):
@@ -37,13 +42,13 @@ class Recorder:
         """
         self._saw.append(deprecation)
 
-    def expect(self, **kwargs: Any) -> AbstractContextManager[None]:
+    def expect(self, **kwargs: Any) -> contextlib.AbstractContextManager[None]:
         """
         Expect a given set of deprecations to be emitted.
         """
         return self.expect_deprecations(Deprecation(**kwargs))
 
-    @contextmanager
+    @contextlib.contextmanager
     def expect_deprecations(
         self,
         *deprecations: Deprecation,
@@ -56,7 +61,7 @@ class Recorder:
         if self._saw != expected:
             raise ExpectedDifferentDeprecations((self._saw, expected))
 
-    def expect_clean(self) -> AbstractContextManager[None]:
+    def expect_clean(self) -> contextlib.AbstractContextManager[None]:
         """
         Expect no deprecations to be emitted.
         """

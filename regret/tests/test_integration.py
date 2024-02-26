@@ -65,7 +65,7 @@ class TestRegret(SynchronousTestCase):
         *,
         filename=None,
         args=(),
-        kwargs={},  # noqa: B006
+        kwargs={},
     ):
         if filename is None:
             # sigh, see https://twistedmatrix.com/trac/ticket/9363
@@ -117,7 +117,7 @@ class TestRegret(SynchronousTestCase):
             replacement=str,
         )(collections.UserString)
         result = self.assertDeprecated(
-            message=("UserString is deprecated. " "Please use str instead."),
+            message="UserString is deprecated. Please use str instead.",
             fn=deprecated,
             args=("foo",),
         )

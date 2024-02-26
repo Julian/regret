@@ -15,10 +15,6 @@ repos:
     rev: "v0.2.2"
     hooks:
       - id: ruff
-  - repo: https://github.com/PyCQA/isort
-    rev: 5.13.2
-    hooks:
-      - id: isort
   - repo: https://github.com/psf/black
     rev: 24.2.0
     hooks:

@@ -613,9 +613,8 @@ class TestDeprecator(TestCase):
                     kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
                 ),
             ),
-        ):
-            with self.assertRaises(ZeroDivisionError):
-                divide_by_zero(3)
+        ), self.assertRaises(ZeroDivisionError):
+            divide_by_zero(3)
 
     def test_function_with_deprecated_parameter_is_wrapped(self):
         deprecated = self.regret.parameter(version="1.2.3", name="y")(add)
@@ -1670,9 +1669,8 @@ class TestDeprecator(TestCase):
                     kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
                 ),
             ),
-        ):
-            with self.assertRaises(ZeroDivisionError):
-                divide_by_zero()
+        ), self.assertRaises(ZeroDivisionError):
+            divide_by_zero()
 
     def test_inheritance(self):
         class Inheritable:

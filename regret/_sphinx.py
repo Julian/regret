@@ -1,8 +1,12 @@
 from __future__ import annotations
 
-from datetime import date
 from textwrap import dedent
-from typing import Any, Callable
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from datetime import date
+    from typing import Any
 
 
 def doc_with_deprecated_directive(

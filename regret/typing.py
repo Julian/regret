@@ -1,10 +1,14 @@
 """
 Typing related helpers for regret.
 """
+
 from __future__ import annotations
 
-from datetime import date
-from typing import Any, Callable, Protocol
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Protocol
+
+if TYPE_CHECKING:
+    from datetime import date
 
 
 class Deprecatable(Protocol):
@@ -35,6 +39,7 @@ class Emitter(Protocol):
         ...
 
 
+#: Return a string name for any object.
 name_of = Callable[[Any], str]
 
 

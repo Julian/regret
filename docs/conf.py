@@ -3,7 +3,7 @@ import re
 
 project = "regret"
 author = "Julian Berman"
-copyright = "2019, " + author
+copyright = f"2019, {author}"
 
 release = importlib.metadata.version("regret")
 version = release.partition("-")[0]
@@ -28,6 +28,31 @@ pygments_style = "lovelace"
 pygments_dark_style = "one-dark"
 
 html_theme = "furo"
+
+
+# See sphinx-doc/sphinx#10785
+_TYPE_ALIASES = dict(
+    _Callable=("class", "Callable"),
+    name_of=("data", "name_of"),
+)
+
+
+def _resolve_broken_refs(app, env, node, contnode):
+    kind, target = _TYPE_ALIASES.get(node["reftarget"], (None, None))
+    if kind is not None:
+        return app.env.get_domain("py").resolve_xref(
+            env,
+            node["refdoc"],
+            app.builder,
+            kind,
+            target,
+            node,
+            contnode,
+        )
+
+
+def setup(app):
+    app.connect("missing-reference", _resolve_broken_refs)
 
 
 def entire_domain(host):
@@ -64,3 +89,8 @@ intersphinx_mapping = {
     "requests": ("https://requests.readthedocs.io/en/latest/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
 }
+
+# -- sphinxcontrib-spelling --
+
+spelling_word_list_filename = "spelling-wordlist.txt"
+spelling_show_suggestions = True

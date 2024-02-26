@@ -1,6 +1,7 @@
 """
 Integration with the standard library's `warnings` module.
 """
+
 import warnings
 
 from regret.emitted import Deprecation

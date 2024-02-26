@@ -1,8 +1,11 @@
 """
 You made a thing, but now you wish it'd go away... Deprecations, a love story.
 """
-from regret._api import _DEPRECATOR  # type: ignore[reportPrivateUsage]
-from regret._api import Deprecator
+
+from regret._api import (
+    _DEPRECATOR,  # type: ignore[reportPrivateUsage]
+    Deprecator,
+)
 
 callable = _DEPRECATOR.callable
 inheritance = _DEPRECATOR.inheritance

@@ -1,6 +1,7 @@
 """
 Signature helpers for deprecated (or partially-deprecated) callables.
 """
+
 from __future__ import annotations
 
 from typing import Any, Callable, Iterable
@@ -75,7 +76,7 @@ class SignatureWithRegret:
     def would_accept(self, name: str):
         """
         Does this signature know about a parameter with the given name?
-        """  # noqa: D401
+        """
         return (
             name in self._signature.parameters
             or self.kwargs_parameter_name is not None
@@ -91,7 +92,7 @@ class SignatureWithRegret:
             raise AlreadyDeprecated(name)
 
         deprecated = sorted(
-            self._deprecated + [name],
+            [*self._deprecated, name],
             key=lambda each: (
                 self._order.get(
                     each,
@@ -123,7 +124,7 @@ class SignatureWithRegret:
         Collect the arguments (optional or required) that are misused.
         """
         arguments = bound_arguments.arguments
-        kwargs = bound_arguments.arguments.get(self.kwargs_parameter_name, ())  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
+        kwargs = bound_arguments.arguments.get(self.kwargs_parameter_name, ())  # type: ignore[reportGeneralTypeIssues]
 
         for name in self._deprecated:
             is_optional = name in self._defaults_for_optional_parameters
@@ -141,14 +142,13 @@ class SignatureWithRegret:
                             kind=inspect.Parameter.KEYWORD_ONLY,
                         )
                 yield parameter, is_optional
-            else:
-                if name in arguments:
-                    yield self._signature.parameters[name], is_optional
-                elif name in kwargs:
-                    yield inspect.Parameter(
-                        name=name,
-                        kind=inspect.Parameter.KEYWORD_ONLY,
-                    ), is_optional
+            elif name in arguments:
+                yield self._signature.parameters[name], is_optional
+            elif name in kwargs:
+                yield inspect.Parameter(
+                    name=name,
+                    kind=inspect.Parameter.KEYWORD_ONLY,
+                ), is_optional
 
     def bind(self, *args: Any, **kwargs: Any) -> inspect.BoundArguments:
         return self._signature.bind_partial(*args, **kwargs)

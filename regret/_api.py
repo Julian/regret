@@ -1,13 +1,18 @@
 from __future__ import annotations
 
-from datetime import date
 from functools import wraps
-from typing import Any, Callable
+from typing import TYPE_CHECKING
 
 from attrs import field, frozen, mutable
 
 from regret import _inspect, _sphinx, _warnings, emitted
-from regret.typing import Emitter, name_of, new_docstring
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+    from typing import Any
+    import datetime
+
+    from regret.typing import Emitter, name_of, new_docstring
 
 
 @frozen
@@ -50,10 +55,11 @@ class Deprecator:
             deprecation docstrings will be constructed using syntax
             suitable for `Sphinx <sphinx:index>`, via the `deprecated`
             directive.
+
     """
 
     _emit: Emitter = field(default=_warnings.emit, alias="emit")
-    _name_of: name_of = field(default=emitted._qualname, alias="name_of")  # type: ignore[reportPrivateUsage]  # noqa: E501
+    _name_of: name_of = field(default=emitted._qualname, alias="name_of")  # type: ignore[reportPrivateUsage]
     _new_docstring: new_docstring = field(
         default=_sphinx.doc_with_deprecated_directive,
         alias="new_docstring",
@@ -71,7 +77,7 @@ class Deprecator:
         self,
         version: str,
         replacement: Any = None,
-        removal_date: date | None = None,
+        removal_date: datetime.date | None = None,
         addendum: str | None = None,
     ):
         """
@@ -99,6 +105,7 @@ class Deprecator:
 
                 an optional additional message to include at the end of
                 warnings emitted for this deprecation
+
         """
 
         def deprecate(thing: Callable[..., Any]):
@@ -146,6 +153,7 @@ class Deprecator:
                 only via arbitrary keyword arguments ("``kwargs``") is
                 also supported and should be specified using the name of
                 the parameter as retrieved from the keyword arguments.
+
         """
 
         def deprecate(thing: Callable[..., Any]):
@@ -186,6 +194,7 @@ class Deprecator:
                 It will be passed through to the wrapped callable,
                 which can therefore assume the argument will always be
                 present.
+
         """
 
         def deprecate(thing: Callable[..., Any]):
@@ -207,20 +216,21 @@ class Deprecator:
 
                 the first version in which the deprecated object was
                 considered deprecated
+
         """
 
         def deprecate(cls: type) -> type:
             @wraps(cls, updated=())
-            class DeprecatedForSubclassing(cls):  # type: ignore[reportUntypedBaseClass]  # noqa: E501
-                def __init_subclass__(Subclass, **kwargs: Any) -> None:  # type: ignore[reportSelfClsParameterName]  # noqa: E501
+            class DeprecatedForSubclassing(cls):  # type: ignore[reportUntypedBaseClass]
+                def __init_subclass__(Subclass, **kwargs: Any) -> None:  # type: ignore[reportSelfClsParameterName]
                     self._emit_deprecation(
                         kind=emitted.Inheritance(
-                            type=DeprecatedForSubclassing,  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
+                            type=DeprecatedForSubclassing,  # type: ignore[reportGeneralTypeIssues]
                         ),
                     )
-                    super().__init_subclass__(**kwargs)  # type: ignore[reportUnknownMemberType]  # noqa: E501
+                    super().__init_subclass__(**kwargs)  # type: ignore[reportUnknownMemberType]
 
-            return DeprecatedForSubclassing  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
+            return DeprecatedForSubclassing  # type: ignore[reportGeneralTypeIssues]
 
         return deprecate
 
@@ -280,7 +290,7 @@ class Regretted:
                 emit(kind=kind)
             return self.callable(*bound.args, **bound.kwargs)
 
-        wrapper.__regretted__ = self  # type: ignore[reportGeneralTypeIssues]  # noqa: E501
+        wrapper.__regretted__ = self  # type: ignore[reportGeneralTypeIssues]
         return wrapper
 
 
