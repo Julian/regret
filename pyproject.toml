@@ -63,12 +63,6 @@ ignore = [
     "D001",  # one sentence per line, so max length doesn't make sense
 ]
 
-[tool.isort]
-combine_as_imports = true
-from_first = true
-include_trailing_comma = true
-multi_line_output = 3
-
 [tool.pyright]
 reportUnnecessaryTypeIgnoreComment = true
 strict = ["**/*"]
