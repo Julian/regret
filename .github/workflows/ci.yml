@@ -2,9 +2,11 @@ name: CI
 
 on:
   push:
+    branches-ignore:
+      - "wip*"
+    tags:
+      - "v*"
   pull_request:
-  release:
-    types: [published]
   schedule:
     # Daily at 3:21
     - cron: "21 3 * * *"
@@ -40,6 +42,7 @@ jobs:
   ci:
     needs: list
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -48,7 +51,7 @@ jobs:
         posargs: [""]
         include:
           - os: ubuntu-latest
-            noxenv: tests-3.11
+            noxenv: tests-3.12
             posargs: coverage github
 
     steps:
@@ -70,8 +73,12 @@ jobs:
             3.12
             pypy3.10
           allow-prereleases: true
+          cache: pip
+      - name: Set up uv
+        uses: hynek/setup-cached-uv@v1
       - name: Set up nox
         uses: wntrblm/nox@2024.04.15
+
       - name: Run nox
         run: nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }}
 
@@ -90,6 +97,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
+          cache: pip
           python-version: "3.x"
       - name: Install dependencies
         run: python -m pip install build
