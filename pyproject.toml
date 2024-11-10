@@ -8,7 +8,7 @@ source = "vcs"
 [project]
 name = "regret"
 description = "You made a thing, but now you wish it'd go away... Deprecations, a love story."
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 readme = "README.rst"
 keywords = ["deprecation", "deprecations", "regret", "tooling", "maintenance"]
 authors = [
@@ -20,11 +20,10 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
@@ -59,16 +58,16 @@ skip_covered = true
 
 [tool.doc8]
 ignore = [
-    "D000",  # see PyCQA/doc8#125
-    "D001",  # one sentence per line, so max length doesn't make sense
+  "D000",  # see PyCQA/doc8#125
+  "D001",  # one sentence per line, so max length doesn't make sense
 ]
 
 [tool.pyright]
 reportUnnecessaryTypeIgnoreComment = true
 strict = ["**/*"]
 exclude = [
-    "**/tests/__init__.py",
-    "**/tests/test_*.py",
+  "**/tests/__init__.py",
+  "**/tests/test_*.py",
 ]
 
 [tool.ruff]
@@ -119,7 +118,6 @@ ignore = [
   "SLF001",  # Private usage within this package itself is fine
   "TD",  # These TODO style rules are also silly
   "TRY003",  # Some exception classes are essentially intended for free-form
-  "UP007",  # We support 3.8 + 3.9
 ]
 
 [tool.ruff.lint.flake8-pytest-style]
