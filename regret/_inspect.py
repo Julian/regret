@@ -4,8 +4,11 @@ Signature helpers for deprecated (or partially-deprecated) callables.
 
 from __future__ import annotations
 
-from typing import Any, Callable, Iterable
+from typing import TYPE_CHECKING, Any
 import inspect
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Iterable
 
 from attrs import evolve, field, frozen
 

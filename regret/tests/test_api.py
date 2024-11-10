@@ -605,15 +605,18 @@ class TestDeprecator(TestCase):
         def divide_by_zero(x):
             raise ZeroDivisionError()
 
-        with self.recorder.expect(
-            kind=Parameter(
-                callable=divide_by_zero,
-                parameter=inspect.Parameter(
-                    name="x",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        with (
+            self.recorder.expect(
+                kind=Parameter(
+                    callable=divide_by_zero,
+                    parameter=inspect.Parameter(
+                        name="x",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        ), self.assertRaises(ZeroDivisionError):
+            self.assertRaises(ZeroDivisionError),
+        ):
             divide_by_zero(3)
 
     def test_function_with_deprecated_parameter_is_wrapped(self):
@@ -1660,16 +1663,19 @@ class TestDeprecator(TestCase):
         def divide_by_zero(x):
             raise ZeroDivisionError()
 
-        with self.recorder.expect(
-            kind=OptionalParameter(
-                callable=divide_by_zero,
-                default=0,
-                parameter=inspect.Parameter(
-                    name="x",
-                    kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        with (
+            self.recorder.expect(
+                kind=OptionalParameter(
+                    callable=divide_by_zero,
+                    default=0,
+                    parameter=inspect.Parameter(
+                        name="x",
+                        kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    ),
                 ),
             ),
-        ), self.assertRaises(ZeroDivisionError):
+            self.assertRaises(ZeroDivisionError),
+        ):
             divide_by_zero()
 
     def test_inheritance(self):

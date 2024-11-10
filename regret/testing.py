@@ -12,7 +12,8 @@ from attrs import field, frozen
 from regret.emitted import Deprecation
 
 if TYPE_CHECKING:
-    from typing import Any, Iterator
+    from collections.abc import Iterator
+    from typing import Any
 
     from regret.typing import Deprecatable
 
