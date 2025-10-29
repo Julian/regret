@@ -10,33 +10,27 @@ on:
   schedule:
     # Daily at 3:21
     - cron: "21 3 * * *"
+  workflow_dispatch:
 
-env:
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PIP_NO_PYTHON_VERSION_WARNING: "1"
+permissions: {}
 
 jobs:
-  pre-commit:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.x"
-      - uses: pre-commit/action@v3.0.1
-
   list:
     runs-on: ubuntu-latest
     outputs:
       noxenvs: ${{ steps.noxenvs-matrix.outputs.noxenvs }}
     steps:
       - uses: actions/checkout@v5
-      - name: Set up nox
-        uses: wntrblm/nox@2025.02.09
+        with:
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d
+        with:
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
       - id: noxenvs-matrix
         run: |
           echo >>$GITHUB_OUTPUT noxenvs=$(
-            nox --list-sessions --json | jq '[.[].session]'
+            uvx nox --list-sessions --json | jq '[.[].session]'
           )
 
   ci:
@@ -51,11 +45,13 @@ jobs:
         posargs: [""]
         include:
           - os: ubuntu-latest
-            noxenv: tests-3.12
+            noxenv: tests-3.14
             posargs: coverage github
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libenchant-2-dev
         if: runner.os == 'Linux' && startsWith(matrix.noxenv, 'docs')
@@ -66,21 +62,19 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: |
-            3.8
-            3.9
-            3.10
-            3.11
+            pypy3.11
             3.12
-            pypy3.10
+            3.13
+            3.14
           allow-prereleases: true
-          cache: pip
+
       - name: Set up uv
-        uses: hynek/setup-cached-uv@v2
-      - name: Set up nox
-        uses: wntrblm/nox@2025.02.09
+        uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d
+        with:
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
 
       - name: Run nox
-        run: nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }}
+        run: uvx nox -s "${{ matrix.noxenv }}" -- ${{ matrix.posargs }} # zizmor: ignore[template-injection]
 
   packaging:
     needs: ci
@@ -88,27 +82,29 @@ jobs:
     environment:
       name: PyPI
       url: https://pypi.org/p/regret
+
     permissions:
       contents: write
       id-token: write
 
     steps:
       - uses: actions/checkout@v5
-      - name: Set up Python
-        uses: actions/setup-python@v6
         with:
-          cache: pip
-          python-version: "3.x"
-      - name: Install dependencies
-        run: python -m pip install build
-      - name: Create packages
-        run: python -m build .
+          persist-credentials: false
+      - name: Set up uv
+        uses: astral-sh/setup-uv@3259c6206f993105e3a61b142c2d97bf4b9ef83d
+        with:
+          enable-cache: ${{ github.ref_type != 'tag' }} # zizmor: ignore[cache-poisoning]
+
+      - name: Build our distributions
+        run: uv run --frozen --with 'build[uv]' -m build --installer=uv
+
       - name: Publish to PyPI
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        uses: pypa/gh-action-pypi-publish@release/v1
-      - name: Create a Release
+        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e
+      - name: Create a GitHub Release
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           files: |
             dist/*
