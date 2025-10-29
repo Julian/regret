@@ -22,7 +22,7 @@ except SyntaxError:  # pragma: no cover
     HAS_POSITIONAL_ONLY = False
 
 
-class Adder:
+class Adder:  # noqa: PLW1641
     """
     Add things.
     """

@@ -18,7 +18,7 @@ REQUIREMENTS_IN = [  # this is actually ordered, as files depend on each other
     (path.parent / f"{path.stem}.in", path) for path in REQUIREMENTS.values()
 ]
 
-SUPPORTED = ["3.10", "pypy3.10", "3.11", "3.12", "3.13"]
+SUPPORTED = ["pypy3.11", "3.12", "3.13", "3.14"]
 LATEST = SUPPORTED[-1]
 
 nox.options.default_venv_backend = "uv|virtualenv"
@@ -74,23 +74,20 @@ def pytest_tests(session):
     session.run("pytest", *session.posargs, PACKAGE)
 
 
-@session()
-def audit(session):
-    """
-    Audit dependencies for vulnerabilities.
-    """
-    session.install("pip-audit", ROOT)
-    session.run("python", "-m", "pip_audit")
-
-
 @session(tags=["build"])
 def build(session):
     """
     Build a distribution suitable for PyPI and check its validity.
     """
-    session.install("build", "docutils", "twine")
+    session.install("build[uv]", "docutils", "twine")
     with TemporaryDirectory() as tmpdir:
-        session.run("python", "-m", "build", ROOT, "--outdir", tmpdir)
+        session.run(
+            "pyproject-build",
+            "--installer=uv",
+            ROOT,
+            "--outdir",
+            tmpdir,
+        )
         session.run("twine", "check", "--strict", tmpdir + "/*")
         session.run(
             "python",

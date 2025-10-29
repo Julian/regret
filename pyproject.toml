@@ -8,7 +8,7 @@ source = "vcs"
 [project]
 name = "regret"
 description = "You made a thing, but now you wish it'd go away... Deprecations, a love story."
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 readme = "README.rst"
 keywords = ["deprecation", "deprecations", "regret", "tooling", "maintenance"]
 authors = [
@@ -20,10 +20,10 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
