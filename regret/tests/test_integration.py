@@ -140,9 +140,7 @@ class TestRegret(SynchronousTestCase):
         self.assertEqual(result, 12)
 
     def test_custom_qualname(self):
-        etacerped = regret.Deprecator(
-            name_of=lambda object: object.__name__[::-1],
-        )
+        etacerped = regret.Deprecator(name_of=lambda obj: obj.__name__[::-1])
 
         @etacerped.callable(version="v1.2.3")
         def calculate():
@@ -171,7 +169,7 @@ class TestRegret(SynchronousTestCase):
             )
 
         deprecate = regret.Deprecator(
-            name_of=lambda object: "OBJECTNAME",
+            name_of=lambda obj: "OBJECTNAME",
             new_docstring=new_docstring,
         )
 
