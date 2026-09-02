@@ -1097,6 +1097,8 @@ class TestDeprecator(TestCase):
                     return x + y + z
                 """,
             ),
+            globals(),
+            local,
         )
         add3 = local["add3"]
 
@@ -1127,6 +1129,8 @@ class TestDeprecator(TestCase):
                     return x + y + z
                 """,
             ),
+            globals(),
+            local,
         )
         add3 = local["add3"]
 
@@ -1395,6 +1399,8 @@ class TestDeprecator(TestCase):
                     return x + y + z
                 """,
             ),
+            globals(),
+            local,
         )
         add3 = local["add3"]
 
@@ -1442,6 +1448,8 @@ class TestDeprecator(TestCase):
                     return x + y + z
                 """,
             ),
+            globals(),
+            local,
         )
         add3 = local["add3"]
 
@@ -1956,7 +1964,7 @@ class TestUnwrap(TestCase):
         )
 
     def test_inheritance(self):
-        class Class:
-            pass
-
-        self.assertUnwraps(regret.inheritance(version="1.2.3"), Adder)
+        # inspect.unwrap no longer follows __wrapped__ on classes, but
+        # the attribute is still there for anyone who wants it.
+        deprecated = regret.inheritance(version="1.2.3")(Adder)
+        self.assertIs(deprecated.__wrapped__, Adder)

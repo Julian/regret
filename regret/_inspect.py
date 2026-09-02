@@ -32,9 +32,9 @@ class SignatureWithRegret:
     """
 
     _signature: inspect.Signature = field(alias="signature")
-    _deprecated: list[str] = field(factory=list, alias="deprecated")
+    _deprecated: list[str] = field(factory=list[str], alias="deprecated")
     _defaults_for_optional_parameters: dict[str, Any] = field(
-        factory=dict,
+        factory=dict[str, Any],
         alias="defaults_for_optional_parameters",
     )
     kwargs_parameter_name: str | None = field(init=False)
@@ -48,7 +48,7 @@ class SignatureWithRegret:
                 (
                     name
                     for name, parameter in reversed(
-                        self._signature.parameters.items(),
+                        list(self._signature.parameters.items()),
                     )
                     if parameter.kind == inspect.Parameter.VAR_KEYWORD
                 ),

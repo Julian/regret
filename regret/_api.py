@@ -259,18 +259,23 @@ class Regretted:
             **kwargs,
         )
 
-    def with_parameter(self, emit: Emitter, name: str):
+    def with_parameter(self, emit: Callable[..., None], name: str):
         self.signature = self.signature.with_parameter(name)
         return self.wrapper(emit=emit)
 
-    def with_optional_parameter(self, emit: Emitter, name: str, default: Any):
+    def with_optional_parameter(
+        self,
+        emit: Callable[..., None],
+        name: str,
+        default: Any,
+    ):
         self.signature = self.signature.with_optional_parameter(
             name=name,
             default=default,
         )
         return self.wrapper(emit=emit)
 
-    def wrapper(self, emit: Emitter):
+    def wrapper(self, emit: Callable[..., None]):
         @wraps(self.callable)
         def wrapper(*args: Any, **kwargs: Any):
             bound = self.signature.bind(*args, **kwargs)

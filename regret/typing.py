@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any, Protocol
 if TYPE_CHECKING:
     from datetime import date
 
+    from regret.emitted import Deprecation
+
 
 class Deprecatable(Protocol):
     """
@@ -30,8 +32,8 @@ class Emitter(Protocol):
 
     def __call__(
         self,
-        extra_stacklevel: int = ...,
-        **kwargs: Any,
+        deprecation: Deprecation,
+        extra_stacklevel: int,
     ) -> None:
         """
         Somehow emit that something deprecated has been used.
@@ -50,6 +52,7 @@ class new_docstring(Protocol):
 
     def __call__(
         self,
+        *,
         object: Any,
         name_of: name_of,
         replacement: Any | None,

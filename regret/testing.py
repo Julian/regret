@@ -12,10 +12,8 @@ from attrs import field, frozen
 from regret.emitted import Deprecation
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Generator
     from typing import Any
-
-    from regret.typing import Deprecatable
 
 
 class ExpectedDifferentDeprecations(AssertionError):
@@ -33,9 +31,9 @@ class Recorder:
     afterwards.
     """
 
-    _saw: list[Deprecatable] = field(factory=list, alias="saw")
+    _saw: list[Deprecation] = field(factory=list[Deprecation], alias="saw")
 
-    def emit(self, deprecation: Deprecatable, extra_stacklevel: int) -> None:
+    def emit(self, deprecation: Deprecation, extra_stacklevel: int) -> None:
         """
         "Emit" a deprecation by simply storing it.
 
@@ -53,7 +51,7 @@ class Recorder:
     def expect_deprecations(
         self,
         *deprecations: Deprecation,
-    ) -> Iterator[None]:
+    ) -> Generator[None, None, None]:
         """
         Expect a given set of deprecations to be emitted.
         """
